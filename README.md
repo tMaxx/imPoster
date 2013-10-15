@@ -1,4 +1,4 @@
 imPoster
 ========
 
-Quite a communicator
+Quite a communicator. A work in progress project.
