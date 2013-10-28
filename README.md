@@ -1,4 +1,4 @@
-imPoster
+theOrganizer
 ========
 
-Quite a communicator. A work in progress project.
+Quite a organizer. A work in progress project.
