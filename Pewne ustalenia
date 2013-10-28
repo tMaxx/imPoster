@@ -18,3 +18,46 @@ I to wszystko ... bez szczegółów, chodzi o zarys portalu.
 Czy wszyscy się ze mną zgadzają?
 Jeżeli nie .. to dopisać poniżej co się ma na myśli (nie pisać, o szczegółach jak rejestracja na stronie tylko o konkretach jak ja powyżej). 
  
+
+
+-----
+
+Ustalenia @Maxx:
+- portal organizer,
+- służyć ma do grupowania zadań do realizacji przez 1-n osób,
+	* właściciel listy zadań jest jeden
+- zadanie nie musi być wydarzeniem
+	* lista zakupów
+	* życiowe zadania do realizacji na następne 10 lat
+- do danego wydarzenia-listy można zaprosić osoby, które mogą mieć różny dostęp: sprawa do przegadania,
+	* generalnie od odznaczania zadań jako zakończone do edycji treści i dodawania nowych
+	* problem jest tylko z przedstawieniem tego w bazie
+- z oceniania wolałbym ograniczyć się do zwykłego systemu binarnego
+	* brak oceny lub ocena pozytywna - moar do, moar profit
+	* ewentualnie jakaś prosta formułka matematyczna obliczająca ocenę na podstawie aktywności
+- na swoim profilu publicznym mam otrzymane oceny i posty, które sam sobie wrzuciłem
+	* ideę fejsbuczka bym zostawił, forma narracji zawsze się przyda
+	* do przegadania opcja wrzucania postów na mojego walla przez innych userów
+
+Mockup wyglądu:
+____________________________________________________
+LOGO LOGO LOGO              | login/logout  settings
+LOGO LOGO LOGO              |______________________
+----------------------------------------------------
+[add new] [manage] [see active]            [ratings]
+----------------------------------------------------
+RECENT EVENTS:                  |  Lista znajomych
+                                |   znajomy 1
+wydarzenia obecne               |  *znajomy 2
+nowy content z innych użyszk.   |   znajomy 6
+opinie na mój temat             |
+itd,itp                         |  Lista moich list
+                                |   zakupy1
+                                |   impreza
+                                |   przeprowadzka
+_______________________________/ \__________________
+
+'recent events': zbieramy wszystko, co się dzieje itd
+'lista znajomych': klikasz w znajomego i rozwijasz rozmowę
+'ratings' u góry: niekoniecznie tylko jeden przycisk, można różnie to rozwiązać
+
