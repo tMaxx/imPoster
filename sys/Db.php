@@ -8,6 +8,13 @@ class Db
 	
 	function __construct(argument)
 	{
-		# code...
+		
 	}
+
+	function init()
+	{
+		
+	}
+
+
 }
