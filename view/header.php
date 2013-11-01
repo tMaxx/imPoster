@@ -1,0 +1,3 @@
+Logo
+menu
+and stuff
