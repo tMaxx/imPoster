@@ -1,19 +1,32 @@
 <?php
 /**
-* Db - Database support class
-*/
-class Db
+ * DB - Database support class
+ */
+class DB extends NoInst
 {
-	
-	
-	function __construct(argument)
+	//db object
+	private static $db = NULL;
+	//current query
+	private static $qy = NULL;
+
+	///Initialize object, connect to MySQL DB
+	static function init()
 	{
-		
+		//! @todo fix
+		$db = new mysqli();
+
+		if($db->connect_errno)
+			die('Error while connecting to DB');
 	}
 
-	function init()
+	/**
+	 * Perform a query
+	 * @param $q query
+	 * 
+	 */
+	static function query($q)
 	{
-		
+		$this->qy = $db->query($q);
 	}
 
 

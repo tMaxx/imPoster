@@ -2,7 +2,7 @@
 /**
 * H - Static helpers
 */
-class H
+class H extends NoInst
 {
 	/**
 	 * Return string with cosequentive newlines/spaces limited to 2

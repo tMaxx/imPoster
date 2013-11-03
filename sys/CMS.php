@@ -1,18 +1,13 @@
 <?php
 /**
-* Cms - basic content management class
-*/
-class Cms
+ * CMS - basic content management class
+ */
+class CMS extends NoInst
 {
-	//self
-	private $single = NULL;
-	//Db: database object
-	private $db = NULL;
-	
-	function __construct()
-	{
-		return;
-	}
+	//HTTP headers to be sent through header('here');
+	private static $HTTPheaders = array();
+	//everything that wil be added in <head>here</head>
+	private static $HTMLhead = array();
 
 	/**
 	 * Perform any needed operations before executing any custom scripts
@@ -39,6 +34,15 @@ class Cms
 		
 	}
 
+	/**
+	 * Add new header to be set later
+	 * @param $html
+	 */
+	public static function addToHead($html)
+	{
+		
+	}
+	
 	/**
 	 * Includes file in param
 	 * MUST NOT BE FROM /view!

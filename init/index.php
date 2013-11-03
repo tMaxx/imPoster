@@ -1,1 +1,2 @@
-nic tu nie ma :P
+<?php
+include_once './init.php';
