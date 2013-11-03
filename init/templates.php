@@ -8,7 +8,7 @@
  */
 function class__autoload($name)
 {
-
+	
 }
 
 spl_autoload_register('class__autoload');

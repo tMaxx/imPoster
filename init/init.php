@@ -3,8 +3,6 @@
 define('NOW', time());
 define('HOST', $_SERVER['HTTP_HOST']);
 
-include './templates.php';
-
 CMS::init();
 DB::init();
 
