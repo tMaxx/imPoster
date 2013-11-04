@@ -1,0 +1,41 @@
+-opracowanie Wymagañ
+-opracowanie Specyfikacji 
+-opracowanie Diagramów UML
+-Wynajêcie Serwera Fizycznego
+-Zaprojektowanie Bazy Danych 
+-Przetestowanie bazy danycy(system Ms SQL SERVER 2012)
+-opracowanie zestawu zapytañ SQL do aplikacji klient
+-opracowanie interfejsu graficznego do strony inernetowej,
+-Zaprojektowanie Strony internetowej,
+-Zaprogramowanie strony internetowej,
+-Przetestowanie strony internetowej pod k¹tem wyœwietlania na przegladarce
+-integracja Bazy danych ze stron¹ internetow¹ w tym wprowadzenie odpowiedniego
+zestawu zapytañ SQL do tej strony,
+-Zaprojektowanie Aplikacji Serweri Klient:
+	*Zaprojektowanie interfejsu sieciowego(protoko³u)
+	*¿aprojektowanie interfejsu API (specyfikacja komunikowania siê klienta 
+	z serwerem)
+	*Zaprojektowanie interfejsu graficznego klienta,
+	*Zaimplementowanie mechanizmu dodawania znajomych,
+	*Zaimlplementowanie mechanizmu wyœwietlania znajomych,
+	*integracja powy¿szych modu³ów,
+	*Testowanie wstêpnej wersji aplikacji serwer(z u¿yciem aplikacji klient
+	napisanycm w .net)(serwer dla jednego klienta),
+	*zaimplementowanie mo¿liwoœci ³aczenia sie do serwera wielu klientów
+	(wielow¹tkowoœæ)
+	*Testowanie wielow¹tkowoœci w kliencie,
+	*Zaimplementowanie mo¿liwoœci komunikowania sie miêdzy klientami przez serwer,
+	*zaimplementowanie mo¿liwoœci komunikowania siê w grupach
+	*Zaimplementowanie kalendarza,
+	*zailplementowanie mo¿liwoœci dodawania zdarzeñ (organizer)
+	*Zaimplementowanie mechanizmu przypomnienia o zdarzeniach,
+	*Zaimplementowanie mo¿liwoœci wyboru dzwonka sygnalizuj¹cego przypomnienie
+	*Integracja powy¿szych modu³ów w ca³oœæ,
+	*Testowanie Aplikacji serwer i klient,
+-Zaprojektowanie Aplikacji Serwer na platformê Java
+-Zaprojektowanie aplikacji klient na platformê Android oraz WindowsPhone
+(powy¿sze 2 myœlniki z oparciem na pierwotnym kodzie),
+Testowanie aplikacji w poszukiwaniu b³êdów,
+-Zaimplementowanie w przegladarce mo¿liwoœci pobrania klienta,
+-Utworzenie dokumentacji. 
+	
