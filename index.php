@@ -7,4 +7,3 @@ unset($_GET['_req']);
 
 //redirect to init file, nothing else to do here
 include_once 'init/index.php';
-die;

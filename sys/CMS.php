@@ -14,7 +14,7 @@ class CMS extends NoInst
 	 */
 	public static function init()
 	{
-
+		self::headers();
 	}
 
 	/**
@@ -31,7 +31,14 @@ class CMS extends NoInst
 	 */
 	public static function addHeader($header)
 	{
-		
+		if (!is_array($header))
+			$header = array($header);
+
+		foreach ($header as $v) {
+			if(!is_string($v))
+				throw new Exception('$header: not a string!');
+			self::$HTTPheaders[] = $v;
+		}
 	}
 
 	/**
@@ -40,12 +47,18 @@ class CMS extends NoInst
 	 */
 	public static function addToHead($html)
 	{
-		
+		if (!is_array($header))
+			$header = array($header);
+
+		foreach ($header as $v) {
+			if(!is_string($v))
+				throw new Exception('$html: not a string!');
+			self::$HTMLhead[] = $v;
+		}
 	}
 	
 	/**
 	 * Includes file in param
-	 * MUST NOT BE FROM /view!
 	 * @param $file path to file, relative to /
 	 * @return bool true on success
 	 */
@@ -61,16 +74,16 @@ class CMS extends NoInst
 	 */
 	public static function fileExists($file)
 	{
-
+		return file_exists(ROOT.$file);
 	}
 
 	/**
 	 * Gets a file from /view and renders it onto screen
 	 * @param $view path, relative to /view (e: 'user/index')
 	 */
-	public static function render($view)
-	{
+	/*public static function render($view)
+	{//moved to View
 		
-	}
+	}*/
 
 }

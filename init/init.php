@@ -3,7 +3,9 @@
 define('NOW', time());
 define('HOST', $_SERVER['HTTP_HOST']);
 
-CMS::init();
-DB::init();
-
-
+try {
+	CMS::init();
+	DB::init();
+} catch(Exception $e) {
+	echo $e->getMessage().'\n';
+}
