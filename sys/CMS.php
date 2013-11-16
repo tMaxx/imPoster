@@ -1,4 +1,4 @@
-<?php
+<?php ///revCMS /sys/CMS.php
 /**
  * CMS - basic content management class
  */
@@ -13,16 +13,22 @@ class CMS extends NoInst
 	///POST parameters
 	private static $POST = array();
 	///Request path
-	private static $path = '';
+	private static $path = array();
 
 	/**
 	 * Perform any needed operations before executing any custom scripts
 	 */
-	private static function init()
+	public static function init()
 	{
-		$tpath = explode('/', $_GET['_req']);
+		if(self::$lockdown)
+			return;
 
-		unset($_GET['_req']);
+		//revamp request to something more readable
+		$tmppath = explode('/', REQUEST);
+
+		//rlog($tmppath,true);
+		//FIXME: hack'd
+		$tmppath = (array) $tmppath;
 
 		//config DB, clear config
 		DB::connect($SQL_CONNECTION);
@@ -33,13 +39,17 @@ class CMS extends NoInst
 
 		//clean up
 		unset($SQL_CONNECTION, $_GET, $_POST);
+		self::$lockdown = TRUE;
 	}
 
 	/**
 	 * Run this house
 	 */
-	private static function go()
+	public static function go()
 	{
+		if(self::$lockdown)
+			return;
+
 		self::init();
 	
 		//TODO: Retrieve the path, generate view
@@ -57,7 +67,7 @@ class CMS extends NoInst
 	/**
 	 * Set all needed headers
 	 */
-	public static function headers()
+	private static function headers()
 	{
 		foreach (self::$HTTPheaders as $v) {
 			header($v);

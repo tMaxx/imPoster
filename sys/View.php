@@ -4,9 +4,6 @@
 */
 class View extends NoInst
 {
-	///Path array, with values
-	private static $pathArray = array();
-
 	/**
 	 * Check if view exists
 	 * @param $path relative to /view

@@ -10,7 +10,7 @@ php_flag zlib.output_compression On
 
 RewriteEngine on
 RewriteBase /
-RewriteRule . index.php?_req= [QSA, L]
+RewriteRule ^(.*)$ index.php?__req__=$1 [L,QSA]
 
 ErrorDocument 404 /error/404
 ErrorDocument 400 /error/400
