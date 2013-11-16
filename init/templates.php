@@ -3,6 +3,32 @@
 
 
 /**
+ * Format error to something readable
+ */
+function revCMS_e_pretty_print($e)
+{
+	$trace = $e->getTrace();
+
+	if($e instanceof Error)
+		$result = 'Error: "';
+	elseif($e instanceof Exception)
+		$result = 'Exception: "';
+	else
+		throw new Error("Param $e is neither an exception nor error! WTH are you doing??");
+
+	$result .= $e->getMessage();
+	$result .= '" @ ';
+	if($trace[0]['class']) {
+	  $result .= $trace[0]['class'];
+	  $result .= $trace[0]['type'];
+	}
+	$result .= $trace[0]['function'];
+	$result .= '('.$trace[0]['args'].');<br />';
+
+	return $result;
+}
+
+/**
  * Custom error handler
  * @params standard params
  */
@@ -30,23 +56,22 @@ set_error_handler('revCMS_error_handler', E_ALL);
  * @param $class class name
  * @todo everything
  */
-function class__autoload($class)
+function revCMS_class_autoload($class)
 {
 	const sysTab = array_diff(scandir(ROOT.'/sys/'), array('..', '.'));
 
-	$class .= '.php';
+	$class .= ;
 
-	if(in_array($class, sysTab))
-		require_once ROOT.'/sys/'.$class;
-	elseif(CMS::fileExists('/app/'.$class))
-		require_once ROOT.'/app/'.$class;
+	if(in_array($class.'.php', sysTab)){
+		require_once ROOT.'/sys/'.$class.'.php';
+		$class::init();
+	} elseif(CMS::fileExists('/app/'.$class.'.php'))
+		require_once ROOT.'/app/'.$class.'.php';
 	else
 		throw new Exception('Class not found: '.$class);
 }
 
-spl_autoload_register('class__autoload');
-
-
+spl_autoload_register('revCMS_class_autoload');
 
 /**
  * Log handling function
@@ -76,6 +101,8 @@ class NoInst
 {
 	function __construct()
 	{	log('Thou shall not create a new object: '.get_class($this), TRUE); }
+
+	public static function init() {}
 }
 
 

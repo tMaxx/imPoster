@@ -4,16 +4,51 @@
  */
 class CMS extends NoInst
 {
-	//HTTP headers to be sent through header('here');
+	///HTTP headers to be sent through header('here');
 	private static $HTTPheaders = array();
-	//everything that wil be added in <head>here</head>
+	///Everything that wil be added in <head>here</head>
 	private static $HTMLhead = array();
+	///GET parameters
+	private static $GET = array();
+	///POST parameters
+	private static $POST = array();
+	///Request path
+	private static $path = array();
+
+	/**
+	 * Clean up anything that is not needed for execution
+	 */
+	private static function prepare()
+	{
+		//config DB, clear config
+		DB::connect($SQL_CONNECTION);
+
+		//set variables
+		self::$GET = $_GET;
+		self::$POST = $_POST;
+
+		unset($SQL_CONNECTION, $_GET, $_POST);
+	}
+
+	/**
+	 * Run this house
+	 */
+	private static function go()
+	{
+		self::init();
+		//Retrieve the path, generate view
+
+
+		self::headers();
+	}
 
 	/**
 	 * Perform any needed operations before executing any custom scripts
 	 */
 	public static function init()
 	{
+		self::prepare();
+		self::go();
 		self::headers();
 	}
 
@@ -22,7 +57,9 @@ class CMS extends NoInst
 	 */
 	public static function headers()
 	{
-		
+		foreach (self::$HTTPheaders as $v) {
+			header($v);
+		}
 	}
 
 	/**
@@ -34,10 +71,13 @@ class CMS extends NoInst
 		if (!is_array($header))
 			$header = array($header);
 
-		foreach ($header as $v) {
+		foreach ($header as $k => $v) {
 			if(!is_string($v))
 				throw new Exception('$header: not a string!');
-			self::$HTTPheaders[] = $v;
+			if(is_numeric($k))
+				self::$HTTPheaders[] = $v;
+			else
+				self::$HTTPheaders[$k] = $v;
 		}
 	}
 
@@ -62,9 +102,23 @@ class CMS extends NoInst
 	 * @param $file path to file, relative to /
 	 * @return bool true on success
 	 */
-	public static function incFile($file)
+	public static function safeInclude($file)
 	{
+		if($r = self::fileExists($file))
+			include ROOT.$file;
+		return $r;
+	}
 
+	/**
+	 * Includes file in param
+	 * @param $file path to file, relative to /
+	 * @return bool true on success
+	 */
+	public static function safeIncludeOnce($file)
+	{
+		if($r = self::fileExists($file))
+			include_once ROOT.$file;
+		return $r;
 	}
 
 	/**
@@ -76,14 +130,5 @@ class CMS extends NoInst
 	{
 		return file_exists(ROOT.$file);
 	}
-
-	/**
-	 * Gets a file from /view and renders it onto screen
-	 * @param $view path, relative to /view (e: 'user/index')
-	 */
-	/*public static function render($view)
-	{//moved to View
-		
-	}*/
 
 }

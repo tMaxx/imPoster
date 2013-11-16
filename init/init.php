@@ -4,8 +4,7 @@ define('NOW', time());
 define('HOST', $_SERVER['HTTP_HOST']);
 
 try {
-	CMS::init();
-	DB::init();
+	CMS::go();
 } catch(Exception $e) {
-	echo $e->getMessage().'\n';
+	echo revCMS_error_pretty_print($e);
 }
