@@ -16,9 +16,9 @@ class CMS extends NoInst
 	private static $path = array();
 
 	/**
-	 * Clean up anything that is not needed for execution
+	 * Perform any needed operations before executing any custom scripts
 	 */
-	private static function prepare()
+	private static function init()
 	{
 		//config DB, clear config
 		DB::connect($SQL_CONNECTION);
@@ -27,6 +27,7 @@ class CMS extends NoInst
 		self::$GET = $_GET;
 		self::$POST = $_POST;
 
+		//clean up
 		unset($SQL_CONNECTION, $_GET, $_POST);
 	}
 
@@ -36,19 +37,12 @@ class CMS extends NoInst
 	private static function go()
 	{
 		self::init();
-		//Retrieve the path, generate view
+	
+		//TODO: Retrieve the path, generate view
 
 
-		self::headers();
-	}
+		self::template($body);
 
-	/**
-	 * Perform any needed operations before executing any custom scripts
-	 */
-	public static function init()
-	{
-		self::prepare();
-		self::go();
 		self::headers();
 	}
 
@@ -129,6 +123,46 @@ class CMS extends NoInst
 	public static function fileExists($file)
 	{
 		return file_exists(ROOT.$file);
+	}
+
+	/**
+	 * Get value(s) from $_GET
+	 * @param $in string|array
+	 * string: single variable name
+	 * array: values (as values, not keys), to be filled
+	 * @return string|array
+	 * string: single value
+	 * array: returns filled array with variable names as keys
+	 */
+	public function varGet($in)
+	{
+		if(is_array($in))
+			foreach ($in as $k)
+				$in[$k] = (isset(self::$GET[$k]) ? self::$GET[$k] : NULL);
+		else
+			$in = (isset(self::$GET[$in]) ? self::$GET[$in] : NULL);
+
+		return $in;
+	}
+
+	/**
+	 * Get value(s) from $_POST
+	 * @param $in string|array
+	 * string: single variable name
+	 * array: values (as values, not keys), to be filled
+	 * @return string|array
+	 * string: single value
+	 * array: returns filled array with variable names as keys
+	 */
+	public function varPost($in)
+	{
+		if(is_array($in))
+			foreach ($in as $k)
+				$in[$k] = (isset(self::$POST[$k]) ? self::$POST[$k] : NULL);
+		else
+			$in = (isset(self::$POST[$in]) ? self::$POST[$in] : NULL);
+
+		return $in;
 	}
 
 }
