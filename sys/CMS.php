@@ -13,13 +13,17 @@ class CMS extends NoInst
 	///POST parameters
 	private static $POST = array();
 	///Request path
-	private static $path = array();
+	private static $path = '';
 
 	/**
 	 * Perform any needed operations before executing any custom scripts
 	 */
 	private static function init()
 	{
+		$tpath = explode('/', $_GET['_req']);
+
+		unset($_GET['_req']);
+
 		//config DB, clear config
 		DB::connect($SQL_CONNECTION);
 
@@ -39,8 +43,12 @@ class CMS extends NoInst
 		self::init();
 	
 		//TODO: Retrieve the path, generate view
+		ob_start();
 
+		View::r();
 
+		$body = ob_get_contents();
+		ob_end_clean();
 		self::template($body);
 
 		self::headers();
@@ -67,7 +75,7 @@ class CMS extends NoInst
 
 		foreach ($header as $k => $v) {
 			if(!is_string($v))
-				throw new Exception('$header: not a string!');
+				throw new Exception('Parameter is not a string!');
 			if(is_numeric($k))
 				self::$HTTPheaders[] = $v;
 			else
@@ -86,7 +94,7 @@ class CMS extends NoInst
 
 		foreach ($header as $v) {
 			if(!is_string($v))
-				throw new Exception('$html: not a string!');
+				throw new Exception('Parameter is not a string!');
 			self::$HTMLhead[] = $v;
 		}
 	}
@@ -134,7 +142,7 @@ class CMS extends NoInst
 	 * string: single value
 	 * array: returns filled array with variable names as keys
 	 */
-	public function varGet($in)
+	public static function varGet($in)
 	{
 		if(is_array($in))
 			foreach ($in as $k)
@@ -154,7 +162,7 @@ class CMS extends NoInst
 	 * string: single value
 	 * array: returns filled array with variable names as keys
 	 */
-	public function varPost($in)
+	public static function varPost($in)
 	{
 		if(is_array($in))
 			foreach ($in as $k)
@@ -163,6 +171,15 @@ class CMS extends NoInst
 			$in = (isset(self::$POST[$in]) ? self::$POST[$in] : NULL);
 
 		return $in;
+	}
+
+	/**
+	 * Return $path variable
+	 * @return string
+	 */
+	public static function getPath()
+	{
+		return self::$path;
 	}
 
 }

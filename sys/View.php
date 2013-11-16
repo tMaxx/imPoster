@@ -4,23 +4,27 @@
 */
 class View extends NoInst
 {
+	///Path array, with values
+	private static $pathArray = array();
+
 	/**
 	 * Check if view exists
 	 * @param $path relative to /view
 	 * @return bool
 	 */
-	static function viewExists($path)
+	private static function viewExists($path)
 	{
-		return Cms::fileExists('/view'.$path);
+		return CMS::fileExists('/view'.$path);
 	}
 
 	/**
 	 * Render view specified in param
 	 * @param $path relative to /view
 	 */
-	static function r($path)
+	public static function r($path)
 	{
-		Cms::r('/view'.$path);
+		if(!CMS::safeInclude($path))
+			throw new Exception('View "'.$path.'" does not exist');
 	}
 
 }

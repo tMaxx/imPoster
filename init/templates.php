@@ -1,40 +1,44 @@
 <?php ///revCMS /init/templates.php
 ///Various class and function templates
 
-
 /**
  * Format error to something readable
+ * @param $e Error/Exception
  */
 function revCMS_e_pretty_print($e)
 {
-	$trace = $e->getTrace();
+	$result = array();
 
-	if($e instanceof Error)
-		$result = 'Error: "';
+	if($e instanceof Error || $e instanceof ErrorException)
+		$result[] = 'Error: "';
 	elseif($e instanceof Exception)
-		$result = 'Exception: "';
+		$result[] = 'Exception: "';
 	else
-		throw new Error("Param $e is neither an exception nor error! WTH are you doing??");
+		die("FATAL: programmer is an instanceof PEBKAC");
 
-	$result .= $e->getMessage();
-	$result .= '" @ ';
+	$trace = $e->getTrace();
+	$result[] = $e->getMessage();
+	$result[] = '" @ ';
 	if($trace[0]['class']) {
-	  $result .= $trace[0]['class'];
-	  $result .= $trace[0]['type'];
+	  $result[] = $trace[0]['class'];
+	  $result[] = $trace[0]['type'];
 	}
-	$result .= $trace[0]['function'];
-	$result .= '('.$trace[0]['args'].');<br />';
+	$result[] = $trace[0]['function'];
+	$result[] = '();<br />Full stack trace:<br />';
+	$result[] = $e->getTraceAsString();
 
-	return $result;
+	echo implode('', $result);
 }
+
+set_exception_handler('revCMS_e_pretty_print');
 
 /**
  * Custom error handler
- * @params standard params
+ * @param standard params
  */
 function revCMS_error_handler($errno, $errstr, $errfile, $errline, $errcontext)
 {
-    $constants = get_defined_constants(1);
+    static $constants = get_defined_constants(1);
 
     $eName = 'Unknown error type';
     foreach ($constants['Core'] as $key => $value) {
@@ -46,7 +50,7 @@ function revCMS_error_handler($errno, $errstr, $errfile, $errline, $errcontext)
 
     $msg = $eName . ': ' . $errstr . ' in ' . $errfile . ', line ' . $errline;
 
-    throw new Exception($msg);
+    revCMS_e_pretty_print(new Error($msg));
 }
 
 set_error_handler('revCMS_error_handler', E_ALL);
@@ -68,7 +72,7 @@ function revCMS_class_autoload($class)
 	} elseif(CMS::fileExists('/app/'.$class.'.php'))
 		require_once ROOT.'/app/'.$class.'.php';
 	else
-		throw new Exception('Class not found: '.$class);
+		throw new Error('Class not found: '.$class);
 }
 
 spl_autoload_register('revCMS_class_autoload');
@@ -80,9 +84,7 @@ spl_autoload_register('revCMS_class_autoload');
  */
 function log($msg, $die = FALSE)
 {
-	$bt = debug_backtrace();
-	$caller = array_shift($bt);
-
+	$caller = array_shift(debug_backtrace());
 	$msg = '[Log] '.$caller['file'].'@'.$caller['line'].': '.$msg;
 
 	if($die)
@@ -91,19 +93,16 @@ function log($msg, $die = FALSE)
 		echo $msg;
 }
 
-
-
 /**
  * "No instance" class
  * For every class that should not have an instance
  */
 class NoInst
 {
+	private static $lockdown = FALSE;
+
 	function __construct()
-	{	log('Thou shall not create a new object: '.get_class($this), TRUE); }
+	{	throw new Error('Thou shall not create a new object!'); }
 
 	public static function init() {}
 }
-
-
-
