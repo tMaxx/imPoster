@@ -24,4 +24,13 @@ class View extends NoInst
 			throw new Exception('View "'.$path.'" does not exist');
 	}
 
+	/**
+	 * Try to retrieve and render view, handle errors
+	 * @param $view
+	 */
+	public static function go($view)
+	{
+		
+	}
+
 }

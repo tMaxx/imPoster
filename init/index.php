@@ -124,11 +124,6 @@ set_error_handler('revCMS_error_handler', E_ALL);
  */
 function revCMS_fatal_handler()
 {
-	$errstr	= '[shutdown]';
-	$errfile = '[unknown file]';
-	$errno = E_CORE_ERROR;
-	$errline = '[?]';
-
 	$error = error_get_last();
 
 	if($error !== NULL) {
@@ -136,8 +131,8 @@ function revCMS_fatal_handler()
 		$errfile = $error['file'];
 		$errline = $error['line'];
 		$errstr	= '<b>FATAL</b>: '.$error['message'];
+		revCMS_error_handler($errno, $errstr, $errfile, $errline, NULL);
 	}
-	revCMS_error_handler($errno, $errstr, $errfile, $errline, NULL);
 }
 
 register_shutdown_function('revCMS_fatal_handler');

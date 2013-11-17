@@ -24,11 +24,23 @@ class CMS extends NoInst
 			return;
 
 		//revamp request to something more readable
-		$tmppath = explode('/', REQUEST);
+		$ipath = explode('/', REQUEST);
 
-		//rlog($tmppath,true);
-		//FIXME: hack'd
-		$tmppath = (array) $tmppath;
+		//it may be something in first level - we don't care
+		$ipath = (array) $ipath;
+
+		//full request path
+		$rpath = '';
+		foreach($ipath as $k => $v) {
+			if(empty($v) || is_numeric($k))
+				continue;
+			//just the leftmost
+			$t = explode(':', $v, 2);
+			$t = (array) $t;
+			$rpath .= $t[0];
+			self::$path[$t[0]] = isset($t[1]) ? $t[1] : NULL;
+		}
+		self::$path[0] = $rpath
 
 		//config DB, clear config
 		DB::connect($SQL_CONNECTION);
@@ -55,7 +67,7 @@ class CMS extends NoInst
 		//TODO: Retrieve the path, generate view
 		ob_start();
 
-		View::r();
+		View::go(self::$path[0]);
 
 		$body = ob_get_contents();
 		ob_end_clean();
@@ -69,9 +81,8 @@ class CMS extends NoInst
 	 */
 	private static function headers()
 	{
-		foreach (self::$HTTPheaders as $v) {
+		foreach (self::$HTTPheaders as $v)
 			header($v);
-		}
 	}
 
 	/**
