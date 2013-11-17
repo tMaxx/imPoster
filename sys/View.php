@@ -26,11 +26,11 @@ class View extends NoInst
 
 	/**
 	 * Try to retrieve and render view, handle errors
-	 * @param $view
+	 * @param $view view path to render
+	 * @param $flags single, partial, full, recursive, ...
 	 */
-	public static function go($view)
+	public static function go($view, $flags = NULL)
 	{
 		
 	}
-
 }

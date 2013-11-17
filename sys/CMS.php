@@ -40,10 +40,10 @@ class CMS extends NoInst
 			$rpath .= $t[0];
 			self::$path[$t[0]] = isset($t[1]) ? $t[1] : NULL;
 		}
-		self::$path[0] = $rpath
+		self::$path[0] = $rpath;
 
 		//config DB, clear config
-		DB::connect($SQL_CONNECTION);
+		DB::go($SQL_CONNECTION);
 
 		//set variables
 		self::$GET = $_GET;
@@ -52,6 +52,14 @@ class CMS extends NoInst
 		//clean up
 		unset($SQL_CONNECTION, $_GET, $_POST);
 		self::$lockdown = TRUE;
+	}
+
+	/**
+	 * Pre-exit commands
+	 */
+	protected static function end()
+	{
+		DB::end();
 	}
 
 	/**
@@ -74,6 +82,7 @@ class CMS extends NoInst
 		self::template($body);
 
 		self::headers();
+		self::end();
 	}
 
 	/**
@@ -201,6 +210,14 @@ class CMS extends NoInst
 	public static function getPath()
 	{
 		return self::$path;
+	}
+
+	/**
+	 * Render template with included body
+	 */
+	protected static function template($body)
+	{
+
 	}
 
 }

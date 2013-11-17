@@ -8,8 +8,8 @@ $SYS_MODULES = array();
 $APP_MODULES = array();
 
 $SQL_CONNECTION = array(
-	'target' => NULL,
-	'port' => NULL,
+	'host' => NULL,
 	'user' => NULL,
 	'pass' => NULL,
+	'dbname' => NULL,
 );
