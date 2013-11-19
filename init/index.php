@@ -12,7 +12,7 @@ class NoInst
 	function __construct()
 	{	throw new Error('Thou shall not create a new object!'); }
 
-	static function init()
+	static function go()
 	{	self::$lockdown = TRUE; }
 }
 
@@ -124,15 +124,17 @@ set_error_handler('revCMS_error_handler', E_ALL);
  */
 function revCMS_fatal_handler()
 {
+
 	$error = error_get_last();
 
 	if($error !== NULL) {
-		$errno	 = $error['type'];
+		$errno = $error['type'];
 		$errfile = $error['file'];
 		$errline = $error['line'];
 		$errstr	= '<b>FATAL</b>: '.$error['message'];
 		revCMS_error_handler($errno, $errstr, $errfile, $errline, NULL);
-	}
+	} else
+		CMS::end();
 }
 
 register_shutdown_function('revCMS_fatal_handler');

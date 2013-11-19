@@ -6,19 +6,18 @@ class CMS extends NoInst
 {
 	///HTTP headers to be sent through header('here');
 	private static $HTTPheaders = array();
-	///Everything that wil be added in <head>here</head>
-	private static $HTMLhead = array();
 	///GET parameters
 	private static $GET = array();
 	///POST parameters
 	private static $POST = array();
 	///Request path
-	private static $path = array();
+	private static $PATH = array();
 
 	/**
 	 * Perform any needed operations before executing any custom scripts
+	 * Just to keep it clean
 	 */
-	public static function init()
+	protected static function init()
 	{
 		if(self::$lockdown)
 			return;
@@ -38,9 +37,9 @@ class CMS extends NoInst
 			$t = explode(':', $v, 2);
 			$t = (array) $t;
 			$rpath .= $t[0];
-			self::$path[$t[0]] = isset($t[1]) ? $t[1] : NULL;
+			self::$PATH[$t[0]] = isset($t[1]) ? $t[1] : NULL;
 		}
-		self::$path[0] = $rpath;
+		self::$PATH[0] = $rpath;
 
 		//config DB, clear config
 		DB::go($SQL_CONNECTION);
@@ -51,7 +50,7 @@ class CMS extends NoInst
 
 		//clean up
 		unset($SQL_CONNECTION, $_GET, $_POST);
-		self::$lockdown = TRUE;
+		parent::init();
 	}
 
 	/**
@@ -60,6 +59,7 @@ class CMS extends NoInst
 	protected static function end()
 	{
 		DB::end();
+		die();
 	}
 
 	/**
@@ -71,15 +71,9 @@ class CMS extends NoInst
 			return;
 
 		self::init();
-	
-		//TODO: Retrieve the path, generate view
-		ob_start();
 
-		View::go(self::$path[0]);
-
-		$body = ob_get_contents();
-		ob_end_clean();
-		self::template($body);
+		View::set(self::$PATH);
+		View::go();
 
 		self::headers();
 		self::end();
@@ -113,22 +107,6 @@ class CMS extends NoInst
 		}
 	}
 
-	/**
-	 * Add new header to be set later
-	 * @param $html
-	 */
-	public static function addToHead($html)
-	{
-		if (!is_array($header))
-			$header = array($header);
-
-		foreach ($header as $v) {
-			if(!is_string($v))
-				throw new Exception('Parameter is not a string!');
-			self::$HTMLhead[] = $v;
-		}
-	}
-	
 	/**
 	 * Includes file in param
 	 * @param $file path to file, relative to /
@@ -204,20 +182,23 @@ class CMS extends NoInst
 	}
 
 	/**
-	 * Return $path variable
-	 * @return string
+	 * Get value(s) from path
+	 * @param $in string|array
+	 * string: single variable name
+	 * array: values (as values, not keys), to be filled
+	 * @return string|array
+	 * string: single value
+	 * array: returns filled array with variable names as keys
 	 */
-	public static function getPath()
+	public static function varPath($in = 0)
 	{
-		return self::$path;
-	}
+		if(is_array($in))
+			foreach ($in as $k)
+				$in[$k] = (isset(self::$PATH[$k]) ? self::$PATH[$k] : NULL);
+		else
+			$in = (isset(self::$PATH[$in]) ? self::$PATH[$in] : NULL);
 
-	/**
-	 * Render template with included body
-	 */
-	protected static function template($body)
-	{
-
+		return $in;
 	}
 
 }
