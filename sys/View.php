@@ -1,13 +1,14 @@
 <?php ///revCMS /sys/View.php
 /**
-* View class
-*/
+ * View class
+ */
 class View extends NoInst
 {
 	///Everything that wil be added in <head>here</head>
 	private static $HTMLhead = array();
-	///View mode: single, partial, full, recursive, ...
-	static $workmode = NULL;
+	///Working mode
+	///0: Normal, 1: single, 2-3: recursive
+	private static $workmode = 0;
 
 	/**
 	 * Check if view exists
@@ -23,10 +24,11 @@ class View extends NoInst
 	 * Render view specified in param
 	 * @param $path relative to /view
 	 */
-	public static function r($path, $params, $mode)
+	public static function r($path, array $params = array(), $mode = 1)
 	{
-		if(!CMS::fileExists('/view'.$path))
+		if(!CMS::viewExists($path))
 			throw new Exception('View "'.$path.'" does not exist');
+
 	}
 
 	/**
@@ -38,17 +40,24 @@ class View extends NoInst
 		if(self::$lockdown)
 			return;
 
-		parent::go();
+		self::lockdown();
 
 		//TODO: Retrieve the path, generate view
 		ob_start();
 
-		switch (self::$mode) {
-			case 'xyz_kończy_alfabet':
-				die('bardzo śmieszne');
+		switch (self::$workmode) {
+			case 0:
+				View::r($path[0]);
 				break;
+			case 1:
+				//single, render only top level
+				break;
+			case 2:
+			case 3:
+
+
 			default:
-				View::r();
+				throw new Exception('View: Unsupported working mode!');
 				break;
 		}
 

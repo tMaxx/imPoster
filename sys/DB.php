@@ -14,8 +14,10 @@ class DB extends NoInst
 	 */
 	public static function end()
 	{
-		self::$last->free();
-		self::$db->close();
+		if(isset(self::$last))
+			self::$last->free();
+		if(isset(self::$db))
+			self::$db->close();
 	}
 
 	/**
@@ -31,12 +33,11 @@ class DB extends NoInst
 			throw new Exception('DB: Not sufficient connection parameters!');
 
 		self::$db = new mysqli($con['host'], $con['user'], $con['pass'], $con['dbname']);
-		unset($con);
 
 		if(self::$db->connect_error)
 			throw new Exception('DB: Error while connecting: '.self::$db->connect_errno);
 
-		self::init();
+		self::lockdown();
 	}
 
 	/**
@@ -67,7 +68,7 @@ class DB extends NoInst
 	protected static function q($q, $tps = '', array $val = array())
 	{
 		if(!tps || !val)
-			self::$last = $db->query($q)
+			self::$last = $db->query($q);
 		else {
 			if(strlen($tps) != ($c = count($val)))
 				throw new Exception('DB: Number of types != number of values!');
@@ -76,7 +77,7 @@ class DB extends NoInst
 				throw new Exception('DB: Error while preparing query');
 
 			if($c != $st->param_count)
-				throw new Exception('DB: Number query params != number of values')
+				throw new Exception('DB: Number query params != number of values');
 
 			for ($i = 0; $i < $c; $i++) {
 				if($tps[$i] == 's')
@@ -85,7 +86,7 @@ class DB extends NoInst
 			}
 
 			//exec
-			if(!($st->execute())
+			if(!($st->execute()))
 				throw new Exception('DB: Error while executing query');
 
 			self::$last = $st->get_result();
@@ -118,7 +119,7 @@ class DB extends NoInst
 	{
 		$res = self::q($q, $types, $values);
 		
-		$r = array()
+		$r = array();
 		if (method_exists('mysqli_result', 'fetch_all'))
 			$r = $res->fetch_all(MYSQLI_ASSOC);
 		else
@@ -128,5 +129,14 @@ class DB extends NoInst
 		return $r;
 	}
 
+	public static function insert()
+	{
+		
+	}
+
+	public static function update()
+	{
+		
+	}
 
 }

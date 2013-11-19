@@ -41,22 +41,22 @@ class CMS extends NoInst
 		}
 		self::$PATH[0] = $rpath;
 
-		//config DB, clear config
-		DB::go($SQL_CONNECTION);
-
 		//set variables
 		self::$GET = $_GET;
 		self::$POST = $_POST;
+		unset($_GET, $_POST);
 
-		//clean up
-		unset($SQL_CONNECTION, $_GET, $_POST);
-		parent::init();
+		//config DB, clear config
+		DB::go($SQL_CONNECTION);
+		unset($SQL_CONNECTION);
+
+		self::lockdown();
 	}
 
 	/**
 	 * Pre-exit commands
 	 */
-	protected static function end()
+	public static function end()
 	{
 		DB::end();
 		die();
@@ -72,8 +72,7 @@ class CMS extends NoInst
 
 		self::init();
 
-		View::set(self::$PATH);
-		View::go();
+		View::go(self::$PATH);
 
 		self::headers();
 		self::end();
