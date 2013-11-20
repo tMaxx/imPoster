@@ -1,12 +1,22 @@
-head:
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="description" content="" />
+<meta name="author" content="MikWaw aka theMaxx (C)2013" />
 <? View::head(); ?>
-
-body:
+<link type="text/css" href="static/style.css" rel="stylesheet" />
+<title>Demo site title</title>
+</head>
+<body>
+body:<br>
 <?
-View::r();
+View::body();
 ?>
-
-footer:
+<br><br>
+footer:<br>
 <?
 View::footer();
 ?>
+</body>
+</html>

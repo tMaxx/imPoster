@@ -14,19 +14,23 @@ class DB extends NoInst
 	 */
 	public static function end()
 	{
-		if(isset(self::$last))
+		if(isset(self::$last)){
 			self::$last->free();
-		if(isset(self::$db))
+			self::$last = NULL;
+		}
+		if(isset(self::$db)){
 			self::$db->close();
+			self::$db = NULL;
+		}
 	}
 
 	/**
 	 * Prepare the DB and connect to it
 	 * @param $con connection options
 	 */
-	public static function go(&$con)
+	public static function go($con)
 	{
-		if(self::$lockdown)
+		if(self::locked())
 			return;
 
 		if(!isset($con['host']) || !isset($con['user']) || !isset($con['pass']) || !isset($con['dbname']))

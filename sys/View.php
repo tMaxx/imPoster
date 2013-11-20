@@ -1,13 +1,15 @@
 <?php ///revCMS /sys/View.php
 /**
- * View class
+ * View/HTML class
  */
 class View extends NoInst
 {
+	///Main template used
+	const TEMPLATE = '/templ/index.php';
 	///Everything that wil be added in <head>here</head>
 	private static $HTMLhead = array();
 	///Working mode
-	///0: Normal, 1: single, 2-3: recursive
+	///0: muted, 1: single, 2-n: recursive
 	private static $workmode = 0;
 
 	/**
@@ -17,17 +19,46 @@ class View extends NoInst
 	 */
 	private static function viewExists($path)
 	{
+		//FIXME: path can be really weird
+		//ensure it's good to go
+		if(empty($path) || $path == '/')
+			return true;
 		return CMS::fileExists('/view'.$path);
 	}
 
 	/**
 	 * Render view specified in param
 	 * @param $path relative to /view
+	 * @param $params additional
+	 * @param $mode render mode
 	 */
-	public static function r($path, array $params = array(), $mode = 1)
+	public static function r($path, array $params = array(), $mode = 0)
 	{
-		if(!CMS::viewExists($path))
-			throw new Exception('View "'.$path.'" does not exist');
+		if(!View::viewExists($path))
+			throw new ErrorHTTP('View "'.$path.'" does not exist', 404);
+
+		switch ($mode)
+		{
+			case 0:
+				//muted
+				//break;
+			case 1:
+				//single
+				//break;
+			case 2:
+				//single w. index
+				//break;
+			case 3:
+			case 4:
+				//levels
+				//break;
+			default:
+				//full render
+				ob_flush();
+				if(!CMS::safeIncludeOnce(self::TEMPLATE))
+					throw new ErrorHTTP('Template '.self::TEMPLATE.' not found', 404);
+				break;
+		}
 
 	}
 
@@ -37,51 +68,29 @@ class View extends NoInst
 	 */
 	public static function go($path)
 	{
-		if(self::$lockdown)
+		if(self::locked())
 			return;
-
 		self::lockdown();
 
-		//TODO: Retrieve the path, generate view
+		//FIXME: request path processing
+		//real files, not nodes
+
 		ob_start();
-
-		switch (self::$workmode) {
-			case 0:
-				View::r($path[0]);
-				break;
-			case 1:
-				//single, render only top level
-				break;
-			case 2:
-			case 3:
-
-
-			default:
-				throw new Exception('View: Unsupported working mode!');
-				break;
-		}
+		if(is_int(self::$workmode) && self::$workmode >= 0)
+			View::r($path[0], array(), self::$workmode);
+		else
+			throw new ErrorHTTP('View: Unsupported working mode!', 400);
 
 		$body = ob_get_contents();
 		ob_end_clean();
-		self::template($body);
+		CMS::headers();
+		echo $body;
 	}
 
 	///Render footer
 	public static function footer()
 	{
-
-	}
-
-	/**
-	 * Render template
-	 * @param $body bod
-	 */
-	protected static function template()
-	{
-		if(CMS::fileExists('/templ/index.php'))
-			;//include file
-		else
-			throw new Exception('View: template index.php not found!');
+		echo 'nopenopenope';
 	}
 
 	/**
@@ -105,6 +114,12 @@ class View extends NoInst
 	{
 		foreach (self::$HTMLhead as $v)
 			echo $v;
+	}
+
+	///Wrapper for renders
+	public static function body()
+	{
+		echo 'zawartość';
 	}
 
 }

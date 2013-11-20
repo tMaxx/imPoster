@@ -5,7 +5,11 @@
 class CMS extends NoInst
 {
 	///HTTP headers to be sent through header('here');
-	private static $HTTPheaders = array();
+	private static $HTTPheaders = array(
+		'Content-Type: text/html; charset=utf-8',
+		'X-Powered-By: monkeys on bikes',
+		'X-Backend: revCMS codename /shadow/',
+	);
 	///GET parameters
 	private static $GET = array();
 	///POST parameters
@@ -13,30 +17,28 @@ class CMS extends NoInst
 	///Request path
 	private static $PATH = array();
 
-	/**
-	 * Perform any needed operations before executing any custom scripts
-	 * Just to keep it clean
-	 */
+	///Perform any needed operations before executing any custom scripts
+	///Just to keep it clean
 	protected static function init()
 	{
-		if(self::$lockdown)
+		if(self::locked())
 			return;
+
+		self::safeIncludeOnce('/sys/Errors.php');
 
 		//revamp request to something more readable
 		$ipath = explode('/', REQUEST);
-
-		//it may be something in first level - we don't care
 		$ipath = (array) $ipath;
 
 		//full request path
 		$rpath = '';
 		foreach($ipath as $k => $v) {
-			if(empty($v) || is_numeric($k))
+			if(empty($v) || !is_numeric($k))
 				continue;
 			//just the leftmost
 			$t = explode(':', $v, 2);
 			$t = (array) $t;
-			$rpath .= $t[0];
+			$rpath .= '/'.$t[0];
 			self::$PATH[$t[0]] = isset($t[1]) ? $t[1] : NULL;
 		}
 		self::$PATH[0] = $rpath;
@@ -46,28 +48,28 @@ class CMS extends NoInst
 		self::$POST = $_POST;
 		unset($_GET, $_POST);
 
+		global $SQL_CONNECTION;
+
 		//config DB, clear config
 		DB::go($SQL_CONNECTION);
-		unset($SQL_CONNECTION);
+		unset($GLOBALS['SQL_CONNECTION']);
 
 		self::lockdown();
 	}
 
-	/**
-	 * Pre-exit commands
-	 */
+	///Pre-exit commands
 	public static function end()
 	{
+		if(!self::locked())
+			return;
+		self::lockup();
 		DB::end();
-		die();
 	}
 
-	/**
-	 * Run this house
-	 */
+	///Run this house
 	public static function go()
 	{
-		if(self::$lockdown)
+		if(self::locked())
 			return;
 
 		self::init();
@@ -78,10 +80,8 @@ class CMS extends NoInst
 		self::end();
 	}
 
-	/**
-	 * Set all needed headers
-	 */
-	private static function headers()
+	///Set all needed headers
+	public static function headers()
 	{
 		foreach (self::$HTTPheaders as $v)
 			header($v);
@@ -115,7 +115,7 @@ class CMS extends NoInst
 	{
 		if($r = self::fileExists($file))
 			include ROOT.$file;
-		return $r;
+		return !!$r;
 	}
 
 	/**
@@ -127,7 +127,7 @@ class CMS extends NoInst
 	{
 		if($r = self::fileExists($file))
 			include_once ROOT.$file;
-		return $r;
+		return !!$r;
 	}
 
 	/**
@@ -198,6 +198,16 @@ class CMS extends NoInst
 			$in = (isset(self::$PATH[$in]) ? self::$PATH[$in] : NULL);
 
 		return $in;
+	}
+
+	/**
+	 * Get absolute link to resource on server
+	 * @param $target path
+	 * @return string full path
+	 */
+	public static function l($target)
+	{
+		
 	}
 
 }

@@ -1,4 +1,5 @@
 <?php ///revCMS /index.php
+define('NOW_MICRO', microtime(true));
 define('ROOT', realpath(dirname(__FILE__)));
 define('CWD', getcwd());
 
