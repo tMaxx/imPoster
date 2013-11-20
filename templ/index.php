@@ -6,7 +6,7 @@
 <meta name="author" content="MikWaw aka theMaxx (C)2013" />
 <? View::head(); ?>
 <link type="text/css" href="static/style.css" rel="stylesheet" />
-<title>Demo site title</title>
+<title><?= View::title() ?></title>
 </head>
 <body>
 body:<br>

@@ -122,4 +122,10 @@ class View extends NoInst
 		echo 'zawartość';
 	}
 
+	///Return site title, based on whatever needed
+	public static function title()
+	{
+		return 'codename teo';
+	}
+
 }
