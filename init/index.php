@@ -123,7 +123,7 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 	{
 		if(!isset($e_last))
 			CMS::end();
-		echo '<br /><br /><br />EXt: '.round(((microtime(true) - NOW_MICRO)*1000.0), 3).'ms';
+		echo '<br /><div id="exec-time">EXt: '.round(((microtime(true) - NOW_MICRO)*1000.0), 3).'ms</div>';
 		return;
 	}
 
