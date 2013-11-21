@@ -11,12 +11,11 @@
 <body>
 <div id="main">
 	<div id="head">
-		<span id="copy">(c) 2013 Maxx</span>
+		<span id="panel"><a href="/">uno</a> <a href="/">dos</a> <a href="/">tres</a></span>
 		<small><span class="blue">t</span>h<span class="blue">e</span></small><span class="blue">O</span>rganizer
 	</div>
 	<div class="clear"></div>
 
-	body:<br>
 	<?
 	View::body();
 	?>

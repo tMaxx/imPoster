@@ -47,10 +47,24 @@ a {
 	margin-bottom: 4px;
 	width: 100%;
 	font-size: 2em;
-	#copy {
+	#panel {
 		float: right;
 		font-size: 0.45em;
-		color: @lgrey;
+		a {
+			color: @lgrey;
+			&:before {
+				content: '[ ';
+			}
+			&:after {
+				content: ' ]';
+			}
+			&:before, &:after {
+				color: lighten(@blue, 10%) !important;
+			}
+			&:hover {
+				color: @fontcolor !important;
+			}
+		}
 	}
 	.blue {
 		color: @blue;
