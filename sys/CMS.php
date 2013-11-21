@@ -4,12 +4,12 @@
  */
 class CMS extends NoInst
 {
+	///CMS identificator
+	const CMS_ID = 'revCMS codename /shadow/';
+	///CMS version
+	const CMS_VER = '0.1';
 	///HTTP headers to be sent through header('here');
-	private static $HTTPheaders = array(
-		'Content-Type: text/html; charset=utf-8',
-		'X-Powered-By: monkeys on bikes',
-		'X-Backend: revCMS codename /shadow/',
-	);
+	private static $HTTPheaders = array();
 	///GET parameters
 	private static $GET = array();
 	///POST parameters
@@ -47,6 +47,12 @@ class CMS extends NoInst
 		self::$GET = $_GET;
 		self::$POST = $_POST;
 		unset($_GET, $_POST);
+
+		self::$HTTPheaders = array(
+			'content-type' => 'Content-Type: text/html; charset=utf-8',
+			'X-Powered-By: monkeys on bikes',
+			'X-Backend: '.self::CMS_ID.' '.self::CMS_VER,
+		);
 
 		global $SQL_CONNECTION;
 

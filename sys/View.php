@@ -119,7 +119,7 @@ class View extends NoInst
 	///Wrapper for renders
 	public static function body()
 	{
-		echo 'zawartość';
+		return 'zawartość';
 	}
 
 	///Return site title, based on whatever needed

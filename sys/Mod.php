@@ -4,8 +4,7 @@
  */
 class Mod extends NoInst
 {
-	
-	function __construct(argument)
+	public static function go()
 	{
 		# code...
 	}
