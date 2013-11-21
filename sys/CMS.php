@@ -31,11 +31,13 @@ class CMS extends NoInst
 
 		//full request path
 		$rpath = '';
+		self::$PATH[1] = array();
 		foreach($ipath as $k => $v) {
 			if(empty($v) || !is_numeric($k))
 				continue;
 			//just the leftmost
 			$t = (array) explode(':', $v, 2);
+			self::$PATH[1][] = $rpath;
 			$rpath .= '/'.$t[0];
 			self::$PATH[$t[0]] = isset($t[1]) ? $t[1] : NULL;
 		}

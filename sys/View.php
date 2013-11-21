@@ -71,8 +71,6 @@ class View extends NoInst
 		if(self::lock())
 			return;
 
-		pre_dump(self::$LOCKS);die();
-
 		//FIXME: request path processing
 		//real files, not nodes
 

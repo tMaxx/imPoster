@@ -1,4 +1,4 @@
-/*! revX engine stylesheet | codename "neon" | (c) 2013 Maxx
+/*! revCMS stylesheet | codename "neon" | (c) 2013 Maxx
  * colors based on Tango palette
  * DO NOT MODIFY OR REDISTRIBUTE WITHOUT AUTHOR'S PERMISSION!
  */
@@ -8,9 +8,9 @@
 @bgcolor: #161C1E;
 @blue: #3465a4;
 @lgrey: #888a85 + #222;
-@dv:0.5em;
-@em: (1/16)+0em; // unit conversion
-@fontsmono:"Ubuntu Mono","Courier New",Courier,monospace;
+@dv: 0.5em;
+@em: (1 / 16) + 0em; // unit conversion
+@fontsmono: "Ubuntu Mono", "Courier New", "Courier", monospace;
 // Mixins
 .mrg(@dmul: 1, @lmul: 0) when (isnumber(@dmul)) and (isnumber(@lmul)){
 	margin: 0 0 (@dmul*@dv) (@lmul*@dv);
@@ -20,8 +20,8 @@
 body {
 	background: @bgcolor;
 	color: @fontcolor;
-	font-family:"Trebuchet MS",Arial,sans-serif;
-	font-size:0.75em;
+	font-family: "Trebuchet MS", Arial, sans-serif;
+	font-size: 0.9em;
 }
 html, body, img {
 	margin: 0;
@@ -29,28 +29,34 @@ html, body, img {
 	border: none;
 }
 a {
-	text-decoration:none;
-	color:inherit;
+	text-decoration: none;
+	color: inherit;
 }
-.clr {clear:both;visibility: hidden;}
+.clear {clear: both; visibility: hidden;}
 
 // Main frame
 #main {
-	margin:10px auto 0;
-	width:60%;
+	margin: 10px auto 0;
+	width: 60%;
 	min-width: 320px
 }
 
 // Header
-#hd {
+#head {
 	color: @fontimp;
 	margin-bottom: 4px;
 	width: 100%;
 	font-size: 2em;
-	#cpy {
-		float:right;
+	#copy {
+		float: right;
 		font-size: 0.45em;
-		color:@lgrey;
+		color: @lgrey;
+	}
+	.blue {
+		color: @blue;
+	}
+	small {
+		color: @lgrey;
 	}
 }
 
@@ -73,25 +79,25 @@ a {
 		display: block;
 
 		&:before, &:after {
-			color:@blue;
+			color: @blue;
 			font-weight: bold;
 			font-size: 1.3em;
 		}
-		&:hover:before, &:hover:after {color:@lgrey;}
+		&:hover:before, &:hover:after {color: @lgrey;}
 	}
 
 	#c { //current
-		color:@fontimp;
+		color: @fontimp;
 		font-weight: bold;
 
-		&:before, &:after {color:@fontimp !important;} //override
+		&:before, &:after {color: @fontimp !important;} //override
 	}
 
 	.s { //switch - open/close, close message, confirm sth
 		color: @fontimp;
 		float: right !important;
 		&:before, &:after {
-			margin:0 !important;
+			margin: 0 !important;
 		}
 	}
 }
@@ -102,7 +108,7 @@ a {
 	margin-top: @dv;
 
 	.i {
-		padding:0;
+		padding: 0;
 
 		&:before {
 			content: '/';
@@ -142,7 +148,7 @@ a {
 	border-left: 1px solid @clr;
 	border-right: 1px solid @clr;
 	&:before {
-		color:lighten(@clr,10%);
+		color: lighten(@clr,10%);
 		content: @fstr;
 	}
 }
@@ -159,24 +165,24 @@ a {
 		margin-right: 0.25em;
 	}
 }
-.frm.inf {.frmcolor(#729fcf,40%,"(i)");}
-.frm.ok  {.frmcolor(#8ae234,40%,"(+)");}
-.frm.wrn {.frmcolor(#cc0000,40%,"[!]");}
+.frm.inf {.frmcolor(#729fcf, 40%, "(i)");}
+.frm.ok  {.frmcolor(#8ae234, 40%, "(+)");}
+.frm.wrn {.frmcolor(#cc0000, 40%, "[!]");}
 .frm.crt {
-	@darkclr:darken(#2e3436,15%); // is: near black; was: black
-	.frmcolor(#cc0000,0%, "!#!",@darkclr);
+	@darkclr:darken(#2e3436, 15%); // is: near black; was: black
+	.frmcolor(#cc0000, 0%, "!#!",@darkclr);
 }
 
 // Information panel
 #in {
-	color:@fontimp;
+	color: @fontimp;
 	font-weight: bold;
 	font-size: 1.2em;
-	padding:10px 0 5px 5px;
+	padding: 10px 0 5px 5px;
 	#da {
-		color:@fontcolor;
-		float:right;
-		font-size:0.8em;
+		color: @fontcolor;
+		float: right;
+		font-size: 0.8em;
 		font-weight: normal;
 		.mrg(0.7,0.7);
 	}
@@ -204,19 +210,19 @@ a {
 		border-bottom: 1px dashed;
 		display: inline;
 		&:hover {
-			color:@fontimp;
+			color: @fontimp;
 			border-bottom: 1px solid;
 			display: inline;
 		}
 	}
 	code,blockquote {.mrg(2,1);}
 	blockquote {
-		border-left:3px double @fontimp;
-		display:inline-block;
+		border-left: 3px double @fontimp;
+		display: inline-block;
 		padding: 2px 0 2px 5px;
 		small {
-			font-size:0.9em;
-			color:@lgrey;
+			font-size: 0.9em;
+			color: @lgrey;
 			display: block;
 			&:before {
 				font-weight: bold;
@@ -224,11 +230,11 @@ a {
 		}	}
 	}
 	code,.code {
-		font-family:@fontsmono;
+		font-family: @fontsmono;
 	}
 	code {
 		text-align: left;
-		display:block;
+		display: block;
 		.mrg(2,1);
 	}
 	h1, h2, h3 {
@@ -260,23 +266,23 @@ a {
 		input[type=text],input[type=file],input[type=password],input[type=submit],
 			input[type=search],textarea
 		{
-			margin:1px 0;
-			padding:1px 4px;
-			font:inherit;
+			margin: 1px 0;
+			padding: 1px 4px;
+			font: inherit;
 			color: @fontcolor;
 			border: none;
 			background: darken(@bgcolor,4%);
 		}
 		input[type=radio],input[type=checkbox]
 		{
-			margin:1px 3px 0 6px;
+			margin: 1px 3px 0 6px;
 		}
 		input[type=submit]{
-			@bstyle:1px solid @lgrey;
+			@bstyle: 1px solid @lgrey;
 			border-left: @bstyle;
 			border-right: @bstyle;
-			border-top:none;
-			border-bottom:none;
+			border-top: none;
+			border-bottom: none;
 			border-top-left-radius: 5px;
 			border-bottom-right-radius: 5px;
 		}
