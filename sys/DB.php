@@ -14,6 +14,9 @@ class DB extends NoInst
 	 */
 	public static function end()
 	{
+		if(self::lock())
+			return;
+
 		if(isset(self::$last)){
 			self::$last->free();
 			self::$last = NULL;
@@ -30,7 +33,7 @@ class DB extends NoInst
 	 */
 	public static function go($con)
 	{
-		if(self::locked())
+		if(self::lock())
 			return;
 
 		if(!isset($con['host']) || !isset($con['user']) || !isset($con['pass']) || !isset($con['dbname']))
@@ -40,8 +43,6 @@ class DB extends NoInst
 
 		if(self::$db->connect_error)
 			throw new Exception('DB: Error while connecting: '.self::$db->connect_errno);
-
-		self::lockdown();
 	}
 
 	/**

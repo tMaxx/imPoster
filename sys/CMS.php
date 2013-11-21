@@ -21,14 +21,13 @@ class CMS extends NoInst
 	///Just to keep it clean
 	protected static function init()
 	{
-		if(self::locked())
+		if(self::lock())
 			return;
 
 		self::safeIncludeOnce('/sys/Errors.php');
 
 		//revamp request to something more readable
-		$ipath = explode('/', REQUEST);
-		$ipath = (array) $ipath;
+		$ipath = (array) explode('/', REQUEST);
 
 		//full request path
 		$rpath = '';
@@ -36,8 +35,7 @@ class CMS extends NoInst
 			if(empty($v) || !is_numeric($k))
 				continue;
 			//just the leftmost
-			$t = explode(':', $v, 2);
-			$t = (array) $t;
+			$t = (array) explode(':', $v, 2);
 			$rpath .= '/'.$t[0];
 			self::$PATH[$t[0]] = isset($t[1]) ? $t[1] : NULL;
 		}
@@ -59,23 +57,20 @@ class CMS extends NoInst
 		//config DB, clear config
 		DB::go($SQL_CONNECTION);
 		unset($GLOBALS['SQL_CONNECTION']);
-
-		self::lockdown();
 	}
 
 	///Pre-exit commands
 	public static function end()
 	{
-		if(!self::locked())
+		if(!self::lock())
 			return;
-		self::lockup();
 		DB::end();
 	}
 
 	///Run this house
 	public static function go()
 	{
-		if(self::locked())
+		if(self::lock())
 			return;
 
 		self::init();

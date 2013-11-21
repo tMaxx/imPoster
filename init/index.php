@@ -13,21 +13,28 @@ class NoInst
 	final function __construct()
 	{	throw new Error('Thou shall not create a new object!'); }
 
-	///Create & get class lock
-	final protected static function locked()
+	///Class function - is locked?
+	final protected static function is_locked($n = 2)
 	{
-		if(!isset(self::$LOCKS[get_called_class()]))
-			self::$LOCKS[get_called_class()] = FALSE;
-		return self::$LOCKS[get_called_class()];
+		$r = isset(self::$LOCKS[($c = get_called_class())][($f = debug_backtrace()[$n]['function'])]);
+		return array($r, $c, $f);
 	}
 
-	///Set the lock
-	final protected static function lockdown()
-	{	return self::$LOCKS[get_called_class()] = TRUE; }
+	///Set the lock, but 1st time return false
+	final protected static function lock()
+	{
+		list($r, $c, $f) = self::is_locked();
+		return $r ? TRUE : (!(self::$LOCKS[$c][$f] = TRUE));
+	}
 
-	///Lift the lock
-	final protected static function lockup()
-	{	return self::$LOCKS[get_called_class()] = FALSE; }
+	///Unset the lock, but 1st time return false
+	final protected static function unlock()
+	{
+		list($r, $c, $f) = self::is_locked();
+		if($r)
+			self::$LOCKS[$c][$f] = NULL;
+		return !$r;
+	}
 }
 
 ///dumper
@@ -124,7 +131,7 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 
 	if(!count($trace))
 		$result[] = '<i>No stack trace available</i><br />';
-
+	else
 	foreach($trace as $i => $v)
 	{
 		$result[] = $i . '# ';

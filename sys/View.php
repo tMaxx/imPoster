@@ -68,9 +68,10 @@ class View extends NoInst
 	 */
 	public static function go($path)
 	{
-		if(self::locked())
+		if(self::lock())
 			return;
-		self::lockdown();
+
+		pre_dump(self::$LOCKS);die();
 
 		//FIXME: request path processing
 		//real files, not nodes
