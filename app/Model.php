@@ -11,19 +11,11 @@ class Model {
 	}
 
 
-    public function set(array $a) {
-        foreach($a as $key => $value){
-           if(property_exists('Model', $key))
-           {
-               self::$zmienna = $value;
-           }
-                   
-        }
-        
-}
-    public function save() {
-    
-}
+	public function save()
+	{
+		$s = $this->toArray();
+		
+	}
 
 } 
 

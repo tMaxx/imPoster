@@ -30,18 +30,19 @@ class CMS extends NoInst
 		$ipath = (array) explode('/', REQUEST);
 
 		//full request path
-		$rpath = '';
-		self::$PATH[1] = array();
+		self::$PATH[1] = array($rpath = '/');
+
 		foreach($ipath as $k => $v) {
 			if(empty($v) || !is_numeric($k))
 				continue;
 			//just the leftmost
-			$t = (array) explode(':', $v, 2);
+			$e = (array) explode(':', $v, 2);
+			$rpath .= $e[0];
 			self::$PATH[1][] = $rpath;
-			$rpath .= '/'.$t[0];
-			self::$PATH[$t[0]] = isset($t[1]) ? $t[1] : NULL;
+			self::$PATH[$e[0]] = isset($e[1]) ? $e[1] : NULL;
+			$rpath .= '/';
 		}
-		self::$PATH[0] = $rpath;
+		self::$PATH[0] = substr($rpath, 0, -1);
 
 		//set variables
 		self::$GET = $_GET;

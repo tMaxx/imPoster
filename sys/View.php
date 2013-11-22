@@ -1,4 +1,72 @@
 <?php ///revCMS /sys/View.php
+///Actually just a complete view generator
+class ViewRequiringDiscoverer
+{
+	///Cursor
+	protected $c = '';
+	///File
+	protected $f = '';
+	///Next node
+	protected $n = '';
+	///Limit
+	protected $l = 13;
+	///Iterator - current depth
+	protected $i = 0;
+	///Upper (parent) object
+	protected $p = NULL;
+	//Created objects
+	protected $o = array();
+
+	/**
+	 * Construct 
+	 * @param $cursor current directory
+	 * @param $file current file in directory
+	 * @param $next what to look for 
+	 */
+	function __construct($cursor, $file, $next, $parent = NULL, $iter = 0, $limit = 13)
+	{
+		if($limit <= 0)
+			throw new Error('VRD: nesting limit reached');
+
+		//set this thing
+		$this->c = $cursor;
+		$this->f = $file;
+		$this->n = $next;
+		$this->p = $parent;
+		$this->l = $limit;
+		$this->i = $iter;
+	}
+
+	///Do the messy job
+	function go()
+	{
+
+	}
+
+	/**
+	 * Render subpath
+	 * @param $path what to render
+	 * @param $param what to pass
+	 */
+	function subnode($path, $param = array())
+	{
+		//new VRD($path, '', )
+		//this->o[] = @up
+		//@up->go()
+	}
+
+	/**
+	 * Launch suggested new node
+	 * @param $path where to go, unless not to go
+	 * @param $param what to pass, unless not to pass
+	 */
+	function node($path, $param = array())
+	{
+		//if(!this->next)
+		//  this->next = $path;
+	}
+}
+
 /**
  * View/HTML class
  */
@@ -8,11 +76,11 @@ class View extends NoInst
 	const TEMPLATE = '/templ/index.php';
 	///Everything that wil be added in <head>here</head>
 	private static $HTMLhead = array();
-	///Working mode
-	///0: muted, 1: single, 2-n: recursive
-	private static $workmode = 0;
+	///Depth of working mode
+	private static $depth = 13;
 
 	/**
+	 * DEPRECATED
 	 * Check if view exists
 	 * @param $path relative to /view
 	 * @return bool
@@ -30,28 +98,15 @@ class View extends NoInst
 	 * Render view specified in param
 	 * @param $path relative to /view
 	 * @param $params additional
-	 * @param $mode render mode
+	 * @param $depth render mode
 	 */
-	public static function r($path, array $params = array(), $mode = 0)
+	public static function r($path, array $params = array(), $depth = 1)
 	{
 		if(!View::viewExists($path))
 			throw new ErrorHTTP('View "'.$path.'" does not exist', 404);
 
-		switch ($mode)
+		switch ($depth)
 		{
-			case 0:
-				//muted
-				//break;
-			case 1:
-				//single
-				//break;
-			case 2:
-				//single w. index
-				//break;
-			case 3:
-			case 4:
-				//levels
-				//break;
 			default:
 				//full render
 				ob_flush();
@@ -71,12 +126,12 @@ class View extends NoInst
 		if(self::lock())
 			return;
 
-		//FIXME: request path processing
-		//real files, not nodes
+		pre_dump($path);die;
 
 		ob_start();
 		if(is_int(self::$workmode) && self::$workmode >= 0)
-			View::r($path[0], array(), self::$workmode);
+			//FIXME: redo with VRD
+			;// View::r($path[0], array(), self::$workmode);
 		else
 			throw new ErrorHTTP('View: Unsupported working mode!', 400);
 
@@ -115,16 +170,9 @@ class View extends NoInst
 			echo $v;
 	}
 
-	///Wrapper for renders
-	public static function body()
-	{
-		return 'zawartość';
-	}
-
 	///Return site title, based on whatever needed
 	public static function title()
 	{
 		return 'codename teo';
 	}
-
 }
