@@ -4,43 +4,51 @@ class ViewRequiringDiscoverer
 {
 	///Cursor
 	protected $c = '';
-	///File
-	protected $f = '';
-	///Next node
-	protected $n = '';
-	///Limit
-	protected $l = 13;
-	///Iterator - current depth
-	protected $i = 0;
+	///Mode
+	protected $m = 0;
+	///Next nodes
+	protected $n = array();
+	///Iterator - num of objects made
+	protected static $i = 40;
 	///Upper (parent) object
 	protected $p = NULL;
-	//Created objects
+	//$this' created objects
 	protected $o = array();
 
 	/**
 	 * Construct 
 	 * @param $cursor current directory
-	 * @param $file current file in directory
-	 * @param $next what to look for 
+	 * @param $next what to look for
+	 * @param $parent VRD
+	 * @param $mode finding mode
+	 * 0: Free to choose
+	 * 1: index.php in current $cursor path
+	 * 2: Get $next
+	 * 3: $next is file ($next)
+	 * 4: $next is directory ($next)
 	 */
-	function __construct($cursor, $file, $next, $parent = NULL, $iter = 0, $limit = 13)
+	function __construct($cursor, $next, $parent = NULL, $mode = 0)
 	{
-		if($limit <= 0)
-			throw new Error('VRD: nesting limit reached');
+		if(((static::$i--)) <= 0)
+			throw new Error('VRD: object count limit reached');
+		if(!is_int($mode))
+			throw new Error('VRD: $mode is not an int');
 
 		//set this thing
 		$this->c = $cursor;
-		$this->f = $file;
+		$this->m = $mode;
 		$this->n = $next;
 		$this->p = $parent;
-		$this->l = $limit;
-		$this->i = $iter;
 	}
 
 	///Do the messy job
 	function go()
 	{
+		pre_dump($this);
+		$m = $this->m;
+		if()
 
+		return;
 	}
 
 	/**
@@ -50,9 +58,11 @@ class ViewRequiringDiscoverer
 	 */
 	function subnode($path, $param = array())
 	{
-		//new VRD($path, '', )
-		//this->o[] = @up
-		//@up->go()
+		$c = count($this->o);
+		$this->o[] = new ViewRequiringDiscoverer($path, array(), $this);
+		//don't copy object
+		$r = $this->o[$c]->go();
+		return $r;
 	}
 
 	/**
@@ -62,8 +72,12 @@ class ViewRequiringDiscoverer
 	 */
 	function node($path, $param = array())
 	{
-		//if(!this->next)
-		//  this->next = $path;
+		if(!$this->n)
+			$this->n = $path;
+		//$path may be not in current directory
+		//i.e. user doesn't have access to some part of site
+		$o = new ViewRequiringDiscoverer($this->cursor, array(), $this, 0);
+
 	}
 }
 
@@ -76,46 +90,8 @@ class View extends NoInst
 	const TEMPLATE = '/templ/index.php';
 	///Everything that wil be added in <head>here</head>
 	private static $HTMLhead = array();
-	///Depth of working mode
-	private static $depth = 13;
-
-	/**
-	 * DEPRECATED
-	 * Check if view exists
-	 * @param $path relative to /view
-	 * @return bool
-	 */
-	private static function viewExists($path)
-	{
-		//FIXME: path can be really weird
-		//ensure it's good to go
-		if(empty($path) || $path == '/')
-			return true;
-		return CMS::fileExists('/view'.$path);
-	}
-
-	/**
-	 * Render view specified in param
-	 * @param $path relative to /view
-	 * @param $params additional
-	 * @param $depth render mode
-	 */
-	public static function r($path, array $params = array(), $depth = 1)
-	{
-		if(!View::viewExists($path))
-			throw new ErrorHTTP('View "'.$path.'" does not exist', 404);
-
-		switch ($depth)
-		{
-			default:
-				//full render
-				ob_flush();
-				if(!CMS::safeIncludeOnce(self::TEMPLATE))
-					throw new ErrorHTTP('Template '.self::TEMPLATE.' not found', 404);
-				break;
-		}
-
-	}
+	///Generated body, only if MODE is set as full
+	private static $BODY = '';
 
 	/**
 	 * Try to retrieve and render view, handle errors
@@ -126,19 +102,33 @@ class View extends NoInst
 		if(self::lock())
 			return;
 
-		pre_dump($path);die;
+		if(in_array(MODE, array('FULL', 'PART', 'SINGLE')))
+		{
+			$cursor = '/';
+			$next = array_shift($path[1]);
+			if(MODE == 'SINGLE')
+			{
+				$cursor = $path[0];
+				$next = array();
+			}
 
-		ob_start();
-		if(is_int(self::$workmode) && self::$workmode >= 0)
-			//FIXME: redo with VRD
-			;// View::r($path[0], array(), self::$workmode);
+			ob_start();
+
+			(new ViewRequiringDiscoverer($cursor, $path[1]))->go();
+			self::$BODY = ob_get_contents();
+
+			ob_end_clean();
+
+			if(MODE == 'FULL')
+				CMS::safeIncludeOnce('/templ/index.php');
+			else
+			{
+				CMS::headers();
+				self::body();
+			}
+		}
 		else
-			throw new ErrorHTTP('View: Unsupported working mode!', 400);
-
-		$body = ob_get_contents();
-		ob_end_clean();
-		CMS::headers();
-		echo $body;
+			throw new ErrorHTTP('View: Unsupported working mode "MODE"!', 400);
 	}
 
 	///Render footer
@@ -174,5 +164,10 @@ class View extends NoInst
 	public static function title()
 	{
 		return 'codename teo';
+	}
+
+	public static function body()
+	{
+		echo self::$BODY;
 	}
 }

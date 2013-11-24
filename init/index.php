@@ -42,7 +42,8 @@ function pre_dump()
 {
 	$vars = func_get_args();
 	echo '<pre>';
-	foreach ($vars as $v){
+	foreach ($vars as $v)
+	{
 		var_dump($v);
 		echo '<br />';
 	}
@@ -66,7 +67,8 @@ function pathdiff($str)
 function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NULL, $econtext = NULL)
 {
 	static $constants;
-	if(!isset($constants)){
+	if(!isset($constants))
+	{
 		$constants = get_defined_constants(1);
 		$constants = $constants['Core'];
 	}
@@ -183,7 +185,7 @@ function revCMS_class_autoload($class)
 	elseif(file_exists(ROOT.'/app/'.$classp))
 		require_once ROOT.'/app/'.$classp;
 	else
-		throw new ErrorException('Class not found: '.$class);
+		throw new Error('Class not found: '.$class);
 }
 
 spl_autoload_register('revCMS_class_autoload');

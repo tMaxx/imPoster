@@ -1,6 +1,6 @@
+<?
 
-index page
+$this->subnode('/user/panel');
 
-main content
+$this->node('/welcome');
 
-panels

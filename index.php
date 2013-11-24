@@ -5,6 +5,8 @@ define('CWD', getcwd());
 
 define('REQUEST', $_GET['__req__']);
 unset($_GET['__req__']);
+define('MODE', isset($_GET['__mode__']) ? $_GET['__mode__'] : 'FULL');
+unset($_GET['__mode__']);
 
 //redirect to init file, nothing else to do here
-include_once ROOT.'/init/index.php';
+require_once ROOT.'/init/index.php';

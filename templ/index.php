@@ -5,7 +5,7 @@
 	<meta name="description" content="" />
 	<meta name="author" content="MikWaw aka theMaxx (C)2013" />
 	<? View::head(); ?>
-	<link type="text/css" href="static/style.css" rel="stylesheet" />
+	<link type="text/css" href="/static/style.css" rel="stylesheet" />
 	<title><?= View::title() ?></title>
 </head>
 <body>
