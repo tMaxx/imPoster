@@ -16,6 +16,18 @@ class Repo {
         
     }
     
+    public static function findAll()
+    {
+        $rows = DB::rows('SELECT * FROM '.self::table());
+        $r = array();
+        foreach($rows as $v)
+        {
+            self::row($v);
+        }
+        
+        return $r;
+    }
+    
     public static function table()
     {
         $t = static::$OBJ;
