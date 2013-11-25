@@ -3,29 +3,30 @@
 class ViewRequiringDiscoverer
 {
 	///Cursor
-	protected $c = '';
+	protected $cur = '';
 	///Mode
-	protected $m = 0;
+	protected $mode = 0;
 	///Next nodes
-	protected $n = array();
+	protected $next = array();
+	///Next include node
+	protected $nn = NULL;
 	///Iterator - num of objects made
 	protected static $i = 40;
 	///Upper (parent) object
-	protected $p = NULL;
+	protected $par = NULL;
 	//$this' created objects
 	protected $o = array();
 
 	/**
-	 * Construct 
+	 * Construct
 	 * @param $cursor current directory
 	 * @param $next what to look for
 	 * @param $parent VRD
 	 * @param $mode finding mode
 	 * 0: Free to choose
 	 * 1: index.php in current $cursor path
-	 * 2: Get $next
-	 * 3: $next is file ($next)
-	 * 4: $next is directory ($next)
+	 * 2: $next is file
+	 * 3: $next is directory
 	 */
 	function __construct($cursor, $next, $parent = NULL, $mode = 0)
 	{
@@ -35,20 +36,60 @@ class ViewRequiringDiscoverer
 			throw new Error('VRD: $mode is not an int');
 
 		//set this thing
-		$this->c = $cursor;
-		$this->m = $mode;
-		$this->n = $next;
-		$this->p = $parent;
+		$this->cur = $cursor;
+		$this->mode = $mode;
+		$this->next = $next;
+		$this->par = $parent;
 	}
 
 	///Do the messy job
 	function go()
 	{
-		pre_dump($this);
-		$m = $this->m;
-		if()
+		if(CMS::fileExists($p = '/view'.$this->cur))
+		{
+			if($this->mode < 1 && CMS::fileExists($f = $p.'/index.php'))
+			{
+				$this->nn = $f;
+				$this->mode = 1; //index file
+			}
+			elseif($nxt = array_shift($nxt_arr = $this->next))
+			{
+				if(CMS::fileExists($f = $p.'/'.$nxt.'.php'))
+				{
+					$this->nn = $f;
+					$this->mode = 2; //file
+				}
+				elseif(CMS::fileExists($f = $p.'/'.$nxt))
+				{
+					$this->nn = $f;
+					$this->mode = 3; //dir
+					(new ViewRequiringDiscoverer($f, $nxt_arr, $this))->go();
+					return;
+				}
+				else
+					return;
+			}
+			else
+				return;
+		}
+		elseif(CMS::fileExists($p .= '.php'))
+		{
+			$this->nn = $p;
+			$this->mode = 2;
+		}
+		else
+		{
+			throw new ErrorHTTP('VRD: Node '.$this->cur.' does not exist!', 404);
+			return;
+		}
 
-		return;
+		$this->inc();
+	}
+
+	///Include files from $this->nn
+	protected function inc()
+	{
+		include ROOT.$this->nn;
 	}
 
 	/**
@@ -66,18 +107,41 @@ class ViewRequiringDiscoverer
 	}
 
 	/**
-	 * Launch suggested new node
+	 * Launch suggested current node
 	 * @param $path where to go, unless not to go
 	 * @param $param what to pass, unless not to pass
 	 */
 	function node($path, $param = array())
 	{
-		if(!$this->n)
-			$this->n = $path;
-		//$path may be not in current directory
-		//i.e. user doesn't have access to some part of site
-		$o = new ViewRequiringDiscoverer($this->cursor, array(), $this, 0);
+		if($path && $path[0] == '/'){
+			$this->subnode($path, $param);
+			return;
+		}
 
+		$cur = $this->cur;
+		$mode = 0;
+		if($defn = (!$this->next || (isset($this->next[0]) && !$this->next[0])))
+			$path = (array) explode('/', $path);
+		else
+			$path = $this->next;
+
+		switch ($this->mode) {
+			case 1:
+				//current == index
+				$mode = 2;
+			case 2:
+				//current == file
+				$nxt = array_shift($path);
+				$cur .= '/'.$nxt;
+				break;
+		}
+
+		(new ViewRequiringDiscoverer($cur, $path, $this, $mode))->go();
+	}
+
+	function auth($guard, $defpath)
+	{
+		// if(!)
 	}
 }
 

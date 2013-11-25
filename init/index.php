@@ -57,7 +57,10 @@ function pre_dump()
  */
 function pathdiff($str)
 {
-	return str_replace(ROOT, '', $str);
+	static $ar;
+	if(!$ar)
+		$ar = str_replace('/', '\/', ROOT);
+	return str_replace(array(ROOT, $ar), '', $str);
 }
 
 /**
@@ -79,7 +82,7 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 
 	if((isset($eno, $estr, $efile)) || (!isset($eno) && (($e_last = error_get_last()) !== NULL))) //error
 	{
-		ob_get_clean();
+		//ob_get_clean();
 		$eName = '?';
 
 		if(isset($e_last['type']))
@@ -155,7 +158,7 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 		if(isset($v['args']) && $v['args'])
 		{
 			$result[] = ', args: ';
-			$result[] = htmlspecialchars(json_encode($v['args']), ENT_COMPAT|ENT_HTML5);
+			$result[] = htmlspecialchars(pathdiff(json_encode($v['args'])), ENT_COMPAT|ENT_HTML5);
 		}
 		$result[] = '<br />';
 	}
