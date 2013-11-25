@@ -43,11 +43,12 @@ class ViewRequiringDiscoverer {
 	///Do the messy job
 	function go() {
 		if(CMS::fileExists($p = '/view'.$this->cur)) {
+			$nxt_arr = $this->next;
 			if($this->mode < 1 && CMS::fileExists($f = $p.'/index.php')) {
 				$this->nn = $f;
 				$this->mode = 1; //index file
 			}
-			elseif($nxt = array_shift($nxt_arr = $this->next)) {
+			elseif($nxt = array_shift($nxt_arr)) {
 				if(CMS::fileExists($f = $p.'/'.$nxt.'.php')) {
 					$this->nn = $f;
 					$this->mode = 2; //file
