@@ -13,7 +13,7 @@ class Repo {
 
     public static function findById($id)
     {
-        $r = DB::row($id);
+        $r = DB::row('SELECT * FROM '.self::table().' WHERE '.strtolower(self::$OBJ).'_id=?', 'i', array($id));
         if($r)
             return self::row($r);
         else
