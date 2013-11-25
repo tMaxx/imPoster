@@ -15,7 +15,7 @@ class Model {
 	{
 		$s = $this->toArray();
         
-		if(isset($this->($prefix.'_id'));)
+		if(isset($this->getId());)
             DB::update($TABLE, $this->($prefix.'_id'), $s);  
         else
             DB::insert($TABLE, $s);   
