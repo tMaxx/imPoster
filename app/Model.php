@@ -22,7 +22,10 @@ class Model {
     
     public function getId()
     {
-        return $this->($prefix.'_id');
+        if(isset($this->($prefix.'_id')))
+            return $this->($prefix.'_id');
+        else
+            return NULL;
     }
 
 } 
