@@ -16,11 +16,9 @@ class Model {
 		$s = $this->toArray();
         
 		if(isset($this->($prefix.'_id'));)
-            foreach($s as $k => $v)
-                DB::update($TABLE, $this->($prefix.'_id'), $v);  
-         else
-            foreach($s as $k => $v)
-                DB::insert($TABLE, $v);   
+            DB::update($TABLE, $this->($prefix.'_id'), $s);  
+        else
+            DB::insert($TABLE, $s);   
 	}
 
 } 
