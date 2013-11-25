@@ -15,4 +15,10 @@ class Repo {
     {
         
     }
+    
+    public static function table()
+    {
+        $t = static::$OBJ->table();
+        return $t;
+    }
 }
