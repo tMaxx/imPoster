@@ -6,30 +6,25 @@
  * For every class that should not have an instance
  * Implements locks for every class
  */
-class NoInst
-{
+class NoInst {
 	protected static $LOCKS = array();
 
-	final function __construct()
-	{	throw new Error('Thou shall not create a new object!'); }
+	final function __construct() {	throw new Error('Thou shall not create a new object!'); }
 
 	///Class function - is locked?
-	final protected static function is_locked($n = 2)
-	{
+	final protected static function is_locked($n = 2) {
 		$r = isset(self::$LOCKS[($c = get_called_class())][($f = debug_backtrace()[$n]['function'])]);
 		return array($r, $c, $f);
 	}
 
 	///Set the lock, but 1st time return false
-	final protected static function lock()
-	{
+	final protected static function lock() {
 		list($r, $c, $f) = self::is_locked();
 		return $r ? TRUE : (!(self::$LOCKS[$c][$f] = TRUE));
 	}
 
 	///Unset the lock, but 1st time return false
-	final protected static function unlock()
-	{
+	final protected static function unlock() {
 		list($r, $c, $f) = self::is_locked();
 		if($r)
 			self::$LOCKS[$c][$f] = NULL;
@@ -38,12 +33,10 @@ class NoInst
 }
 
 ///dumper
-function pre_dump()
-{
+function pre_dump() {
 	$vars = func_get_args();
 	echo '<pre>';
-	foreach ($vars as $v)
-	{
+	foreach ($vars as $v) {
 		var_dump($v);
 		echo '<br />';
 	}
@@ -55,8 +48,7 @@ function pre_dump()
  * @param $str
  * @return trimmed ROOT
  */
-function pathdiff($str)
-{
+function pathdiff($str) {
 	static $ar;
 	if(!$ar)
 		$ar = str_replace('/', '\/', ROOT);
@@ -67,11 +59,9 @@ function pathdiff($str)
  * Custom all-error handler
  * @param standard params
  */
-function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NULL, $econtext = NULL)
-{
+function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NULL, $econtext = NULL) {
 	static $constants;
-	if(!isset($constants))
-	{
+	if(!isset($constants)) {
 		$constants = get_defined_constants(1);
 		$constants = $constants['Core'];
 	}
@@ -80,24 +70,20 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 
 	$result = array('<br /><br />');
 
-	if((isset($eno, $estr, $efile)) || (!isset($eno) && (($e_last = error_get_last()) !== NULL))) //error
-	{
-		//ob_get_clean();
+	if((isset($eno, $estr, $efile)) || (!isset($eno) && (($e_last = error_get_last()) !== NULL))) { //error
 		$eName = '?';
 
 		if(isset($e_last['type']))
 			$eno = $e_last['type'];
 
 		foreach ($constants as $key => $value)
-			if (substr($key, 0, 2) == 'E_' && $eno == $value)
-			{
+			if (substr($key, 0, 2) == 'E_' && $eno == $value) {
 				$eName = $key;
 				unset($trace[0]);
 				break;
 			}
 
-		if(isset($e_last['message']))
-		{
+		if(isset($e_last['message'])) {
 			$eName = '<b>FATAL</b>: '.$eName;
 			$efile = $e_last['file'];
 			$eline = $e_last['line'];
@@ -106,9 +92,7 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 
 		$result[] = '<big><b>Error</b></big>: '.$eName.': '.$estr.' at '.pathdiff($efile).':'.$eline;
 	}
-	elseif(isset($eno)) //exception handler
-	{
-		ob_get_clean();
+	elseif(isset($eno)) { //exception handler
 		if($eno instanceof Error)
 			$result[] = '<big><b>Error</b></big>: ';
 		elseif($eno instanceof Exception)
@@ -124,8 +108,7 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 
 		$trace = $eno->getTrace();
 	}
-	else
-	{
+	else {
 		if(!isset($e_last))
 			CMS::end();
 		return;
@@ -136,11 +119,9 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 	if(!count($trace))
 		$result[] = '<i>No stack trace available</i><br />';
 	else
-	foreach($trace as $i => $v)
-	{
+	foreach($trace as $i => $v) {
 		$result[] = $i . '# ';
-		if(isset($v['file']) && $v['file'])
-		{
+		if(isset($v['file']) && $v['file']) {
 			$result[] = pathdiff($v['file']);
 			$result[] = ':';
 			$result[] = $v['line'];
@@ -148,15 +129,13 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 		}
 		else
 			$result[] = '[<i>internal call</i>] ';
-		if(isset($v['class']))
-		{
+		if(isset($v['class'])) {
 			$result[] = $v['class'];
 			$result[] = $v['type'];
 		}
 		$result[] = $v['function'];
 		$result[] = '()';
-		if(isset($v['args']) && $v['args'])
-		{
+		if(isset($v['args']) && $v['args']) {
 			$result[] = ', args: ';
 			$result[] = htmlspecialchars(pathdiff(json_encode($v['args'])), ENT_COMPAT|ENT_HTML5);
 		}
@@ -175,8 +154,7 @@ register_shutdown_function('revCMS_e_handler');
  * @param $class class name
  * @todo everything
  */
-function revCMS_class_autoload($class)
-{
+function revCMS_class_autoload($class) {
 	static $sysTab;
 	if(!isset($sysTab))
 		$sysTab = array_diff(scandir(ROOT.'/sys/'), array('..', '.', 'Errors.php'));

@@ -2,8 +2,7 @@
 /**
  * DB - Database support class
  */
-class DB extends NoInst
-{
+class DB extends NoInst {
 	//db object
 	private static $db = NULL;
 	//last executed query result
@@ -12,8 +11,7 @@ class DB extends NoInst
 	/**
 	 * End execution, close everything
 	 */
-	public static function end()
-	{
+	public static function end() {
 		if(self::lock())
 			return;
 
@@ -31,8 +29,7 @@ class DB extends NoInst
 	 * Prepare the DB and connect to it
 	 * @param $con connection options
 	 */
-	public static function go($con)
-	{
+	public static function go($con) {
 		if(self::lock())
 			return;
 
@@ -49,8 +46,7 @@ class DB extends NoInst
 	 * Return no of rows affected by last query
 	 * @return int
 	 */
-	public static function affectedRows()
-	{
+	public static function affectedRows() {
 		return self::$db->affected_rows;
 	}
 
@@ -58,8 +54,7 @@ class DB extends NoInst
 	 * Return id of last insert
 	 * @return int
 	 */
-	public static function insertedID()
-	{
+	public static function insertedID() {
 		return self::$db->insert_id;
 	}
 
@@ -70,8 +65,7 @@ class DB extends NoInst
 	 * @param $val values to bind
 	 * @return bool|mysqli_result
 	 */
-	protected static function q($q, $tps = '', array $val = array())
-	{
+	protected static function q($q, $tps = '', array $val = array()) {
 		if(!tps || !val)
 			self::$last = $db->query($q);
 		else {
@@ -107,8 +101,7 @@ class DB extends NoInst
 	 * @param $types value types
 	 * @param $values values to bind
 	 */
-	public static function row($q, $types = '', array $values = array())
-	{
+	public static function row($q, $types = '', array $values = array()) {
 		$res = self::q($q, $types, $values);
 
 		return $res->fetch_assoc();
@@ -120,8 +113,7 @@ class DB extends NoInst
 	 * @param $types value types
 	 * @param $values values to bind
 	 */
-	public static function rows($q, $types = '', array $values = array())
-	{
+	public static function rows($q, $types = '', array $values = array()) {
 		$res = self::q($q, $types, $values);
 		
 		$r = array();
@@ -134,13 +126,11 @@ class DB extends NoInst
 		return $r;
 	}
 
-	public static function insert()
-	{
+	public static function insert() {
 		
 	}
 
-	public static function update()
-	{
+	public static function update() {
 		
 	}
 

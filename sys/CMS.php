@@ -2,8 +2,7 @@
 /**
  * CMS - basic content management class
  */
-class CMS extends NoInst
-{
+class CMS extends NoInst {
 	///CMS identificator
 	const CMS_ID = 'revCMS codename /shadow/';
 	///CMS version
@@ -19,8 +18,7 @@ class CMS extends NoInst
 
 	///Perform any needed operations before executing any custom scripts
 	///Just to keep it clean
-	protected static function init()
-	{
+	protected static function init() {
 		if(self::lock())
 			return;
 
@@ -64,16 +62,14 @@ class CMS extends NoInst
 	}
 
 	///Pre-exit commands
-	public static function end()
-	{
+	public static function end() {
 		if(!self::lock())
 			return;
 		DB::end();
 	}
 
 	///Run this house
-	public static function go()
-	{
+	public static function go() {
 		if(self::lock())
 			return;
 
@@ -86,8 +82,7 @@ class CMS extends NoInst
 	}
 
 	///Set all needed headers
-	public static function headers()
-	{
+	public static function headers() {
 		foreach (self::$HTTPheaders as $v)
 			header($v);
 	}
@@ -96,8 +91,7 @@ class CMS extends NoInst
 	 * Add new header to be set later
 	 * @param $header
 	 */
-	public static function addHeader($header)
-	{
+	public static function addHeader($header) {
 		if (!is_array($header))
 			$header = array($header);
 
@@ -116,8 +110,7 @@ class CMS extends NoInst
 	 * @param $file path to file, relative to /
 	 * @return bool true on success
 	 */
-	public static function safeInclude($file)
-	{
+	public static function safeInclude($file) {
 		if($r = self::fileExists($file))
 			include ROOT.$file;
 		return !!$r;
@@ -128,8 +121,7 @@ class CMS extends NoInst
 	 * @param $file path to file, relative to /
 	 * @return bool true on success
 	 */
-	public static function safeIncludeOnce($file)
-	{
+	public static function safeIncludeOnce($file) {
 		if($r = self::fileExists($file))
 			include_once ROOT.$file;
 		return !!$r;
@@ -140,8 +132,7 @@ class CMS extends NoInst
 	 * @param $file path, relative to /
 	 * @return bool
 	 */
-	public static function fileExists($file)
-	{
+	public static function fileExists($file) {
 		return file_exists(ROOT.$file);
 	}
 
@@ -154,8 +145,7 @@ class CMS extends NoInst
 	 * string: single value
 	 * array: returns filled array with variable names as keys
 	 */
-	public static function varGet($in)
-	{
+	public static function varGet($in) {
 		if(is_array($in))
 			foreach ($in as $k)
 				$in[$k] = (isset(self::$GET[$k]) ? self::$GET[$k] : NULL);
@@ -174,8 +164,7 @@ class CMS extends NoInst
 	 * string: single value
 	 * array: returns filled array with variable names as keys
 	 */
-	public static function varPost($in)
-	{
+	public static function varPost($in) {
 		if(is_array($in))
 			foreach ($in as $k)
 				$in[$k] = (isset(self::$POST[$k]) ? self::$POST[$k] : NULL);
@@ -194,8 +183,7 @@ class CMS extends NoInst
 	 * string: single value
 	 * array: returns filled array with variable names as keys
 	 */
-	public static function varPath($in = 0)
-	{
+	public static function varPath($in = 0) {
 		if(is_array($in))
 			foreach ($in as $k)
 				$in[$k] = (isset(self::$PATH[$k]) ? self::$PATH[$k] : NULL);
@@ -210,9 +198,7 @@ class CMS extends NoInst
 	 * @param $target path
 	 * @return string full path
 	 */
-	public static function l($target)
-	{
+	public static function l($target) {
 		
 	}
-
 }

@@ -2,8 +2,7 @@
 /**
 * Hlp - Static helpers
 */
-class Hlp extends NoInst
-{
+class Hlp extends NoInst {
 	/**
 	 * Return string with cosequentive newlines/spaces limited to 2
 	 * and with trimmed whitespaces at beginning and end of string
@@ -22,8 +21,5 @@ class Hlp extends NoInst
 		//trim spaces/tabs
 		return preg_replace('/(?:\s|\t){2,}/s', '  ', $input);
 	}
-
-
-
 
 }

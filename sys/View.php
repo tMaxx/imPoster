@@ -1,7 +1,6 @@
 <?php ///revCMS /sys/View.php
 ///Actually just a complete view generator
-class ViewRequiringDiscoverer
-{
+class ViewRequiringDiscoverer {
 	///Cursor
 	protected $cur = '';
 	///Mode
@@ -28,8 +27,7 @@ class ViewRequiringDiscoverer
 	 * 2: $next is file
 	 * 3: $next is directory
 	 */
-	function __construct($cursor, $next, $parent = NULL, $mode = 0)
-	{
+	function __construct($cursor, $next, $parent = NULL, $mode = 0) {
 		if(((static::$i--)) <= 0)
 			throw new Error('VRD: object count limit reached');
 		if(!is_int($mode))
@@ -43,24 +41,18 @@ class ViewRequiringDiscoverer
 	}
 
 	///Do the messy job
-	function go()
-	{
-		if(CMS::fileExists($p = '/view'.$this->cur))
-		{
-			if($this->mode < 1 && CMS::fileExists($f = $p.'/index.php'))
-			{
+	function go() {
+		if(CMS::fileExists($p = '/view'.$this->cur)) {
+			if($this->mode < 1 && CMS::fileExists($f = $p.'/index.php')) {
 				$this->nn = $f;
 				$this->mode = 1; //index file
 			}
-			elseif($nxt = array_shift($nxt_arr = $this->next))
-			{
-				if(CMS::fileExists($f = $p.'/'.$nxt.'.php'))
-				{
+			elseif($nxt = array_shift($nxt_arr = $this->next)) {
+				if(CMS::fileExists($f = $p.'/'.$nxt.'.php')) {
 					$this->nn = $f;
 					$this->mode = 2; //file
 				}
-				elseif(CMS::fileExists($f = $p.'/'.$nxt))
-				{
+				elseif(CMS::fileExists($f = $p.'/'.$nxt)) {
 					$this->nn = $f;
 					$this->mode = 3; //dir
 					(new ViewRequiringDiscoverer($f, $nxt_arr, $this))->go();
@@ -72,13 +64,11 @@ class ViewRequiringDiscoverer
 			else
 				return;
 		}
-		elseif(CMS::fileExists($p .= '.php'))
-		{
+		elseif(CMS::fileExists($p .= '.php')) {
 			$this->nn = $p;
 			$this->mode = 2;
 		}
-		else
-		{
+		else {
 			throw new ErrorHTTP('VRD: Node '.$this->cur.' does not exist!', 404);
 			return;
 		}
@@ -87,8 +77,7 @@ class ViewRequiringDiscoverer
 	}
 
 	///Include files from $this->nn
-	protected function inc()
-	{
+	protected function inc() {
 		include ROOT.$this->nn;
 	}
 
@@ -97,8 +86,7 @@ class ViewRequiringDiscoverer
 	 * @param $path what to render
 	 * @param $param what to pass
 	 */
-	function subnode($path, $param = array())
-	{
+	function subnode($path, $param = array()) {
 		$c = count($this->o);
 		$this->o[] = new ViewRequiringDiscoverer($path, array(), $this);
 		//don't copy object
@@ -111,9 +99,8 @@ class ViewRequiringDiscoverer
 	 * @param $path where to go, unless not to go
 	 * @param $param what to pass, unless not to pass
 	 */
-	function node($path, $param = array())
-	{
-		if($path && $path[0] == '/'){
+	function node($path, $param = array()) {
+		if($path && $path[0] == '/') {
 			$this->subnode($path, $param);
 			return;
 		}
@@ -125,22 +112,15 @@ class ViewRequiringDiscoverer
 		else
 			$path = $this->next;
 
-		switch ($this->mode) {
-			case 1:
-				//current == index
-				$mode = 2;
-			case 2:
-				//current == file
-				$nxt = array_shift($path);
-				$cur .= '/'.$nxt;
-				break;
+		if($this->mode == 1 || $this->mode == 2) {
+			$nxt = array_shift($path);
+			$cur .= '/'.$nxt;
 		}
 
-		(new ViewRequiringDiscoverer($cur, $path, $this, $mode))->go();
+		(new ViewRequiringDiscoverer($cur, $path, $this, $this->mode))->go();
 	}
 
-	function auth($guard, $defpath)
-	{
+	function auth($guard, $defpath) {
 		// if(!)
 	}
 }
@@ -148,8 +128,7 @@ class ViewRequiringDiscoverer
 /**
  * View/HTML class
  */
-class View extends NoInst
-{
+class View extends NoInst {
 	///Main template used
 	const TEMPLATE = '/templ/index.php';
 	///Everything that wil be added in <head>here</head>
@@ -161,17 +140,14 @@ class View extends NoInst
 	 * Try to retrieve and render view, handle errors
 	 * @param $path path from CMS
 	 */
-	public static function go($path)
-	{
+	public static function go($path) {
 		if(self::lock())
 			return;
 
-		if(in_array(MODE, array('FULL', 'PART', 'SINGLE')))
-		{
+		if(in_array(MODE, array('FULL', 'PART', 'SINGLE'))) {
 			$cursor = '/';
 			$next = array_shift($path[1]);
-			if(MODE == 'SINGLE')
-			{
+			if(MODE == 'SINGLE') {
 				$cursor = $path[0];
 				$next = array();
 			}
@@ -179,14 +155,12 @@ class View extends NoInst
 			ob_start();
 
 			(new ViewRequiringDiscoverer($cursor, $path[1]))->go();
-			self::$BODY = ob_get_contents();
 
-			ob_end_clean();
+			self::$BODY = ob_get_clean();
 
 			if(MODE == 'FULL')
 				CMS::safeIncludeOnce('/templ/index.php');
-			else
-			{
+			else {
 				CMS::headers();
 				self::body();
 			}
@@ -196,8 +170,7 @@ class View extends NoInst
 	}
 
 	///Render footer
-	public static function footer()
-	{
+	public static function footer() {
 		echo '<span id="exec-time">InEXt: '.round(((microtime(true) - NOW_MICRO)*1000.0), 3).'ms</span>';
 	}
 
@@ -205,8 +178,7 @@ class View extends NoInst
 	 * Add new header to be set later
 	 * @param $html
 	 */
-	public static function addToHead($html)
-	{
+	public static function addToHead($html) {
 		if (!is_array($header))
 			$header = array($header);
 
@@ -218,20 +190,17 @@ class View extends NoInst
 	}
 
 	///Render contents of $HTMLhead
-	public static function head()
-	{
+	public static function head() {
 		foreach (self::$HTMLhead as $v)
 			echo $v;
 	}
 
 	///Return site title, based on whatever needed
-	public static function title()
-	{
+	public static function title() {
 		return 'codename teo';
 	}
 
-	public static function body()
-	{
+	public static function body() {
 		echo self::$BODY;
 	}
 }

@@ -2,10 +2,8 @@
 /**
  * Modloader class
  */
-class Mod extends NoInst
-{
-	public static function go()
-	{
+class Mod extends NoInst {
+	public static function go() {
 		# code...
 	}
 }
