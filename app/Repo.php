@@ -13,7 +13,11 @@ class Repo {
 
     public static function findById($id)
     {
-        
+        $r = DB::row($id);
+        if($r)
+            return self::row($r);
+        else
+            return null;
     }
     
     public static function findAll()
