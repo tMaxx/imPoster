@@ -6,9 +6,9 @@ class Repo {
 
     public static function row(array $a)
     {
-        new static::$OBJ;
-        $OBJ->set($a);
-        return $OBJ;
+        $r = new static::$OBJ;
+        $r->set($a);
+        return $r;
     }
 
     public static function findById($id)
