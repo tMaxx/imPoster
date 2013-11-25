@@ -1,6 +1,7 @@
 <?php //teo /app/Model.php
 
 class Model {
+	abstract static $TABLE;
 
 	public function set(array $a)
 	{
@@ -14,10 +15,10 @@ class Model {
 	{
 		$s = $this->toArray();
         
-		if(isset($this->getId()))
-            DB::update($TABLE, $this->getId(), $s);  
-        else
-            DB::insert($TABLE, $s);   
+		if($this->getId())
+			DB::update($this->table(), $this->getId(), $s);  
+		else
+			DB::insert($this->table(), $s);
 	}
     
     public function getId()
@@ -26,6 +27,12 @@ class Model {
             return $this->($prefix.'_id');
         else
             return NULL;
+    }
+    
+    public function table()
+    {
+    	if(isset(static::$TABLE))
+    		return static::$TABLE;
     }
 
 } 
