@@ -21,9 +21,7 @@ class Repo {
         $rows = DB::rows('SELECT * FROM '.self::table());
         $r = array();
         foreach($rows as $v)
-        {
-            self::row($v);
-        }
+            $r[] = self::row($v);
         
         return $r;
     }
