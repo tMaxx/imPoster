@@ -10,16 +10,20 @@ class Model {
 		return $this;
 	}
 
-
 	public function save()
 	{
 		$s = $this->toArray();
         
-		if(isset($this->getId());)
-            DB::update($TABLE, $this->($prefix.'_id'), $s);  
+		if(isset($this->getId()))
+            DB::update($TABLE, $this->getId(), $s);  
         else
             DB::insert($TABLE, $s);   
 	}
+    
+    public function getId()
+    {
+        return $this->($prefix.'_id');
+    }
 
 } 
 
