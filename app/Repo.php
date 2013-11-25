@@ -1,10 +1,16 @@
-<?php
+<?php ///teo /app/Repo.php
 
 class Repo {
-    
-    public function row(array $a)
+    ///Related object name
+    static $OBJ;
+
+    public static function row(array $a)
+    {
+        
+    }
+
+    public static function findById($id)
     {
         
     }
 }
-
