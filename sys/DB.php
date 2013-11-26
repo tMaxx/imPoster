@@ -80,7 +80,22 @@ class DB extends NoInst {
 
 			for ($i = 0; $i < $c; $i++) {
 				if($tps[$i] == 's')
-					$val[$i] = self::$db->escape_string($val[$i]);
+				switch ($tps[$i]) {
+					case 'i':
+						$val[$i] = (int) $val[$i];
+						break;
+					case 'd':
+						$val[$i] = (double) $val[$i];
+						break;
+					case 'f':
+						$val[$i] = (float) $val[$i];
+						break;
+					case 's':
+					default:
+						$val[$i] = self::$db->escape_string($val[$i]);
+						break;
+				}
+
 				$st->bind_param($tps[$i], $val[$i]);
 			}
 

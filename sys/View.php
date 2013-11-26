@@ -1,43 +1,50 @@
 <?php ///revCMS /sys/View.php
 ///Actually just a complete view generator
 class ViewRequiringDiscoverer {
-	///Cursor
-	protected $cur = '';
 	///Mode
-	protected $mode = 0;
-	///Next nodes
-	protected $next = array();
+	protected $find_index = TRUE;
 	///Next include node
 	protected $nn = NULL;
 	///Iterator - num of objects made
-	protected static $i = 40;
-	///Upper (parent) object
-	protected $par = NULL;
-	//$this' created objects
-	protected $o = array();
+	protected static $i = 20;
+	///$this' parent object
+	protected $parent = NULL;
+	//Called pages stack
+	protected $ctx = array();
+		///Last node from stack
+		protected $ctxl = '';
+	///Cursor
+	protected $cur = '';
+	///Next nodes
+	protected $next = array();
 
 	/**
 	 * Construct
 	 * @param $cursor current directory
-	 * @param $next what to look for
-	 * @param $parent VRD
-	 * @param $mode finding mode
-	 * 0: Free to choose
-	 * 1: index.php in current $cursor path
-	 * 2: $next is file
-	 * 3: $next is directory
+	 * @param $next nodes stack
+	 * @param $parent NULL|VRD
+	 * @param $index look for index.php in $cursor?
 	 */
-	function __construct($cursor, $next, $parent = NULL, $mode = 0) {
+	function __construct($cursor, $next, $parent = NULL, $index = TRUE) {
 		if(((static::$i--)) <= 0)
 			throw new Error('VRD: object count limit reached');
-		if(!is_int($mode))
-			throw new Error('VRD: $mode is not an int');
+		if(!is_bool($index))
+			throw new Error('VRD: $mode is not bool');
 
 		//set this thing
 		$this->cur = $cursor;
-		$this->mode = $mode;
+		$this->find_index = $index;
 		$this->next = $next;
-		$this->par = $parent;
+		$this->parent = $parent;
+	}
+
+	/**
+	 * Push $value on stack
+	 * @param $value
+	 */
+	protected function spush($value) {
+		$this->ctxl = $value;
+		$this->ctx[] = $value;
 	}
 
 	///Do the messy job
@@ -101,7 +108,7 @@ class ViewRequiringDiscoverer {
 	 * @param $param what to pass, unless not to pass
 	 */
 	function node($path, $param = array()) {
-		if($path && $path[0] == '/') {
+		if(is_string($path) && $path[0] == '/') {
 			$this->subnode($path, $param);
 			return;
 		}
@@ -121,8 +128,14 @@ class ViewRequiringDiscoverer {
 		(new ViewRequiringDiscoverer($cur, $path, $this, $this->mode))->go();
 	}
 
-	function auth($guard, $defpath) {
+	function guard_auth($guard, $defpath) {
 		// if(!)
+	}
+
+	///Guard: node is available only as part of another view when doing FULL render
+	function guard_nonrequest() {
+		if($this->parent === NULL && !View::isMode('FULL'))
+			throw new ErrorHTTP('VRD: Node disallowed', 400);
 	}
 }
 
@@ -145,7 +158,7 @@ class View extends NoInst {
 		if(self::lock())
 			return;
 
-		if(in_array(MODE, array('FULL', 'PART', 'SINGLE'))) {
+		if(self::isMode('FULL', 'PART', 'SINGLE'))) {
 			$cursor = '/';
 			$next = array_shift($path[1]);
 			if(MODE == 'SINGLE') {
@@ -159,7 +172,7 @@ class View extends NoInst {
 
 			self::$BODY = ob_get_clean();
 
-			if(MODE == 'FULL')
+			if(self::isMode('FULL'))
 				CMS::safeIncludeOnce('/templ/index.php');
 			else {
 				CMS::headers();
@@ -168,6 +181,15 @@ class View extends NoInst {
 		}
 		else
 			throw new ErrorHTTP('View: Unsupported working mode "MODE"!', 400);
+	}
+
+	/**
+	 * Is MODE equal to one of parameters
+	 * @param $mode strings
+	 * @return bool
+	 */
+	public static function isMode() {
+		return !!in_array(MODE, func_get_args());
 	}
 
 	///Render footer
