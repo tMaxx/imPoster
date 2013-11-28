@@ -8,5 +8,6 @@ Consists of two parts:
  - teo: ThEOrganizer application
 
 revCMS: brief changelog
-0.2: initial db support, initial View class & render
-0.1: request path support, classes, errors, file management
+-----------------------
+ 0.2: initial db support, initial View class & render
+ 0.1: request path support, classes, errors, file management
