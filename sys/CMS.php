@@ -26,11 +26,7 @@ class CMS extends NoInst {
 
 		//revamp request to something more readable
 		$ipath = (array) explode('/', REQUEST);
-
-		//full request path
 		self::$PATH[1] = array($rpath = '/');
-
-		//generate path
 		foreach($ipath as $k => $v) {
 			if(empty($v) || !is_numeric($k))
 				continue;

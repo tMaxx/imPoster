@@ -90,6 +90,9 @@ class DB extends NoInst {
 					case 'f':
 						$val[$i] = (float) $val[$i];
 						break;
+					case 'c':
+						$val[$i] = (string) $val[$i][0];
+						break;
 					case 's':
 					default:
 						$val[$i] = self::$db->escape_string($val[$i]);
