@@ -4,7 +4,7 @@ theOrganizer
 Quite a organizer. A work in progress project.
 
 Consists of two parts:
- - revCMS: R3Volution Content Management System, don't mind the typography
+ - revCMS: R3Volution Content Management System (don't mind the name)
  - teo: ThEOrganizer application
 
 
