@@ -26,7 +26,7 @@ class NoInst {
 	///Unset the lock, but 1st time return false
 	final protected static function unlock() {
 		list($r, $c, $f) = self::is_locked();
-		if($r)
+		if ($r)
 			self::$LOCKS[$c][$f] = NULL;
 		return !$r;
 	}
@@ -50,7 +50,7 @@ function pre_dump() {
  */
 function pathdiff($str) {
 	static $ar;
-	if(!$ar)
+	if (!$ar)
 		$ar = str_replace('/', '\/', ROOT);
 	return str_replace(array(ROOT, $ar), '', $str);
 }
@@ -61,7 +61,7 @@ function pathdiff($str) {
  */
 function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NULL, $econtext = NULL) {
 	static $constants;
-	if(!isset($constants)) {
+	if (!isset($constants)) {
 		$constants = get_defined_constants(1);
 		$constants = $constants['Core'];
 	}
@@ -70,10 +70,10 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 
 	$result = array('<br /><br />');
 
-	if((isset($eno, $estr, $efile)) || (!isset($eno) && (($e_last = error_get_last()) !== NULL))) { //error
+	if ((isset($eno, $estr, $efile)) || (!isset($eno) && (($e_last = error_get_last()) !== NULL))) { //error
 		$eName = '?';
 
-		if(isset($e_last['type']))
+		if (isset($e_last['type']))
 			$eno = $e_last['type'];
 
 		foreach ($constants as $key => $value)
@@ -83,7 +83,7 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 				break;
 			}
 
-		if(isset($e_last['message'])) {
+		if (isset($e_last['message'])) {
 			$eName = '<b>FATAL</b>: '.$eName;
 			$efile = $e_last['file'];
 			$eline = $e_last['line'];
@@ -92,12 +92,12 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 
 		$result[] = '<big><b>Error</b></big>: '.$eName.': '.$estr.' at '.pathdiff($efile).':'.$eline;
 	}
-	elseif(isset($eno)) { //exception handler
-		if($eno instanceof Error)
+	elseif (isset($eno)) { //exception handler
+		if ($eno instanceof Error)
 			$result[] = '<big><b>Error</b></big>: ';
-		elseif($eno instanceof Exception)
+		elseif ($eno instanceof Exception)
 			$result[] = '<big><b>Exception</b></big>: ';
-		elseif($eno instanceof ErrorException)
+		elseif ($eno instanceof ErrorException)
 			$result[] = '<big><b>Error/Exception</b></big>: ';
 
 		$result[] = $eno->getMessage();
@@ -109,19 +109,19 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 		$trace = $eno->getTrace();
 	}
 	else {
-		if(!isset($e_last))
+		if (!isset($e_last))
 			CMS::end();
 		return;
 	}
 
 	$result[] = '<br />Stack trace:<br />';
 
-	if(!count($trace))
+	if (!count($trace))
 		$result[] = '<i>No stack trace available</i><br />';
 	else
 	foreach($trace as $i => $v) {
 		$result[] = $i . '# ';
-		if(isset($v['file']) && $v['file']) {
+		if (isset($v['file']) && $v['file']) {
 			$result[] = pathdiff($v['file']);
 			$result[] = ':';
 			$result[] = $v['line'];
@@ -129,13 +129,13 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 		}
 		else
 			$result[] = '[<i>internal call</i>] ';
-		if(isset($v['class'])) {
+		if (isset($v['class'])) {
 			$result[] = $v['class'];
 			$result[] = $v['type'];
 		}
 		$result[] = $v['function'];
 		$result[] = '()';
-		if(isset($v['args']) && $v['args']) {
+		if (isset($v['args']) && $v['args']) {
 			$result[] = ', args: ';
 			$result[] = htmlspecialchars(pathdiff(json_encode($v['args'])), ENT_COMPAT|ENT_HTML5);
 		}
@@ -156,14 +156,14 @@ register_shutdown_function('revCMS_e_handler');
  */
 function revCMS_class_autoload($class) {
 	static $sysTab;
-	if(!isset($sysTab))
+	if (!isset($sysTab))
 		$sysTab = array_diff(scandir(ROOT.'/sys/'), array('..', '.', 'Errors.php'));
 
 	$classp = $class . '.php';
 
-	if(in_array($classp, $sysTab))
+	if (in_array($classp, $sysTab))
 		require_once ROOT.'/sys/'.$classp;
-	elseif(file_exists(ROOT.'/app/'.$classp))
+	elseif (file_exists(ROOT.'/app/'.$classp))
 		require_once ROOT.'/app/'.$classp;
 	else
 		throw new Error('Class not found: '.$class);

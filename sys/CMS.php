@@ -13,31 +13,31 @@ class CMS extends NoInst {
 	private static $GET = array();
 	///POST parameters
 	private static $POST = array();
-	///Request path
-	private static $PATH = array();
+	///URI parameters & exploded path
+	private static $URI = array();
 
 	///Perform any needed operations before executing any custom scripts
 	///Just to keep it clean
 	protected static function init() {
-		if(self::lock())
+		if (self::lock())
 			return;
 
 		self::safeIncludeOnce('/sys/Errors.php');
 
 		//revamp request to something more readable
 		$ipath = (array) explode('/', REQUEST);
-		self::$PATH[1] = array($rpath = '/');
-		foreach($ipath as $k => $v) {
-			if(empty($v) || !is_numeric($k))
+		self::$URI[1] = array($rpath = '/');
+		foreach ($ipath as $k => $v) {
+			if (empty($v) || !is_numeric($k))
 				continue;
 			$e = (array) explode(':', $v, 2);
 			$rpath .= $e[0];
-			self::$PATH[1][] = $e[0];
-			if(isset($e[1]))
-				self::$PATH[$e[0]] = $e[1];
+			self::$URI[1][] = $e[0];
+			if (isset($e[1]))
+				self::$URI[$e[0]] = $e[1];
 			$rpath .= '/';
 		}
-		self::$PATH[0] = substr($rpath, 0, -1);
+		self::$URI[0] = substr($rpath, 0, -1);
 
 		//set variables
 		self::$GET = $_GET;
@@ -59,19 +59,19 @@ class CMS extends NoInst {
 
 	///Pre-exit commands
 	public static function end() {
-		if(!self::lock())
+		if (!self::lock())
 			return;
 		DB::end();
 	}
 
 	///Run this house
 	public static function go() {
-		if(self::lock())
+		if (self::lock())
 			return;
 
 		self::init();
 
-		View::go(self::$PATH);
+		View::go(self::$URI);
 
 		self::headers();
 		self::end();
@@ -92,9 +92,9 @@ class CMS extends NoInst {
 			$header = array($header);
 
 		foreach ($header as $k => $v) {
-			if(!is_string($v))
+			if (!is_string($v))
 				throw new Exception('Parameter is not a string!');
-			if(is_numeric($k))
+			if (is_numeric($k))
 				self::$HTTPheaders[] = $v;
 			else
 				self::$HTTPheaders[$k] = $v;
@@ -107,7 +107,7 @@ class CMS extends NoInst {
 	 * @return bool true on success
 	 */
 	public static function safeInclude($file) {
-		if($r = self::fileExists($file))
+		if ($r = self::fileExists($file))
 			include ROOT.$file;
 		return !!$r;
 	}
@@ -118,7 +118,7 @@ class CMS extends NoInst {
 	 * @return bool true on success
 	 */
 	public static function safeIncludeOnce($file) {
-		if($r = self::fileExists($file))
+		if ($r = self::fileExists($file))
 			include_once ROOT.$file;
 		return !!$r;
 	}
@@ -132,46 +132,23 @@ class CMS extends NoInst {
 		return file_exists(ROOT.$file);
 	}
 
-	/**
-	 * Get value(s) from $_GET
-	 * @param $in string|array
-	 * string: single variable name
-	 * array: values (as values, not keys), to be filled
-	 * @return string|array
-	 * string: single value
-	 * array: returns filled array with variable names as keys
-	 */
-	public static function varGet($in) {
-		if(is_array($in))
-			foreach ($in as $k)
-				$in[$k] = (isset(self::$GET[$k]) ? self::$GET[$k] : NULL);
-		else
-			$in = (isset(self::$GET[$in]) ? self::$GET[$in] : NULL);
-
-		return $in;
+	private static function __guard_varInClass($type) {
+		if (!in_array($type, array('POST', 'GET', 'URI')))
+			throw new Error('Invalid var $type');
 	}
 
 	/**
-	 * Get value(s) from $_POST
-	 * @param $in string|array
-	 * string: single variable name
-	 * array: values (as values, not keys), to be filled
-	 * @return string|array
-	 * string: single value
-	 * array: returns filled array with variable names as keys
+	 * Get isset's return value
 	 */
-	public static function varPost($in) {
-		if(is_array($in))
-			foreach ($in as $k)
-				$in[$k] = (isset(self::$POST[$k]) ? self::$POST[$k] : NULL);
-		else
-			$in = (isset(self::$POST[$in]) ? self::$POST[$in] : NULL);
+	public static function varIsSet($type, $var) {
+		__guard_varInClass($type);
 
-		return $in;
+		return isset(self::${$type}[$var]);
 	}
 
 	/**
-	 * Get value(s) from path
+	 * Get value(s) from self::${$type}
+	 * @param $type POST, GET, URI
 	 * @param $in string|array
 	 * string: single variable name
 	 * array: values (as values, not keys), to be filled
@@ -179,14 +156,19 @@ class CMS extends NoInst {
 	 * string: single value
 	 * array: returns filled array with variable names as keys
 	 */
-	public static function varPath($in = 0) {
-		if(is_array($in))
-			foreach ($in as $k)
-				$in[$k] = (isset(self::$PATH[$k]) ? self::$PATH[$k] : NULL);
-		else
-			$in = (isset(self::$PATH[$in]) ? self::$PATH[$in] : NULL);
+	public static function var($type, $var, $ifnset = NULL) {
+		__guard_varInClass($type);
 
-		return $in;
+		if (is_array($var)) {
+			$r = array();
+			foreach ($var as $v)
+				$r[$v] = isset(self::${$type}[$v]) ? self::${$type}[$v] : $ifnset;
+		} elseif (is_string($var)) {
+			$r = isset(self::${$type}[$var]) ? self::${$type}[$var] : $ifnset;
+		} else
+			throw new Error('Unsupported $var type; only array or string');
+
+		return $r;
 	}
 
 	/**

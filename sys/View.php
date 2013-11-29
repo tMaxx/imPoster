@@ -26,9 +26,9 @@ class ViewRequiringDiscoverer {
 	 * @param $index look for index.php in $cursor?
 	 */
 	function __construct($cursor, $next, $parent = NULL, $index = TRUE) {
-		if(((static::$i--)) <= 0)
+		if (((static::$i--)) <= 0)
 			throw new Error('VRD: object count limit reached');
-		if(!is_bool($index))
+		if (!is_bool($index))
 			throw new Error('VRD: $mode is not bool');
 
 		//set this thing
@@ -41,26 +41,27 @@ class ViewRequiringDiscoverer {
 	/**
 	 * Push $value on stack
 	 * @param $value
+	 * @return $value
 	 */
 	protected function spush($value) {
-		$this->ctxl = $value;
-		$this->ctx[] = $value;
+		$this->ctx[] = $this->ctxl = $value;
+		return $value;
 	}
 
 	///Do the messy job
 	function go() {
-		if(CMS::fileExists($p = '/view'.$this->cur)) {
+		if (CMS::fileExists($p = '/view'.$this->cur)) {
 			$nxt_arr = $this->next;
-			if($this->mode < 1 && CMS::fileExists($f = $p.'/index.php')) {
+			if ($this->mode < 1 && CMS::fileExists($f = $p.'/index.php')) {
 				$this->nn = $f;
 				$this->mode = 1; //index file
 			}
-			elseif($nxt = array_shift($nxt_arr)) {
-				if(CMS::fileExists($f = $p.'/'.$nxt.'.php')) {
+			elseif ($nxt = array_shift($nxt_arr)) {
+				if (CMS::fileExists($f = $p.'/'.$nxt.'.php')) {
 					$this->nn = $f;
 					$this->mode = 2; //file
 				}
-				elseif(CMS::fileExists($f = $p.'/'.$nxt)) {
+				elseif (CMS::fileExists($f = $p.'/'.$nxt)) {
 					$this->nn = $f;
 					$this->mode = 3; //dir
 					(new ViewRequiringDiscoverer($f, $nxt_arr, $this))->go();
@@ -72,7 +73,7 @@ class ViewRequiringDiscoverer {
 			else
 				return;
 		}
-		elseif(CMS::fileExists($p .= '.php')) {
+		elseif (CMS::fileExists($p .= '.php')) {
 			$this->nn = $p;
 			$this->mode = 2;
 		}
@@ -108,19 +109,19 @@ class ViewRequiringDiscoverer {
 	 * @param $param what to pass, unless not to pass
 	 */
 	function node($path, $param = array()) {
-		if(is_string($path) && $path[0] == '/') {
+		if (is_string($path) && $path[0] == '/') {
 			$this->subnode($path, $param);
 			return;
 		}
 
 		$cur = $this->cur;
 		$mode = 0;
-		if($defn = (!$this->next || (isset($this->next[0]) && !$this->next[0])))
+		if ($defn = (!$this->next || (isset($this->next[0]) && !$this->next[0])))
 			$path = (array) explode('/', $path);
 		else
 			$path = $this->next;
 
-		if($this->mode == 1 || $this->mode == 2) {
+		if ($this->mode == 1 || $this->mode == 2) {
 			$nxt = array_shift($path);
 			$cur .= '/'.$nxt;
 		}
@@ -129,13 +130,13 @@ class ViewRequiringDiscoverer {
 	}
 
 	function guard_auth($guard, $defpath) {
-		// if(!)
+		// if (!)
 	}
 
 	///Guard: node is available only as part of another view when doing FULL render
 	function guard_nonrequest() {
-		if($this->parent === NULL && !View::isMode('FULL'))
-			throw new ErrorHTTP('VRD: Node disallowed', 400);
+		if ($this->parent === NULL && !View::isMode('FULL'))
+			throw new ErrorHTTP('VRD: Node render disallowed', 400);
 	}
 }
 
@@ -155,13 +156,13 @@ class View extends NoInst {
 	 * @param $path path from CMS
 	 */
 	public static function go($path) {
-		if(self::lock())
+		if (self::lock())
 			return;
 
-		if(self::isMode('FULL', 'PART', 'SINGLE'))) {
+		if (self::isMode('FULL', 'PART', 'SINGLE'))) {
 			$cursor = '/';
 			$next = array_shift($path[1]);
-			if(MODE == 'SINGLE') {
+			if (MODE == 'SINGLE') {
 				$cursor = $path[0];
 				$next = array();
 			}
@@ -172,7 +173,7 @@ class View extends NoInst {
 
 			self::$BODY = ob_get_clean();
 
-			if(self::isMode('FULL'))
+			if (self::isMode('FULL'))
 				CMS::safeIncludeOnce('/templ/index.php');
 			else {
 				CMS::headers();
@@ -206,7 +207,7 @@ class View extends NoInst {
 			$header = array($header);
 
 		foreach ($header as $v) {
-			if(!is_string($v))
+			if (!is_string($v))
 				throw new Exception('Parameter is not a string!');
 			self::$HTMLhead[] = $v;
 		}

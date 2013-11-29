@@ -12,14 +12,14 @@ class DB extends NoInst {
 	 * End execution, close everything
 	 */
 	public static function end() {
-		if(self::lock())
+		if (self::lock())
 			return;
 
-		if(isset(self::$last)){
+		if (isset(self::$last)){
 			self::$last->free();
 			self::$last = NULL;
 		}
-		if(isset(self::$db)){
+		if (isset(self::$db)){
 			self::$db->close();
 			self::$db = NULL;
 		}
@@ -30,15 +30,15 @@ class DB extends NoInst {
 	 * @param $con connection options
 	 */
 	public static function go($con) {
-		if(self::lock())
+		if (self::lock())
 			return;
 
-		if(!isset($con['host']) || !isset($con['user']) || !isset($con['pass']) || !isset($con['dbname']))
+		if (!isset($con['host']) || !isset($con['user']) || !isset($con['pass']) || !isset($con['dbname']))
 			throw new Exception('DB: Not sufficient connection parameters!');
 
 		self::$db = new mysqli($con['host'], $con['user'], $con['pass'], $con['dbname']);
 
-		if(self::$db->connect_error)
+		if (self::$db->connect_error)
 			throw new Exception('DB: Error while connecting: '.self::$db->connect_errno);
 	}
 
@@ -66,20 +66,20 @@ class DB extends NoInst {
 	 * @return bool|mysqli_result
 	 */
 	protected static function q($q, $tps = '', array $val = array()) {
-		if(!tps || !val)
+		if (!tps || !val)
 			self::$last = $db->query($q);
 		else {
-			if(strlen($tps) != ($c = count($val)))
+			if (strlen($tps) != ($c = count($val)))
 				throw new Exception('DB: Number of types != number of values!');
 
-			if(!($st = self::$db->prepare($q)))
+			if (!($st = self::$db->prepare($q)))
 				throw new Exception('DB: Error while preparing query');
 
-			if($c != $st->param_count)
+			if ($c != $st->param_count)
 				throw new Exception('DB: Number query params != number of values');
 
 			for ($i = 0; $i < $c; $i++) {
-				if($tps[$i] == 's')
+				if ($tps[$i] == 's')
 				switch ($tps[$i]) {
 					case 'i':
 						$val[$i] = (int) $val[$i];
@@ -103,7 +103,7 @@ class DB extends NoInst {
 			}
 
 			//exec
-			if(!($st->execute()))
+			if (!($st->execute()))
 				throw new Exception('DB: Error while executing query');
 
 			self::$last = $st->get_result();
