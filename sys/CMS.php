@@ -132,6 +132,10 @@ class CMS extends NoInst {
 		return file_exists(ROOT.$file);
 	}
 
+	/**
+	 * Check if this type is allowed in here
+	 * @param $type
+	 */
 	private static function __guard_varInClass($type) {
 		if (!in_array($type, array('POST', 'GET', 'URI')))
 			throw new Error('Invalid var $type');
@@ -139,6 +143,9 @@ class CMS extends NoInst {
 
 	/**
 	 * Get isset's return value
+	 * @param $type POST, GET, URI
+	 * @param $var name
+	 * @return bool
 	 */
 	public static function varIsSet($type, $var) {
 		__guard_varInClass($type);
