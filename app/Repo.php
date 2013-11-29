@@ -9,18 +9,20 @@ class Repo {
      * @param $a array
      * @return \Model
      */
-    public static function row(array $a)
-    {
+    public static function row(array $a) {
         $r = new static::$OBJ;
         $r->set($a);
         return $r;
     }
 
     ///Get $OBJ's table
-    public static function table()
-    {
+    public static function table() {
         $t = static::$OBJ;
         return $t::table();
+    }
+
+    public static function getIdName() {
+        return self::${strtolower(static::$OBJ).'_id'};
     }
 
     /**
@@ -28,9 +30,8 @@ class Repo {
      * @param $id
      * @retun NULL|\Model
      */
-    public static function findById($id)
-    {
-        $r = DB::row('SELECT * FROM '.self::table().' WHERE '.strtolower(self::$OBJ).'_id=?', 'i', array($id));
+    public static function findById($id) {
+        $r = DB::row('SELECT * FROM '.self::table().' WHERE '.self::getIdName().'=?', 'i', array($id));
         if($r)
             return self::row($r);
         else
@@ -38,8 +39,7 @@ class Repo {
     }
 
     ///Find all objects
-    public static function findAll()
-    {
+    public static function findAll() {
         $rows = DB::rows('SELECT * FROM '.self::table());
         $r = array();
         foreach($rows as $v)
@@ -54,10 +54,7 @@ class Repo {
      * @param $and or or
      * @return objects
      */
-    public static function find(array $where, $and = TRUE)
-    {
-        //przemiel $where na postać 'klucz=wartość'
-        //escape wartości, param guess mysqli - yyy.. ze co tutaj? :D - właśnie szukam gdzie to było
+    public static function find(array $where, $and = TRUE) {
 		if ($and) {
 	       $param = '(1=1)';
 	       $glue = ' and '

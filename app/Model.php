@@ -3,16 +3,14 @@
 class Model {
 	abstract static $TABLE;
 
-	public function set(array $a)
-	{
+	public function set(array $a) {
 		foreach ($a as $k => $v)
 			if(property_exists($this, $k))
 				$this->$k = $v;
 		return $this;
 	}
 
-	public function save()
-	{
+	public function save() {
 		$s = $this->toArray();
         
 		if($this->getId())
@@ -21,16 +19,14 @@ class Model {
 			DB::insert($this->table(), $s);
 	}
     
-    public function getId()
-    {
+    public function getId() {
         if(isset($this->($prefix.'_id')))
             return $this->($prefix.'_id');
         else
             return NULL;
     }
     
-    public function table()
-    {
+    public function table() {
     	if(isset(static::$TABLE))
     		return static::$TABLE;
     }

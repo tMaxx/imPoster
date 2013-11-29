@@ -1,0 +1,24 @@
+Dla chętnych do pracy:
+- do wymyślenia sposób, w który będziemy obsługiwać moduły aplikacji
+	czysto teoretyczne zagadnienie
+	rozpisanie tego w sposób zrozumiały dla reszty zespołu przy założeniu, że poddamy to w dyskusję i ustalimy wspólny kierunek
+	przyda się do API dla mobilnej aplikacji
+- Przetestowanie klasy obsługi bazy danych (DB, katalog sys/DB.php)
+	czy w ogóle działa
+	dane testowe w bazie - jak coś to pytać o dane dostępowe
+- Rozszerzenie klasy DB o kilka funkcji
+	zwracanie par klucz=>wartość
+	zwracanie par klucz=>array(w1, w2, ...)
+	'zwykłe' zapytanie
+	insert
+	delete
+- Odrozgrzebanie klasy renderowania widoków
+	zadanie raczej @Maxx, totalny hardcore, jak coś to pytać
+	zamiast metody bąbelkowej (każdy obiekt ma jeden folder) metoda ze stosem przetworzonych już stron
+- Obsługa przekierowań na strony obsługi błędów
+	* wysyłanie odpowiednich nagłówków do przeglądarki
+	* użycie ob_end_clean() w odpowiednim miejscu; Google => 'PHP output buffering'
+	wymyślić jak wyświetlić błąd (np 404) jeżeli mamy już coś w buforze
+- Rozpisać schemat bazy danych w MySQL-u
+	samo tworzenie tabel, bez danych
+
