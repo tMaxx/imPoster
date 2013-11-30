@@ -2,7 +2,8 @@ Dla chętnych do pracy:
 - Dodać szablony klas aplikacji
 	Każda tabela w bazie danych będzie miała swoją reprezentację w postaci klasy-modelu i klasy-repozytorium
 	Np. dla tabeli Elem w katalogu app tworzymy klasę Elem w pliku Elem.php i klasę ElemRepo w pliku ElemRepo.php
-	Klasa Elem dziedziczy wtedy po klasie Model (class Elem extends Model), w podobny sposób ElemRepo dziedziczy po Repo
+	Klasa Elem dziedziczy wtedy po klasie Model (class Elem extends Model), w podobny sposób ElemRepo dziedziczy po Rep
+	klasy mają być na razie puste, bez metod i zmiennych, chodzi jedynie o szablony
 - Do wymyślenia sposób, w który będziemy obsługiwać moduły aplikacji
 	czysto teoretyczne zagadnienie
 	rozpisanie tego w sposób zrozumiały dla reszty zespołu przy założeniu, że poddamy to w dyskusję i ustalimy wspólny kierunek
@@ -18,7 +19,11 @@ Dla chętnych do pracy:
 	delete
 - Odrozgrzebanie klasy renderowania widoków
 	zadanie raczej @Maxx, totalny hardcore, jak coś to pytać
-	zamiast metody bąbelkowej (każdy obiekt ma jeden folder) metoda ze stosem przetworzonych już stron
+	zamiast metody bąbelkowej (każdy obiekt ma co najwyżej jeden folder) metoda ze stosem przetworzonych już ścieżek i stron
+- Dodanie do widoków obsługi przekazania (nadpisania) parametrów z GET, POST, URI
+	dodanie metody $this->var(typ, array zmienne)
+	dodanie metody $this->varIsSet(-- '' --)
+	sprawdzać najpierw $this->param w obu czy zmienna istnieje, dopiero potem odwoływać się do CMS::var/varIsSet
 - Obsługa przekierowań na strony obsługi błędów
 	* wysyłanie odpowiednich nagłówków do przeglądarki
 	* użycie ob_end_clean() w odpowiednim miejscu; Google => 'PHP output buffering'
@@ -27,6 +32,7 @@ Dla chętnych do pracy:
 	samo tworzenie tabel, bez danych
 - Wymyślić i rozpisać (w jakimś pliku) wstępną hierarchię podstron
 	czyli gdzie panel usera, gdzie wyświetlamy listę zadań, jak konwersacje, itd.
+	po akceptacji przez zespół utworzyć poszczególne pliki i katalogi w katalogu /view/
 
 
 OPCJONALNIE (na później, dla ambitnych):

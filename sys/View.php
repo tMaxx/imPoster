@@ -1,93 +1,82 @@
 <?php ///revCMS /sys/View.php
 ///Actually just a complete view generator
-class ViewRequiringDiscoverer {
+class ViewGen {
 	///Mode
 	protected $find_index = TRUE;
-	///Next include node
-	protected $nn = NULL;
 	///Iterator - num of objects made
 	protected static $i = 20;
 	///$this' parent object
 	protected $parent = NULL;
 	//Called pages stack
-	protected $ctx = array();
+	protected $trace = array();
 		///Last node from stack
-		protected $ctxl = '';
+		protected $tracel = '';
 	///Cursor
-	protected $cur = '';
+	protected $cursor = '';
 	///Next nodes
 	protected $next = array();
 
 	/**
 	 * Construct
-	 * @param $cursor current directory
+	 * @param $cursor current node
 	 * @param $next nodes stack
-	 * @param $parent NULL|VRD
-	 * @param $index look for index.php in $cursor?
+	 * @param $parent NULL|ViewGen
+	 * @param $param CMS params override
+	 * @param $findindex look for index.php in $cursor?
 	 */
-	function __construct($cursor, $next, $parent = NULL, $index = TRUE) {
+	function __construct($cursor, array $next, $parent = NULL, array $param = array(), $findindex = TRUE) {
 		if (((static::$i--)) <= 0)
-			throw new Error('VRD: object count limit reached');
-		if (!is_bool($index))
-			throw new Error('VRD: $mode is not bool');
+			throw new Error('ViewGen: object count limit reached');
+		if (!is_bool($findindex))
+			throw new Error('ViewGen: $findindex is not bool');
 
 		//set this thing
-		$this->cur = $cursor;
-		$this->find_index = $index;
+		$this->cursor = $cursor;
+		$this->find_index = $findindex;
 		$this->next = $next;
 		$this->parent = $parent;
 	}
 
 	/**
-	 * Push $value on stack
-	 * @param $value
-	 * @return $value
+	 * Push $node on stack trace
+	 * @param $node index.php, NEXT.php, NEXT/
+	 * @param $was_index
 	 */
-	protected function spush($value) {
-		$this->ctx[] = $this->ctxl = $value;
-		return $value;
+	protected function log($node, $was_index = NULL) {
+		$this->trace[] = $this->tracel = $node;
+		if($was_index !== NULL)
+			$this->find_index = !$was_index;
 	}
 
 	///Do the messy job
 	function go() {
-		if (CMS::fileExists($p = '/view'.$this->cur)) {
-			$nxt_arr = $this->next;
-			if ($this->mode < 1 && CMS::fileExists($f = $p.'/index.php')) {
-				$this->nn = $f;
-				$this->mode = 1; //index file
-			}
-			elseif ($nxt = array_shift($nxt_arr)) {
-				if (CMS::fileExists($f = $p.'/'.$nxt.'.php')) {
-					$this->nn = $f;
-					$this->mode = 2; //file
-				}
-				elseif (CMS::fileExists($f = $p.'/'.$nxt)) {
-					$this->nn = $f;
-					$this->mode = 3; //dir
-					(new ViewRequiringDiscoverer($f, $nxt_arr, $this))->go();
-					return;
-				}
-				else
-					return;
-			}
-			else
-				return;
-		}
-		elseif (CMS::fileExists($p .= '.php')) {
-			$this->nn = $p;
-			$this->mode = 2;
-		}
-		else {
-			throw new ErrorHTTP('VRD: Node '.$this->cur.' does not exist!', 404);
-			return;
-		}
+		while (TRUE) {
+			//check current dir, then proceed
+			if (CMS::fileExists($dir = '/view'.$this->cursor)) {
+				$this->log($this->cursor);
 
-		$this->inc();
-	}
+				if($this->find_index && CMS::fileExists($file = $dir.'/index.php')) {
+					//index.php
+					CMS::safeInclude($file);
+					$this->log('index.php', TRUE);
 
-	///Include files from $this->nn
-	protected function inc() {
-		include ROOT.$this->nn;
+					continue;
+				} elseif (CMS::fileExists($file = $dir.'/'.($next = array_shift($this->next)).'.php')) {
+					//NEXT.php (file)
+					CMS::safeInclude($file);
+					$this->log($next.'.php', FALSE);
+
+					continue;
+				} elseif (CMS::fileExists($next)) {
+					//NEXT/ (directory)
+					$this->cursor = $dir;
+					$this->log($next, FALSE);
+
+					continue;
+				}
+			}
+			throw new Error404();
+		}
 	}
 
 	/**
@@ -97,36 +86,26 @@ class ViewRequiringDiscoverer {
 	 */
 	function subnode($path, $param = array()) {
 		$c = count($this->o);
-		$this->o[] = new ViewRequiringDiscoverer($path, array(), $this);
-		//don't copy object
-		$r = $this->o[$c]->go();
-		return $r;
+		$this->o[] = new ViewGen($path, array(), $this);
+		//run
+		return $this->o[$c]->go();
 	}
 
 	/**
-	 * Launch suggested current node
-	 * @param $path where to go, unless not to go
-	 * @param $param what to pass, unless not to pass
+	 * Launch suggested current node or proceed this way with $this params
+	 * @param $path where to go, unless we already know the path
+	 * @param $param -- '' --
 	 */
 	function node($path, $param = array()) {
-		if (is_string($path) && $path[0] == '/') {
-			$this->subnode($path, $param);
-			return;
-		}
+		//path is absolute
+		if (is_string($path) && $path && $path[0] == '/')
+			return $this->subnode($path, $param);
 
-		$cur = $this->cur;
-		$mode = 0;
-		if ($defn = (!$this->next || (isset($this->next[0]) && !$this->next[0])))
-			$path = (array) explode('/', $path);
-		else
-			$path = $this->next;
+		//if we don't know where to go...
+		if (!$this->next || (isset($this->next[0]) && !$this->next[0]))
+			$this->next = (array) explode('/', $path);
 
-		if ($this->mode == 1 || $this->mode == 2) {
-			$nxt = array_shift($path);
-			$cur .= '/'.$nxt;
-		}
-
-		(new ViewRequiringDiscoverer($cur, $path, $this, $this->mode))->go();
+		//FUCK. How to return to main app flow?
 	}
 
 	function guard_auth($guard, $defpath) {
@@ -136,7 +115,12 @@ class ViewRequiringDiscoverer {
 	///Guard: node is available only as part of another view when doing FULL render
 	function guard_nonrequest() {
 		if ($this->parent === NULL && !View::isMode('FULL'))
-			throw new ErrorHTTP('VRD: Node render disallowed', 400);
+			throw new Error400('ViewGen: Node render disallowed');
+	}
+
+	//
+	function guard_mode() {
+		// if (View::isMode(func_get_args()));
 	}
 }
 
@@ -169,19 +153,20 @@ class View extends NoInst {
 
 			ob_start();
 
-			(new ViewRequiringDiscoverer($cursor, $path[1]))->go();
+			(new ViewGen($cursor, $path[1]))->go();
 
 			self::$BODY = ob_get_clean();
 
-			if (self::isMode('FULL'))
-				CMS::safeIncludeOnce('/templ/index.php');
-			else {
+			if (self::isMode('FULL')) {
+				if (!CMS::safeIncludeOnce(TEMPLATE))
+					throw new Error('View: No template found');
+			} else {
 				CMS::headers();
 				self::body();
 			}
 		}
 		else
-			throw new ErrorHTTP('View: Unsupported working mode "MODE"!', 400);
+			throw new ErrorHTTP('View: Unsupported working mode "'.MODE.'"!', 400);
 	}
 
 	/**

@@ -136,7 +136,7 @@ class CMS extends NoInst {
 	 * Check if this type is allowed in here
 	 * @param $type
 	 */
-	private static function __guard_varInClass($type) {
+	public static function guard_allowedVarTypes($type) {
 		if (!in_array($type, array('POST', 'GET', 'URI')))
 			throw new Error('Invalid var $type');
 	}
@@ -148,7 +148,7 @@ class CMS extends NoInst {
 	 * @return bool
 	 */
 	public static function varIsSet($type, $var) {
-		__guard_varInClass($type);
+		guard_allowedVarTypes($type);
 
 		return isset(self::${$type}[$var]);
 	}
@@ -164,7 +164,7 @@ class CMS extends NoInst {
 	 * array: returns filled array with variable names as keys
 	 */
 	public static function var($type, $var, $ifnset = NULL) {
-		__guard_varInClass($type);
+		guard_allowedVarTypes($type);
 
 		if (is_array($var)) {
 			$r = array();

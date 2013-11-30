@@ -12,24 +12,24 @@ class Model {
 
 	public function save() {
 		$s = $this->toArray();
-        
+
 		if($this->getId())
-			DB::update($this->table(), $this->getId(), $s);  
+			DB::update($this->table(), $this->getId(), $s);
 		else
 			DB::insert($this->table(), $s);
 	}
-    
-    public function getId() {
-        if(isset($this->($prefix.'_id')))
-            return $this->($prefix.'_id');
-        else
-            return NULL;
-    }
-    
-    public function table() {
-    	if(isset(static::$TABLE))
-    		return static::$TABLE;
-    }
+	
+	public function getId() {
+		if(isset($this->($prefix.'_id')))
+			return $this->($prefix.'_id');
+		else
+			return NULL;
+	}
+	
+	public function table() {
+		if(isset(static::$TABLE))
+			return static::$TABLE;
+	}
 
 } 
 
