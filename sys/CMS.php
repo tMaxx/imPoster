@@ -59,7 +59,7 @@ class CMS extends NoInst {
 
 	///Pre-exit commands
 	public static function end() {
-		if (!self::lock())
+		if (self::lock())
 			return;
 		DB::end();
 	}
@@ -147,10 +147,10 @@ class CMS extends NoInst {
 	 * @param $var name
 	 * @return bool
 	 */
-	public static function varIsSet($type, $var) {
+	public static function varIsSet($type, $in) {
 		guard_allowedVarTypes($type);
 
-		return isset(self::${$type}[$var]);
+		return isset(self::${$type}[$in]);
 	}
 
 	/**
@@ -163,15 +163,15 @@ class CMS extends NoInst {
 	 * string: single value
 	 * array: returns filled array with variable names as keys
 	 */
-	public static function var($type, $var, $ifnset = NULL) {
+	public static function vars($type, $in, $ifnset = NULL) {
 		guard_allowedVarTypes($type);
 
-		if (is_array($var)) {
+		if (is_array($in)) {
 			$r = array();
-			foreach ($var as $v)
+			foreach ($in as $v)
 				$r[$v] = isset(self::${$type}[$v]) ? self::${$type}[$v] : $ifnset;
-		} elseif (is_string($var)) {
-			$r = isset(self::${$type}[$var]) ? self::${$type}[$var] : $ifnset;
+		} elseif (is_string($in)) {
+			$r = isset(self::${$type}[$in]) ? self::${$type}[$in] : $ifnset;
 		} else
 			throw new Error('Unsupported $var type; only array or string');
 

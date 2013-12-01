@@ -48,64 +48,66 @@ class ViewGen {
 			$this->find_index = !$was_index;
 	}
 
-	///Do the messy job
-	function go() {
-		while (TRUE) {
-			//check current dir, then proceed
-			if (CMS::fileExists($dir = '/view'.$this->cursor)) {
-				$this->log($this->cursor);
-
-				if($this->find_index && CMS::fileExists($file = $dir.'/index.php')) {
-					//index.php
-					CMS::safeInclude($file);
-					$this->log('index.php', TRUE);
-
-					continue;
-				} elseif (CMS::fileExists($file = $dir.'/'.($next = array_shift($this->next)).'.php')) {
-					//NEXT.php (file)
-					CMS::safeInclude($file);
-					$this->log($next.'.php', FALSE);
-
-					continue;
-				} elseif (CMS::fileExists($next)) {
-					//NEXT/ (directory)
-					$this->cursor = $dir;
-					$this->log($next, FALSE);
-
-					continue;
-				}
-			}
-			throw new Error404();
-		}
-	}
-
 	/**
 	 * Render subpath
 	 * @param $path what to render
 	 * @param $param what to pass
 	 */
 	function subnode($path, $param = array()) {
-		$c = count($this->o);
-		$this->o[] = new ViewGen($path, array(), $this);
-		//run
-		return $this->o[$c]->go();
+		return (new ViewGen($path, array(), $this))->node();
 	}
 
 	/**
+	 * MAIN FUNCTION
 	 * Launch suggested current node or proceed this way with $this params
 	 * @param $path where to go, unless we already know the path
 	 * @param $param -- '' --
 	 */
-	function node($path, $param = array()) {
-		//path is absolute
-		if (is_string($path) && $path && $path[0] == '/')
-			return $this->subnode($path, $param);
+	function node($path = NULL, array $param = array()) {
+		if (is_string($path)) {
+			if (!$path)
+				throw new Error404('ViewGen: No path provided');
+			elseif ($path[0] == '/')
+				return $this->subnode($path, $param);
 
-		//if we don't know where to go...
-		if (!$this->next || (isset($this->next[0]) && !$this->next[0]))
-			$this->next = (array) explode('/', $path);
+			//if we don't know where to go...
+			if (!$this->next || (isset($this->next[0]) && !$this->next[0])) {
+				$this->next = (array) explode('/', $path);
+				$this->param = $param;
+				unset($param);
+			}
+		}
 
-		//FUCK. How to return to main app flow?
+		$this->log($this->cursor);
+
+		while (TRUE) {
+			//check current dir, then proceed
+			if (CMS::fileExists($dir = '/view'.$this->cursor)) {
+				if($this->find_index && CMS::fileExists($file = $dir.'/index.php')) {
+					//index.php
+					$this->log('index.php', TRUE);
+					return (include ROOT.$file);
+				} elseif ($this->next && $next = array_shift($this->next)) {
+					if (CMS::fileExists($file = $dir.'/'.$next.'.php')) {
+						//NEXT.php (file)
+						$this->log($next.'.php', FALSE);
+						return (include ROOT.$file);
+					} elseif (CMS::fileExists($dir = $dir.'/'.$next)) {
+						//NEXT/ (directory)
+						$this->log($next, FALSE);
+						$this->cursor = $dir;
+
+						continue;
+					}
+				} else
+					return TRUE;
+			} elseif (CMS::fileExists($file = $dir.'.php')) {
+				//cursor is a file
+				$this->log($file, FALSE);
+				return (include ROOT.$file);
+			}
+			throw new Error404();
+		}
 	}
 
 	function guard_auth($guard, $defpath) {
@@ -134,6 +136,8 @@ class View extends NoInst {
 	private static $HTMLhead = array();
 	///Generated body, only if MODE is set as full
 	private static $BODY = '';
+	///Title of page
+	private static $TITLE = 'Codename teo';
 
 	/**
 	 * Try to retrieve and render view, handle errors
@@ -143,7 +147,7 @@ class View extends NoInst {
 		if (self::lock())
 			return;
 
-		if (self::isMode('FULL', 'PART', 'SINGLE'))) {
+		if (self::isMode('FULL', 'PART', 'SINGLE')) {
 			$cursor = '/';
 			$next = array_shift($path[1]);
 			if (MODE == 'SINGLE') {
@@ -153,12 +157,12 @@ class View extends NoInst {
 
 			ob_start();
 
-			(new ViewGen($cursor, $path[1]))->go();
+			(new ViewGen($cursor, $path[1]))->node();
 
 			self::$BODY = ob_get_clean();
 
 			if (self::isMode('FULL')) {
-				if (!CMS::safeIncludeOnce(TEMPLATE))
+				if (!(CMS::safeIncludeOnce(self::TEMPLATE)))
 					throw new Error('View: No template found');
 			} else {
 				CMS::headers();
@@ -206,7 +210,7 @@ class View extends NoInst {
 
 	///Return site title, based on whatever needed
 	public static function title() {
-		return 'codename teo';
+		return self::$TITLE;
 	}
 
 	public static function body() {

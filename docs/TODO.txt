@@ -17,11 +17,8 @@ Dla chętnych do pracy:
 	'zwykłe' zapytanie
 	insert
 	delete
-- Odrozgrzebanie klasy renderowania widoków
-	zadanie raczej @Maxx, totalny hardcore, jak coś to pytać
-	zamiast metody bąbelkowej (każdy obiekt ma co najwyżej jeden folder) metoda ze stosem przetworzonych już ścieżek i stron
 - Dodanie do widoków obsługi przekazania (nadpisania) parametrów z GET, POST, URI
-	dodanie metody $this->var(typ, array zmienne)
+	dodanie metody $this->vars(typ, array zmienne)
 	dodanie metody $this->varIsSet(-- '' --)
 	sprawdzać najpierw $this->param w obu czy zmienna istnieje, dopiero potem odwoływać się do CMS::var/varIsSet
 - Obsługa przekierowań na strony obsługi błędów
