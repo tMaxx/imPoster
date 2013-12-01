@@ -1,10 +1,7 @@
 <?php ///revCMS /index.php
 define('NOW_MICRO', microtime(true));
 define('ROOT', realpath(dirname(__FILE__)));
-define('CWD', getcwd());
 
-define('REQUEST', $_GET['__req__']);
-unset($_GET['__req__']);
 define('MODE', isset($_GET['__mode__']) ? $_GET['__mode__'] : 'FULL');
 unset($_GET['__mode__']);
 

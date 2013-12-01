@@ -25,7 +25,8 @@ class CMS extends NoInst {
 		self::safeIncludeOnce('/sys/Errors.php');
 
 		//revamp request to something more readable
-		$ipath = (array) explode('/', REQUEST);
+		$ipath = (array) explode('/', $_GET['__req__']);
+		unset($_GET['__req__']);
 		self::$URI[1] = array($rpath = '/');
 		foreach ($ipath as $k => $v) {
 			if (empty($v) || !is_numeric($k))

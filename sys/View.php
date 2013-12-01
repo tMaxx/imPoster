@@ -96,7 +96,6 @@ class ViewGen {
 						//NEXT/ (directory)
 						$this->log($next, FALSE);
 						$this->cursor = $dir;
-
 						continue;
 					}
 				} else

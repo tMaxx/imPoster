@@ -99,11 +99,7 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 		elseif ($eno instanceof ErrorException)
 			$result[] = '<big><b>Error/Exception</b></big>: ';
 
-		$result[] = $eno->getMessage();
-		$result[] = ' at ';
-		$result[] = pathdiff($eno->getFile());
-		$result[] = ':';
-		$result[] = $eno->getLine();
+		$result[] = $eno->getMessage().' at '.pathdiff($eno->getFile()).':'.$eno->getLine();
 
 		$trace = $eno->getTrace();
 	}
@@ -113,32 +109,26 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 		return;
 	}
 
-	$result[] = '<br />Stack trace:<br />';
+	if ($trace) {
+		$result[] = '<br />Stack trace:<br />';
+		foreach($trace as $i => $v) {
+			$result[] = $i.'# ';
 
-	if (!count($trace))
-		$result[] = '<i>No stack trace available</i><br />';
-	else
-	foreach($trace as $i => $v) {
-		$result[] = $i . '# ';
-		if (isset($v['file']) && $v['file']) {
-			$result[] = pathdiff($v['file']);
-			$result[] = ':';
-			$result[] = $v['line'];
-			$result[] = ' - ';
+			if (isset($v['file']) && $v['file'])
+				$result[] = pathdiff($v['file']).':'.$v['line'].' - ';
+			else
+				$result[] = '[<i>internal call</i>] ';
+
+			if (isset($v['class']))
+				$result[] = $v['class'].$v['type'];
+
+			$result[] = $v['function'].'()';
+
+			if (isset($v['args']) && $v['args'])
+				$result[] = ', args: '.htmlspecialchars(pathdiff(json_encode($v['args'])), ENT_COMPAT|ENT_HTML5);
+
+			$result[] = '<br />';
 		}
-		else
-			$result[] = '[<i>internal call</i>] ';
-		if (isset($v['class'])) {
-			$result[] = $v['class'];
-			$result[] = $v['type'];
-		}
-		$result[] = $v['function'];
-		$result[] = '()';
-		if (isset($v['args']) && $v['args']) {
-			$result[] = ', args: ';
-			$result[] = htmlspecialchars(pathdiff(json_encode($v['args'])), ENT_COMPAT|ENT_HTML5);
-		}
-		$result[] = '<br />';
 	}
 
 	echo implode('', $result);
