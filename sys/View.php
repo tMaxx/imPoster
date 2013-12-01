@@ -74,9 +74,9 @@ class ViewGen {
 			if (!$this->next || (isset($this->next[0]) && !$this->next[0])) {
 				$this->next = (array) explode('/', $path);
 				$this->param = $param;
-				unset($param);
 			}
 		}
+		unset($param, $path);
 
 		$this->log($this->cursor);
 
@@ -87,7 +87,7 @@ class ViewGen {
 					//index.php
 					$this->log('index.php', TRUE);
 					return (include ROOT.$file);
-				} elseif ($this->next && $next = array_shift($this->next)) {
+				} elseif (((($this->next))) && ($next = array_shift($this->next))) {
 					if (CMS::fileExists($file = $dir.'/'.$next.'.php')) {
 						//NEXT.php (file)
 						$this->log($next.'.php', FALSE);
@@ -95,7 +95,7 @@ class ViewGen {
 					} elseif (CMS::fileExists($dir = $dir.'/'.$next)) {
 						//NEXT/ (directory)
 						$this->log($next, FALSE);
-						$this->cursor = $dir;
+						$this->cursor .= '/'.$next;
 						continue;
 					}
 				} else
@@ -105,6 +105,7 @@ class ViewGen {
 				$this->log($file, FALSE);
 				return (include ROOT.$file);
 			}
+
 			throw new Error404();
 		}
 	}
