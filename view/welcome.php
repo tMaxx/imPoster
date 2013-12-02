@@ -1,1 +1,1 @@
-<br><br>Be welcomed, my dear user!
+Be welcomed, my dear user!

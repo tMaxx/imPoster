@@ -52,7 +52,7 @@ class ViewGen {
 	 * @param $param what to pass
 	 */
 	function subnode($path, $param = array()) {
-		return (new ViewGen($path, array(), $this))->node();
+		return (new ViewGen($path, array(), $this, $param))->node();
 	}
 
 	/**
@@ -78,7 +78,7 @@ class ViewGen {
 
 		$this->log($this->cursor);
 
-		while (TRUE) {
+		do {
 			//check current dir, then proceed
 			if (CMS::fileExists($dir = '/view'.$this->cursor)) {
 				if($this->find_index && CMS::fileExists($file = $dir.'/index.php')) {
@@ -86,18 +86,12 @@ class ViewGen {
 					$this->log('index.php', TRUE);
 					return (include ROOT.$file);
 				} elseif (((($this->next))) && ($next = array_shift($this->next))) {
-					if (CMS::fileExists($file = $dir.'/'.$next.'.php')) {
-						//NEXT.php (file)
-						$this->log($next.'.php', FALSE);
-						return (include ROOT.$file);
-					} elseif (CMS::fileExists($dir = $dir.'/'.$next)) {
-						//NEXT/ (directory)
-						$this->log($next, FALSE);
-						$this->cursor .= '/'.$next;
-						continue;
-					}
+					//NEXT/ (proceed to directory)
+					$this->log($next, FALSE);
+					$this->cursor .= '/'.$next;
+					continue;
 				} else
-					return TRUE;
+					return;
 			} elseif (CMS::fileExists($file = $dir.'.php')) {
 				//cursor is a file
 				$this->log($file, FALSE);
@@ -105,7 +99,7 @@ class ViewGen {
 			}
 
 			throw new Error404();
-		}
+		} while(TRUE);
 	}
 
 	function guard_auth($guard, $defpath) {

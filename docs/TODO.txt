@@ -1,9 +1,4 @@
 Dla chętnych do pracy:
-- Dodać szablony klas aplikacji
-	Każda tabela w bazie danych będzie miała swoją reprezentację w postaci klasy-modelu i klasy-repozytorium
-	Np. dla tabeli Elem w katalogu app tworzymy klasę Elem w pliku Elem.php i klasę ElemRepo w pliku ElemRepo.php
-	Klasa Elem dziedziczy wtedy po klasie Model (class Elem extends Model), w podobny sposób ElemRepo dziedziczy po Rep
-	klasy mają być na razie puste, bez metod i zmiennych, chodzi jedynie o szablony
 - Do wymyślenia sposób, w który będziemy obsługiwać moduły aplikacji
 	czysto teoretyczne zagadnienie
 	rozpisanie tego w sposób zrozumiały dla reszty zespołu przy założeniu, że poddamy to w dyskusję i ustalimy wspólny kierunek
@@ -25,8 +20,6 @@ Dla chętnych do pracy:
 	* wysyłanie odpowiednich nagłówków do przeglądarki
 	* użycie ob_end_clean() w odpowiednim miejscu; Google => 'PHP output buffering'
 	wymyślić jak wyświetlić błąd (np 404) jeżeli mamy już coś w buforze
-- Rozpisać schemat bazy danych w MySQL-u
-	samo tworzenie tabel, bez danych
 - Wymyślić i rozpisać (w jakimś pliku) wstępną hierarchię podstron
 	czyli gdzie panel usera, gdzie wyświetlamy listę zadań, jak konwersacje, itd.
 	po akceptacji przez zespół utworzyć poszczególne pliki i katalogi w katalogu /view/
