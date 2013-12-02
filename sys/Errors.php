@@ -5,10 +5,22 @@
 class Error extends ErrorException {};
 
 class ErrorHTTP extends Error {
+	private $httpcode;
+	private $inmessage;
 	public function __construct($msg = NULL, $code = NULL, $add = NULL) {
+		$this->httpcode = $code;
+		$this->inmessage = $msg;
 		$msg = 'HTTP '.(int)$code.': '.$msg;
 
 		parent::__construct($msg);
+	}
+
+	public function getHttpCode() {
+		return $this->httpcode;
+	}
+
+	public function getFancyMessage() {
+		return '<h1>HTTP '.$this->httpcode.'</h1>'.$this->inmessage;
 	}
 }
 

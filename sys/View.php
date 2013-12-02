@@ -30,6 +30,8 @@ class ViewGen {
 
 		//set this thing
 		$this->cursor = $cursor;
+		if (!$this->checkPath())
+			throw new Error404('Node not found: '.$cursor);
 		$this->find_index = $findindex;
 		$this->next = $next;
 		$this->parent = $parent;
@@ -44,6 +46,10 @@ class ViewGen {
 		$this->trace[] = $node;
 		if($was_index !== NULL)
 			$this->find_index = !$was_index;
+	}
+
+	protected function checkPath() {
+		return CMS::fileExists($c = '/view/'.$this->cursor) || CMS::fileExists($c.'.php');
 	}
 
 	/**
@@ -84,7 +90,9 @@ class ViewGen {
 				if($this->find_index && CMS::fileExists($file = $dir.'/index.php')) {
 					//index.php
 					$this->log('index.php', TRUE);
-					return (include ROOT.$file);
+					include ROOT.$file;
+					if(!$this->next)
+						return;
 				} elseif (((($this->next))) && ($next = array_shift($this->next))) {
 					//NEXT/ (proceed to directory)
 					$this->log($next, FALSE);
@@ -95,10 +103,12 @@ class ViewGen {
 			} elseif (CMS::fileExists($file = $dir.'.php')) {
 				//cursor is a file
 				$this->log($file, FALSE);
-				return (include ROOT.$file);
+				include ROOT.$file;
+				if(!$this->next)
+					return;
 			}
 
-			throw new Error404();
+			throw new Error404('Requested node not found');
 		} while(TRUE);
 	}
 
@@ -108,8 +118,8 @@ class ViewGen {
 
 	///Guard: node is available only as part of another view when doing FULL render
 	function guard_nonrequest() {
-		if ($this->parent === NULL && !View::isMode('FULL'))
-			throw new Error400('ViewGen: Node render disallowed');
+		if ($this->parent === NULL && View::isMode('FULL'))
+			throw new Error400('Direct node render disallowed');
 	}
 
 	//
@@ -149,7 +159,12 @@ class View extends NoInst {
 
 			ob_start();
 
-			(new ViewGen($cursor, $path[1]))->node();
+			try {
+				(new ViewGen($cursor, $path[1]))->node();
+			} catch (ErrorHTTP $e) {
+				ob_end_clean();
+				echo '<div class="clear"></div><div class="center">', $e->getFancyMessage(), '</div>';
+			}
 
 			self::$BODY = ob_get_clean();
 

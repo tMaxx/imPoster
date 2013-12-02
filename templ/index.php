@@ -10,6 +10,7 @@
 </head>
 <body>
 <div id="main">
+	<a href="/" id="logo"><small><span class="blue">t</span>h<span class="blue">e</span></small><span class="blue">O</span>rganizer</a>
 	<? View::body() ?>
 	<div id="footer"><? View::footer() ?></div>
 </div>

@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `List` (
 	`user_id` INT UNSIGNED NOT NULL,
 	`user_dest` INT UNSIGNED,
 	`ts` INT(11) NOT NULL,
-	`type` VARCHAR(128),
+	`type` INT,
 	`name` VARCHAR(128),
 	`note` VARCHAR(128),
 

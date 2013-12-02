@@ -6,7 +6,7 @@ class CMS extends NoInst {
 	///CMS identificator
 	const CMS_ID = 'revCMS codename /shadow/';
 	///CMS version
-	const CMS_VER = '0.2';
+	const CMS_VER = '0.3';
 	///HTTP headers to be sent through header('here');
 	private static $HTTPheaders = array();
 	///GET parameters

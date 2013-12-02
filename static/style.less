@@ -35,6 +35,7 @@ a {
 	color: inherit;
 }
 .clear {clear: both; visibility: hidden;}
+.center {text-align: center;}
 
 // Main frame
 #main {
@@ -43,39 +44,43 @@ a {
 	min-width: 320px;
 }
 
-// Header
-#head {
+//logo
+#logo {
 	color: @fontimp;
 	margin-bottom: 4px;
 	width: 100%;
 	font-size: 2.3em;
-	#panel {
-		float: right;
-		font-size: 0.4em;
-		a {
-			color: @lgrey;
-			&:before {
-				content: '[ ';
-			}
-			&:after {
-				content: ' ]';
-			}
-			&:before, &:after {
-				color: @lblue !important;
-			}
-			&:hover {
-				color: @fontcolor !important;
-				&:before, &:after {
-					color: @fontimp !important;
-				}
-			}
-		}
-	}
 	.blue {
 		color: @blue;
 	}
 	small {
 		color: @lgrey;
+	}
+}
+
+// Header
+#toppanel {
+	float: right;
+	font-size: 1em;
+	height: 0;
+	// margin-top: -2.3em;
+	a {
+		color: @lgrey;
+		&:before {
+			content: '[ ';
+		}
+		&:after {
+			content: ' ]';
+		}
+		&:before, &:after {
+			color: @lblue !important;
+		}
+		&:hover {
+			color: @fontcolor !important;
+			&:before, &:after {
+				color: @fontimp !important;
+			}
+		}
 	}
 }
 
