@@ -74,14 +74,15 @@ class CMS extends NoInst {
 
 		View::go(self::$URI);
 
-		self::headers();
 		self::end();
 	}
 
 	///Set all needed headers
-	public static function headers() {
-		foreach (self::$HTTPheaders as $v)
+	public static function flushHeaders() {
+		foreach (self::$HTTPheaders as &$v) {
 			header($v);
+			unset($v);
+		}
 	}
 
 	/**

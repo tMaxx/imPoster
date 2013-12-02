@@ -79,6 +79,7 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 		foreach ($constants as $key => $value)
 			if (substr($key, 0, 2) == 'E_' && $eno == $value) {
 				$eName = $key;
+				array_shift($trace);
 				break;
 			}
 

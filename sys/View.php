@@ -9,8 +9,6 @@ class ViewGen {
 	protected $parent = NULL;
 	//Called pages stack
 	protected $trace = array();
-		///Last node from stack
-		protected $tracel = '';
 	///Cursor
 	protected $cursor = '';
 	///Next nodes
@@ -43,7 +41,7 @@ class ViewGen {
 	 * @param $was_index
 	 */
 	protected function log($node, $was_index = NULL) {
-		$this->trace[] = $this->tracel = $node;
+		$this->trace[] = $node;
 		if($was_index !== NULL)
 			$this->find_index = !$was_index;
 	}
@@ -165,7 +163,7 @@ class View extends NoInst {
 				if (!(CMS::safeIncludeOnce(self::TEMPLATE)))
 					throw new Error('View: No template found');
 			} else {
-				CMS::headers();
+				CMS::flushHeaders();
 				self::body();
 			}
 		}

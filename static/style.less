@@ -12,7 +12,7 @@
 @em: (1 / 16) + 0em; // unit conversion
 @fontsmono: "Ubuntu Mono", "Courier New", "Courier", monospace;
 // Mixins
-.mrg(@dmul: 1, @lmul: 0) when (isnumber(@dmul)) and (isnumber(@lmul)){
+.mrg(@dmul: 1, @lmul: 0) when (isnumber(@dmul)) and (isnumber(@lmul)) {
 	margin: 0 0 (@dmul*@dv) (@lmul*@dv);
 }
 
@@ -38,7 +38,7 @@ a {
 #main {
 	margin: 10px auto 0;
 	width: 60%;
-	min-width: 320px
+	min-width: 320px;
 }
 
 // Header
@@ -46,10 +46,10 @@ a {
 	color: @fontimp;
 	margin-bottom: 4px;
 	width: 100%;
-	font-size: 2em;
+	font-size: 2.3em;
 	#panel {
 		float: right;
-		font-size: 0.45em;
+		font-size: 0.5em;
 		a {
 			color: @lgrey;
 			&:before {
@@ -63,6 +63,9 @@ a {
 			}
 			&:hover {
 				color: @fontcolor !important;
+				&:before, &:after {
+					color: @fontimp !important;
+				}
 			}
 		}
 	}
@@ -74,8 +77,14 @@ a {
 	}
 }
 
+// Footer
+#footer {
+	font-size: 0.9em;
+	color: @lgrey;
+}
+
 // Generics, these hold some kind of content
-#mn, .frm, #in, #cn {
+#menu, .frame, #info, #content {
 	// Border box - Should it be global (*{ ... }) ?
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -87,8 +96,8 @@ a {
 }
 
 // Commons for menus (item, selected)
-#mn, .frm {
-	.i {
+#menu, .frame {
+	.item {
 		float: left;
 		display: block;
 
@@ -100,14 +109,14 @@ a {
 		&:hover:before, &:hover:after {color: @lgrey;}
 	}
 
-	#c { //current
+	#cur { //current
 		color: @fontimp;
 		font-weight: bold;
 
 		&:before, &:after {color: @fontimp !important;} //override
 	}
 
-	.s { //switch - open/close, close message, confirm sth
+	.switch { //switch - open/close, close message, confirm sth
 		color: @fontimp;
 		float: right !important;
 		&:before, &:after {
@@ -117,11 +126,11 @@ a {
 }
 
 // Menu - 1st level
-#mn {
+#menu {
 	font-size: 1.1em;
 	margin-top: @dv;
 
-	.i {
+	.item {
 		padding: 0;
 
 		&:before {
@@ -136,11 +145,11 @@ a {
 }
 
 // Frame - Informations, Warnings, probably additional menus
-.frm {
+.frame {
 	// noop
 }
-.frm.mnu {// Menus
-	.i {
+.frame.mnu {// Menus
+	.item {
 		padding-bottom: 0.2em;// 0.5em;
 
 		&:before {
@@ -155,7 +164,7 @@ a {
 }
 
 // Hacky (and messy) way to get proper colors
-.frmcolor(@clr: white, @fde: 50%,@fstr: "", @2clr: @bgcolor)
+.framecolor(@clr: white, @fde: 50%,@fstr: "", @2clr: @bgcolor)
 	when (iscolor(@clr)) and (ispercentage(@fde)) and (iscolor(@2clr)) and (isstring(@fstr))
 {
 	background-color: mix(@clr, @2clr, @fde);
@@ -167,7 +176,7 @@ a {
 	}
 }
 // Information, confirmation, warning, critical
-.frm.inf, .frm.ok, .frm.wrn, .frm.crt {
+.frame.inf, .frame.ok, .frame.wrn, .frame.crt {
 	margin: @dv 0;
 	padding: @dv;
 	border-top-left-radius: 5px;
@@ -179,21 +188,21 @@ a {
 		margin-right: 0.25em;
 	}
 }
-.frm.inf {.frmcolor(#729fcf, 40%, "(i)");}
-.frm.ok  {.frmcolor(#8ae234, 40%, "(+)");}
-.frm.wrn {.frmcolor(#cc0000, 40%, "[!]");}
-.frm.crt {
+.frame.inf {.framecolor(#729fcf, 40%, "(i)");}
+.frame.ok  {.framecolor(#8ae234, 40%, "(+)");}
+.frame.wrn {.framecolor(#cc0000, 40%, "[!]");}
+.frame.crt {
 	@darkclr:darken(#2e3436, 15%); // is: near black; was: black
-	.frmcolor(#cc0000, 0%, "!#!",@darkclr);
+	.framecolor(#cc0000, 0%, "!#!",@darkclr);
 }
 
 // Information panel
-#in {
+#info {
 	color: @fontimp;
 	font-weight: bold;
 	font-size: 1.2em;
 	padding: 10px 0 5px 5px;
-	#da {
+	#date {
 		color: @fontcolor;
 		float: right;
 		font-size: 0.8em;
@@ -203,7 +212,7 @@ a {
 }
 
 // Content
-#cn {
+#content, .content {
 	margin-top: @dv;
 	overflow: auto;
 	line-height: 1.75;
@@ -229,7 +238,7 @@ a {
 			display: inline;
 		}
 	}
-	code,blockquote {.mrg(2,1);}
+	code, blockquote {.mrg(2,1);}
 	blockquote {
 		border-left: 3px double @fontimp;
 		display: inline-block;
@@ -243,7 +252,7 @@ a {
 				content: '~ ';
 		}	}
 	}
-	code,.code {
+	code, .code {
 		font-family: @fontsmono;
 	}
 	code {
@@ -261,7 +270,7 @@ a {
 	h2 {font-size: 1.5em;}
 	h3 {font-size: 1.17em;}
 
-	ol,ul {
+	ol, ul {
 		display: block;
 		.mrg(2);
 		padding: 0 0 0 2em;
@@ -277,9 +286,8 @@ a {
 		.mrg(1,3);
 		line-height: 1.9em;
 
-		input[type=text],input[type=file],input[type=password],input[type=submit],
-			input[type=search],textarea
-		{
+		input[type=text], input[type=file], input[type=password], input[type=submit],
+			input[type=search], textarea {
 			margin: 1px 0;
 			padding: 1px 4px;
 			font: inherit;
@@ -287,11 +295,10 @@ a {
 			border: none;
 			background: darken(@bgcolor,4%);
 		}
-		input[type=radio],input[type=checkbox]
-		{
+		input[type=radio], input[type=checkbox] {
 			margin: 1px 3px 0 6px;
 		}
-		input[type=submit]{
+		input[type=submit] {
 			@bstyle: 1px solid @lgrey;
 			border-left: @bstyle;
 			border-right: @bstyle;
