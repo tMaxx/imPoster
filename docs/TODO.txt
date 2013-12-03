@@ -23,9 +23,6 @@ Dla chętnych do pracy:
 - Wymyślić i rozpisać (w jakimś pliku) wstępną hierarchię podstron
 	czyli gdzie panel usera, gdzie wyświetlamy listę zadań, jak konwersacje, itd.
 	po akceptacji przez zespół utworzyć poszczególne pliki i katalogi w katalogu /view/
-- Dorzucić parser LESS-a po stronie serwera
-	na razie generuję go u siebie na kompie
-	Być może to wystarczy: https://github.com/oyejorge/less.php
 
 
 OPCJONALNIE (na później, dla ambitnych):

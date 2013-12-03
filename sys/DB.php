@@ -144,11 +144,22 @@ class DB extends NoInst {
 		return $r;
 	}
 
-	public static function insert() {
+	/**
+	 * Insert data into table
+	 * @param $table name
+	 * @param $data key: field name, value: field value
+	 */
+	public static function insert($table, $data) {
 		
 	}
 
-	public static function update() {
+	/**
+	 * Update data in table
+	 * @param $table name
+	 * @param $where key: field name, value: field value
+	 * @param $set key: field name, value: field value
+	 */
+	public static function update($table, $where, $set) {
 		
 	}
 
