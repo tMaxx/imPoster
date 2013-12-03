@@ -193,7 +193,7 @@ class View extends NoInst {
 
 	///Render footer
 	public static function footer() {
-		echo '<span id="exec-time">InEXt: ', round(((microtime(true) - NOW_MICRO)*1000.0), 3), 'ms</span>';
+		echo '<span id="exec-time">InEXt: ', round(((microtime(true) - NOW_MICRO)*1000.0), 3), 'ms</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&copy;&nbsp;2013';
 	}
 
 	/**
