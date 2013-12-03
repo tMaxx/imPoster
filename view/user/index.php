@@ -1,3 +1,1 @@
-user view
-<br><br>
-<? $this->node('') ?>
+<? $this->node('view') ?>
