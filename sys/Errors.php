@@ -3,6 +3,7 @@
  * Error
  */
 class Error extends ErrorException {};
+class ErrorCMS extends Error {};
 
 class ErrorHTTP extends Error {
 	private $httpcode;
@@ -10,6 +11,10 @@ class ErrorHTTP extends Error {
 	public function __construct($msg = NULL, $code = NULL, $add = NULL) {
 		$this->httpcode = $code;
 		$this->inmessage = $msg;
+
+		if($code)
+			http_response_code($code);
+
 		$msg = 'HTTP '.(int)$code.': '.$msg;
 
 		parent::__construct($msg);

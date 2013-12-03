@@ -14,5 +14,7 @@
 	<? View::body() ?>
 	<div id="footer"><? View::footer() ?></div>
 </div>
+	<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src="/static/script.js"></script>
 </body>
 </html>

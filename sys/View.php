@@ -22,7 +22,7 @@ class ViewGen {
 	 * @param $param CMS params override
 	 * @param $findindex look for index.php in $cursor?
 	 */
-	function __construct($cursor, array $next, $parent = NULL, array $param = array(), $findindex = TRUE) {
+	function __construct($cursor, array $next = array(), $parent = NULL, array $param = array(), $findindex = TRUE) {
 		if (((static::$i--)) <= 0)
 			throw new Error('ViewGen: object count limit reached');
 		if (!is_bool($findindex))
@@ -48,8 +48,14 @@ class ViewGen {
 			$this->find_index = !$was_index;
 	}
 
+	///Is $this->cursor valid?
 	protected function checkPath() {
 		return CMS::fileExists($c = '/view/'.$this->cursor) || CMS::fileExists($c.'.php');
+	}
+
+	///Is $this->next empty?
+	protected function checkNext() {
+		return !$this->next || (isset($this->next[0]) && !$this->next[0]);
 	}
 
 	/**
@@ -68,18 +74,17 @@ class ViewGen {
 	 * @param $param -- '' --
 	 */
 	function node($path = NULL, array $param = array()) {
-		if (is_string($path)) {
-			if (!$path)
-				throw new Error404('ViewGen: No path provided');
-			elseif ($path[0] == '/')
+		if (is_string($path) && $path) {
+			if ($path[0] == '/')
 				return $this->subnode($path, $param);
 
 			//if we don't know where to go...
-			if (!$this->next || (isset($this->next[0]) && !$this->next[0])) {
+			if ($this->checkNext()) {
 				$this->next = (array) explode('/', $path);
 				$this->param = $param;
 			}
-		}
+		} elseif ($path === '' && $this->checkNext())
+			return;
 		unset($param, $path);
 
 		$this->log($this->cursor);
@@ -118,13 +123,8 @@ class ViewGen {
 
 	///Guard: node is available only as part of another view when doing FULL render
 	function guard_nonrequest() {
-		if ($this->parent === NULL && View::isMode('FULL'))
+		if ($this->parent === NULL && !AJAX)
 			throw new Error400('Direct node render disallowed');
-	}
-
-	//
-	function guard_mode() {
-		// if (View::isMode(func_get_args()));
 	}
 }
 
@@ -149,49 +149,36 @@ class View extends NoInst {
 		if (self::lock())
 			return;
 
-		if (self::isMode('FULL', 'PART', 'SINGLE')) {
-			$cursor = '/';
-			$next = array_shift($path[1]);
-			if (MODE == 'SINGLE') {
-				$cursor = $path[0];
-				$next = array();
-			}
-
-			ob_start();
-
-			try {
-				(new ViewGen($cursor, $path[1]))->node();
-			} catch (ErrorHTTP $e) {
-				ob_end_clean();
-				echo '<div class="clear"></div><div class="center">', $e->getFancyMessage(), '</div>';
-			}
-
-			self::$BODY = ob_get_clean();
-
-			if (self::isMode('FULL')) {
-				if (!(CMS::safeIncludeOnce(self::TEMPLATE)))
-					throw new Error('View: No template found');
-			} else {
-				CMS::flushHeaders();
-				self::body();
-			}
+		if (AJAX) {
+			$next = array();
+			$path = $path[0];
+		} else {
+			$next = $path[1];
+			$path = '';
 		}
-		else
-			throw new ErrorHTTP('View: Unsupported working mode "'.MODE.'"!', 400);
-	}
 
-	/**
-	 * Is MODE equal to one of parameters
-	 * @param $mode strings
-	 * @return bool
-	 */
-	public static function isMode() {
-		return !!in_array(MODE, func_get_args());
+		ob_start();
+
+		try {
+			(new ViewGen($path, $next))->node();
+		} catch (ErrorHTTP $e) {
+			ob_end_clean();
+			ob_start();
+			echo '<div class="clear"></div><div class="center">', $e->getFancyMessage(), '</div>';
+		}
+
+		self::$BODY = ob_get_clean();
+
+		CMS::flushHeaders();
+		if (AJAX)
+			self::body();
+		elseif (!(CMS::safeIncludeOnce(self::TEMPLATE)))
+			throw new Error('View: No template found');
 	}
 
 	///Render footer
 	public static function footer() {
-		echo '<span id="exec-time">InEXt: '.round(((microtime(true) - NOW_MICRO)*1000.0), 3).'ms</span>';
+		echo '<span id="exec-time">InEXt: ', round(((microtime(true) - NOW_MICRO)*1000.0), 3), 'ms</span>';
 	}
 
 	/**

@@ -67,7 +67,6 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 	}
 
 	$trace = debug_backtrace();
-
 	$result = array('<br /><br />');
 
 	if ((isset($eno, $estr, $efile)) || (!isset($eno) && (($e_last = error_get_last()) !== NULL))) { //error
@@ -108,6 +107,11 @@ function revCMS_e_handler($eno = NULL, $estr = NULL, $efile = NULL, $eline = NUL
 		if (!isset($e_last))
 			CMS::end();
 		return;
+	}
+
+	if ((isset($eno) && !($eno instanceof ErrorHTTP)) || isset($e_last)) {
+		http_response_code(500);
+		CMS::flushHeaders();
 	}
 
 	if ($trace) {
@@ -166,5 +170,6 @@ include_once 'config.php';
 
 define('NOW', time());
 define('HOST', $_SERVER['HTTP_HOST']);
+define('AJAX', (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'));
 
 CMS::go();

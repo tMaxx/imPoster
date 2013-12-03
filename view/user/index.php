@@ -1,3 +1,3 @@
 user view
 <br><br>
-<? $this->node('login') ?>
+<? $this->node('') ?>
