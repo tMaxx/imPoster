@@ -13,6 +13,8 @@ class ViewGen {
 	protected $cursor = '';
 	///Next nodes
 	protected $next = array();
+	///Local parameters to pass
+	protected $vars = array();
 
 	/**
 	 * Construct
@@ -22,7 +24,7 @@ class ViewGen {
 	 * @param $param CMS params override
 	 * @param $findindex look for index.php in $cursor?
 	 */
-	function __construct($cursor, array $next = array(), $parent = NULL, array $param = array(), $findindex = TRUE) {
+	function __construct($cursor, array $next = array(), $parent = NULL, array $vars = array(), $findindex = TRUE) {
 		if (((static::$i--)) <= 0)
 			throw new Error('ViewGen: object count limit reached');
 		if (!is_bool($findindex))
@@ -35,6 +37,7 @@ class ViewGen {
 		$this->find_index = $findindex;
 		$this->next = $next;
 		$this->parent = $parent;
+		$this->vars = $vars;
 	}
 
 	/**
@@ -61,31 +64,31 @@ class ViewGen {
 	/**
 	 * Render subpath
 	 * @param $path what to render
-	 * @param $param what to pass
+	 * @param $vars what to pass
 	 */
-	function subnode($path, $param = array()) {
-		return (new ViewGen($path, array(), $this, $param))->node();
+	function subnode($path, $vars = array()) {
+		return (new ViewGen($path, array(), $this, $vars))->node();
 	}
 
 	/**
 	 * MAIN FUNCTION
 	 * Launch suggested current node or proceed this way with $this params
 	 * @param $path where to go, unless we already know the path
-	 * @param $param -- '' --
+	 * @param $vars additional parameters to pass
 	 */
-	function node($path = NULL, array $param = array()) {
+	function node($path = NULL, array $vars = array()) {
 		if (is_string($path) && $path) {
 			if ($path[0] == '/')
-				return $this->subnode($path, $param);
+				return $this->subnode($path, $vars);
 
 			//if we don't know where to go...
 			if ($this->checkNext()) {
 				$this->next = (array) explode('/', $path);
-				$this->param = $param;
+				$this->vars = $vars;
 			}
 		} elseif ($path === '' && $this->checkNext())
 			return;
-		unset($param, $path);
+		unset($vars, $path);
 
 		$this->log($this->cursor);
 
@@ -95,7 +98,7 @@ class ViewGen {
 				if($this->find_index && CMS::fileExists($file = $dir.'/index.php')) {
 					//index.php
 					$this->log('index.php', TRUE);
-					include ROOT.$file;
+					$this->inc($file);
 					if(!$this->next)
 						return;
 				} elseif (((($this->next))) && ($next = array_shift($this->next))) {
@@ -108,13 +111,23 @@ class ViewGen {
 			} elseif (CMS::fileExists($file = $dir.'.php')) {
 				//cursor is a file
 				$this->log($file, FALSE);
-				include ROOT.$file;
+				$this->inc($file);
 				if(!$this->next)
 					return;
 			}
 
 			throw new Error404('Requested node not found');
 		} while(TRUE);
+	}
+
+	///Return $this->vars
+	public function getVars() {
+		return $this->vars;
+	}
+
+	///Scope sandbox
+	private function inc($file) {
+		include ROOT.$file;
 	}
 
 	function guard_auth($guard, $defpath) {
@@ -140,6 +153,8 @@ class View extends NoInst {
 	private static $BODY = '';
 	///Title of page
 	private static $TITLE = 'Codename teo';
+	///Additional title parts
+	private static $TITLE_ADD = array();
 
 	/**
 	 * Try to retrieve and render view, handle errors
@@ -207,6 +222,21 @@ class View extends NoInst {
 		return self::$TITLE;
 	}
 
+	/**
+	 * Add a string to title or flush the buffer
+	 * @param $str
+	 * @return if $str=NULL: array
+	 */
+	public static function titleAdd($str = NULL) {
+		if ($str === NULL) {
+			$r = self::$TITLE_ADD;
+			self::$TITLE_ADD = array();
+			return $r;
+		} else
+			self::$TITLE_ADD[] = $str;		
+	}
+
+	///Echo rendered body
 	public static function body() {
 		echo self::$BODY;
 	}
