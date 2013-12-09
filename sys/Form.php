@@ -30,8 +30,13 @@ class Form {
 		$this->values = array();
 	}
 
-	public function set(array $in) {
-		
+	public function set(array $in) { 
+	   $r = array();
+       foreach ($in as $k => $v)
+         if(array_key_exists($k, $this->fields))
+            $this->values[$k] = $v;
+           
+        return $this;
 	}
 
 	public function get($key = NULL) {
