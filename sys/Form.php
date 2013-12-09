@@ -35,9 +35,24 @@ class Form {
 	}
 
 	public function get($key = NULL) {
-		
-	}
-
+		if(isset($key))
+        {
+            if(is_array($key))
+             {
+                $r = array();
+                foreach($key as $v)
+                    $r[$v] = array_key_exists($v, $this->values) ? $this->values[$v] : NULL;
+                return $r;
+            }
+            elseif(is_string($key))
+            {
+                $r = array_key_exists($key, $this->values) ? $this->values[$key] : NULL;
+                return $r;
+            }
+        }
+        else
+            return $this->values;
+    }
 	///Render form
 	public function r() {
 		
