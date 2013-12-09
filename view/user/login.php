@@ -1,4 +1,11 @@
 <?php
+    class login 
+    {
+        public function login()
+        {
+            
+        }
+    }
 ?>
     <form action="trocheinaczej.php" method="post">
 
@@ -7,3 +14,6 @@
                <input type="submit" value="Zaloguj" />
     </form>
 <?php
+   $login = CMS::vars('GET', array('login', 'password'));
+   
+// yhmm tu wywołaś logn() ? 
