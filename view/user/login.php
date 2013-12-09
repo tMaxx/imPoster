@@ -1,11 +1,15 @@
 <?php
-    class login 
-    {
-        public function login()
-        {
-            
-        }
-    }
+$vars = CMS::vars('GET', array('login', 'password'));
+if (User::login($vars)) {
+	//hallelujah!
+	//TODO
+	new DB('INSERT INTO UserSessions VALUES (...)')->param($vars)->exec();
+	//generalnie redirect, rozwiązanie z dupy
+	throw new ErrorHTTP('Redirect', 300);
+} else {
+	//chyba śnisz, walnij jakimś błędem
+}
+
 ?>
     <form action="trocheinaczej.php" method="post">
 
@@ -14,6 +18,3 @@
                <input type="submit" value="Zaloguj" />
     </form>
 <?php
-   $login = CMS::vars('GET', array('login', 'password'));
-   
-// yhmm tu wywołaś logn() ? 
