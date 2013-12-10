@@ -60,6 +60,22 @@ class Form {
     }
 	///Render form
 	public function r() {
-		
+		echo '<form method="post">';
+        foreach ($this->fields as $k => $v)
+        {
+            switch($fields[$v][0])
+            {
+                case 'password':
+                    echo '<input type="password" name="password" size="3" maxlength="20" value="0" />';
+                    break;
+                case 'text':
+                    echo '<input type="text" name="login" size="3" maxlength="20" />';
+                    break;
+                case 'submit':
+                    echo '<input type="submit" value="Zaloguj" />';
+                    break;
+            }
+        }
+        echo '</form>';
 	}
 }
