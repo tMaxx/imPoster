@@ -96,4 +96,12 @@ class Form {
 		}
 		echo '</form>';
 	}
+    
+    public function submitted() {
+        $r = array();
+        foreach ($this->fields as $k => $v)
+            $r[] = $k;
+        
+        $this->values = CMS::vars($this->fields, $r);
+    }
 }
