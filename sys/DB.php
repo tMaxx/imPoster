@@ -2,13 +2,13 @@
 /**
  * DB - Database support class
  */
-class DB extends Locks {
+class DB extends _Locks {
 	//db object
 	private static $db = NULL;
 	///instance working mode
 	const MODE_DIRECT = 1;
 	const MODE_INSTANCE = 2;
-	const MODE_REPO = 3;
+	const MODE_TABLE = 3;
 	////direct query, instance Model manipulation, repository mode
 	private $mode = self::MODE_DIRECT;
 	///executed query
@@ -57,21 +57,20 @@ class DB extends Locks {
 		if ($v instanceof Model)
 			return self::MODE_INSTANCE;
 		elseif (is_string($v) && CMS::appClassExists($v))
-			return self::MODE_REPO;
+			return self::MODE_TABLE;
 		else
 			return self::MODE_DIRECT;
 	}
 
 	protected function mode_set($mode) {
 		switch ($mode) {
-			case 'direct':
+			case self::MODE_TABLE:
 
 				break;
-			case 'instance':
+			case self::MODE_INSTANCE:
 
 				break;
-
-			case 'repository':
+			case self::MODE_DIRECT:
 				# code...
 				break;
 			default:

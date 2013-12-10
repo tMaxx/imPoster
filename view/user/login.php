@@ -1,5 +1,5 @@
 <?php
-$vars = CMS::vars('GET', array('login', 'password'));
+/*$vars = CMS::vars('GET', array('login', 'password'));
 if (User::login($vars)) {
 	//hallelujah!
 	//TODO
@@ -9,9 +9,9 @@ if (User::login($vars)) {
 } else {
 	//chyba śnisz, walnij jakimś błędem
 }
-
+*/
 ?>
-    <form action="trocheinaczej.php" method="post">
+    <form action="trocheinaczej.php" method="post" name="fofffff">
 
             Login: <input type="text" name="login" size="3" maxlength="20" />
             Pass: <input type="password" name="password" size="3" maxlength="20" /> 

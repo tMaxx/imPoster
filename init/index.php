@@ -2,14 +2,6 @@
 ///Initialize CMS, add templates, run commands
 
 /**
- * "No instance" class
- * For every class that should not have an instance
- */
-class NoInst extends _Locks {
-	function __construct() {	throw new Error('Thou shall not create a new object!'); }
-}
-
-/**
  * Implements locks for every class
  */
 class _Locks {
@@ -34,6 +26,14 @@ class _Locks {
 			self::$LOCKS[$c][$f] = NULL;
 		return !$r;
 	}
+}
+
+/**
+ * "No instance" class
+ * For every class that should not have an instance
+ */
+class NoInst extends _Locks {
+	function __construct() {	throw new Error('Thou shall not create a new object!'); }
 }
 
 ///dumper

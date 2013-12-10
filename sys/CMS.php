@@ -2,7 +2,7 @@
 /**
  * CMS - basic content management class
  */
-static class CMS extends Locks {
+class CMS extends _Locks {
 	///CMS identificator
 	const CMS_ID = 'revCMS codename /shadow/';
 	///CMS version
@@ -160,7 +160,7 @@ static class CMS extends Locks {
 	 * @return bool
 	 */
 	public static function varIsSet($type, $in) {
-		guard_allowedVarTypes($type);
+		self::guard_allowedVarTypes($type);
 
 		return isset(self::${$type}[$in]);
 	}
@@ -205,3 +205,4 @@ static class CMS extends Locks {
 		
 	}
 }
+pre_dump($_POST);

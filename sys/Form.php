@@ -9,6 +9,7 @@ class Form {
 	protected $fields;
 	protected $values;
 	protected $name;
+	protected $submitted = false;
 
 	/**
 	 * @todo everything
@@ -30,32 +31,26 @@ class Form {
 		$this->values = array();
 	}
 
-	public function set(array $in) { 
-		$r = array();
+	public function set(array $in) {
 		foreach ($in as $k => $v)
-			if(array_key_exists($k, $this->fields))
+			if (array_key_exists($k, $this->fields))
 				$this->values[$k] = $v;
 
 		return $this;
 	}
 
 	public function get($key = NULL) {
-		if(isset($key))
-		{
-			if(is_array($key))
-			 {
+		if (isset($key)) {
+			if (is_array($key)) {
 				$r = array();
-				foreach($key as $v)
+				foreach ($key as $v)
 					$r[$v] = array_key_exists($v, $this->values) ? $this->values[$v] : NULL;
 				return $r;
-			}
-			elseif(is_string($key))
-			{
+			} elseif (is_string($key)) {
 				$r = array_key_exists($key, $this->values) ? $this->values[$key] : NULL;
 				return $r;
 			}
-		}
-		else
+		} else
 			return $this->values;
 	}
 	///Render form
@@ -85,10 +80,14 @@ class Form {
 					break;
 				//select
 				case 'select': {
+					///TODO: check following option
 					echo '<select name="', $name, '" ', $attr, " >";
-					$options = $v['options'];
-
+					foreach ($v['options'] as $ok => $ov)
+						echo '<option value="', $ok, '"', (($val === $ok) ? ' selected' : ''), '>', $ov, '</option>';
 					echo '</select>';
+					break;
+				default:
+					throw new ErrorCMS('Unsupported field type');
 					break;
 				}
 			}
