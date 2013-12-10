@@ -2,7 +2,7 @@
 /**
  * CMS - basic content management class
  */
-class CMS extends NoInst {
+static class CMS extends Locks {
 	///CMS identificator
 	const CMS_ID = 'revCMS codename /shadow/';
 	///CMS version
@@ -136,12 +136,21 @@ class CMS extends NoInst {
 	}
 
 	/**
+	 * Check if class file exists
+	 * @param $name class name
+	 * @return bool
+	 */
+	public static function appClassExists($name) {
+		return self::fileExists('/app/'.$name.'.php');
+	}
+
+	/**
 	 * Check if this type is allowed in here
 	 * @param $type
 	 */
 	public static function guard_allowedVarTypes($type) {
 		if (!in_array($type, array('POST', 'GET', 'URI')))
-			throw new Error('Invalid var $type');
+			throw new ErrorCMS('Invalid var $type');
 	}
 
 	/**
@@ -162,19 +171,25 @@ class CMS extends NoInst {
 	 * @param $in string|array
 	 * string: single variable name
 	 * array: values (as values, not keys), to be filled
+	 * @param $unset bool unset variable(s) from $in
 	 * @return string|array
 	 * string: single value
 	 * array: returns filled array with variable names as keys
 	 */
-	public static function vars($type, $in, $ifnset = NULL) {
-		guard_allowedVarTypes($type);
+	public static function vars($type, $in, $ifnset = NULL, $unset = FALSE) {
+		self::guard_allowedVarTypes($type);
 
 		if (is_array($in)) {
 			$r = array();
-			foreach ($in as $v)
+			foreach ($in as $v) {
 				$r[$v] = isset(self::${$type}[$v]) ? self::${$type}[$v] : $ifnset;
+				if ($unset)
+					unset(self::${$type}[$v]);
+			}
 		} elseif (is_string($in)) {
 			$r = isset(self::${$type}[$in]) ? self::${$type}[$in] : $ifnset;
+			if ($unset)
+				unset(self::${$type}[$in]);
 		} else
 			throw new Error('Unsupported $var type; only array or string');
 

@@ -4,12 +4,16 @@
 /**
  * "No instance" class
  * For every class that should not have an instance
+ */
+class NoInst extends _Locks {
+	function __construct() {	throw new Error('Thou shall not create a new object!'); }
+}
+
+/**
  * Implements locks for every class
  */
-class NoInst {
+class _Locks {
 	protected static $LOCKS = array();
-
-	final function __construct() {	throw new Error('Thou shall not create a new object!'); }
 
 	///Class function - is locked?
 	final protected static function is_locked($n = 2) {

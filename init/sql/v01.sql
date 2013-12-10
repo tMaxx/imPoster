@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 CREATE TABLE IF NOT EXISTS `UserSession` (
 	`user_id` INT UNSIGNED NOT NULL,
 	`ts` INT(11),
-	`hash` VARCHAR(128),
-	`addit` VARCHAR(128),
+	`hash` VARCHAR(140),
+	`addit` VARCHAR(140),
 
 	PRIMARY KEY (`user_id`),
 	FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE
@@ -38,8 +38,8 @@ CREATE TABLE IF NOT EXISTS `List` (
 	`user_dest` INT UNSIGNED,
 	`ts` INT(11) NOT NULL,
 	`type` INT,
-	`name` VARCHAR(128),
-	`note` VARCHAR(128),
+	`name` VARCHAR(140),
+	`note` VARCHAR(140),
 
 	PRIMARY KEY (`list_id`),
 	FOREIGN KEY (`user_dest`) REFERENCES `User`(`user_id`),
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `Elem` (
 	`content` TEXT NOT NULL,
 	`ts` INT(11) NOT NULL,
 	`is_read` TINYINT(1) DEFAULT 0,
-	`note` VARCHAR(128),
+	`note` VARCHAR(140),
 
 	PRIMARY KEY (`elem_id`),
 	FOREIGN KEY (`list_id`) REFERENCES `List`(`list_id`) ON DELETE SET NULL
@@ -65,9 +65,7 @@ CREATE TABLE IF NOT EXISTS `Ping` (
 	`list_id` INT UNSIGNED,
 	`elem_id` INT UNSIGNED,
 	`ts` INT(11) NOT NULL,
-	`ts_next` INT(11),
-	`content` TEXT,
-	`note` VARCHAR(128),
+	`note` VARCHAR(140),
 
 	PRIMARY KEY (`ping_id`)
 ) ENGINE=InnoDB;

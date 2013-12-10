@@ -61,18 +61,18 @@ class Form {
 	///Render form
 	public function r() {
 		echo '<form method="post">';
-        foreach ($this->fields as $k => $v)
-        {
-            switch($fields[$v][0])
-            {
+        foreach ($this->fields as $k => $v) {
+			$val = isset($this->values[$k]) ? $this->values[$k] : '';
+			$name = $this->name.'::'.$k;
+            switch($v[0]) {
                 case 'password':
-                    echo '<input type="password" name="password" size="3" maxlength="20" value="0" />';
+                    echo '<input type="password" name="', $name,'" value="', $val, '" />';
                     break;
                 case 'text':
-                    echo '<input type="text" name="login" size="3" maxlength="20" />';
+                    echo '<input type="text" name="', $name, '" value="', $val, '" />';
                     break;
                 case 'submit':
-                    echo '<input type="submit" value="Zaloguj" />';
+                    echo '<input type="submit" name="', $name, '" value="Zaloguj" />';
                     break;
             }
         }

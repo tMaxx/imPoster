@@ -5,3 +5,6 @@
 <div class="content">
 	<? $this->node('welcome') ?>
 </div>
+<?
+pre_dump(Model::getPK(), (new Model)->getID());
+new DB("SELECT *");
