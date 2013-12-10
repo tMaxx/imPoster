@@ -162,6 +162,10 @@ class CMS extends _Locks {
 	public static function varIsSet($type, $in) {
 		self::guard_allowedVarTypes($type);
 
+		if (is_array($in)) {
+			foreach ($in as $v)
+
+		}
 		return isset(self::${$type}[$in]);
 	}
 
@@ -205,4 +209,3 @@ class CMS extends _Locks {
 		
 	}
 }
-pre_dump($_POST);

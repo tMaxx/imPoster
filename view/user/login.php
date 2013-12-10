@@ -10,11 +10,25 @@ if (User::login($vars)) {
 	//chyba śnisz, walnij jakimś błędem
 }
 */
-?>
-    <form action="trocheinaczej.php" method="post" name="fofffff">
 
-            Login: <input type="text" name="login" size="3" maxlength="20" />
-            Pass: <input type="password" name="password" size="3" maxlength="20" /> 
-               <input type="submit" value="Zaloguj" />
-    </form>
-<?php
+$form = new Form(
+	array(
+		'name' => 'loginform', 
+		'fields' => array(
+			'user' => array(
+				'text',
+				'label' => 'Username:',
+			), 
+			'pwd' => array(
+				'password',
+				'label' => 'Password:',
+			), 
+			'sub' => array(
+				'submit',
+				'value' => 'Wyslij',
+			),
+		),
+	)
+);
+
+$form->r();
