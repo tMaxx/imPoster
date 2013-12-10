@@ -62,18 +62,37 @@ class Form {
 	public function r() {
 		echo '<form method="post">';
 		foreach ($this->fields as $k => $v) {
-			$val = isset($this->values[$k]) ? $this->values[$k] : '';
+			if (($type = $v[0]) == 'raw') {
+				echo $v[1];
+				continue;
+			}
 			$name = $this->name.'::'.$k;
-			$type = $v[0];
+			$val = isset($this->values[$k]) ? $this->values[$k] : '';
 			$attr = '';
+			if (isset($v['attributes']))
+				foreach ($v['attributes'] as $ak => $av)
+					$attr .= $ak. (isset($av) ? '="'.$av.'" ' : ' ');
+
+			echo '<label>', isset($v['label']) ? $v['label'] : $k, ' ';
 			switch ($type) {
+				//basic types
 				case 'email':
 				case 'password':
 				case 'text':
 				case 'submit':
+				case 'search':
 					echo '<input type="', $type, '" name="', $name,'" ', $attr, ' value="', $val, '" />';
 					break;
+				//select
+				case 'select': {
+					echo '<select name="', $name, '" ', $attr, " >";
+					$options = $v['options'];
+
+					echo '</select>';
+					break;
+				}
 			}
+			echo '</label>';
 		}
 		echo '</form>';
 	}
