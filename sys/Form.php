@@ -102,6 +102,6 @@ class Form {
         foreach ($this->fields as $k => $v)
             $r[] = $k;
         
-        $this->values = CMS::vars($this->fields, $r);
+        $this->values = CMS::vars('GET', $r, NULL, TRUE);
     }
 }
