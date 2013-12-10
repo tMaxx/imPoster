@@ -136,6 +136,15 @@ class CMS extends _Locks {
 	}
 
 	/**
+	 * Check if $dir exists in project and is not a file
+	 * @param $dir path, relative to /
+	 * @return bool
+	 */
+	public static function dirExists($dir) {
+		return is_dir(ROOT.$dir);
+	}
+
+	/**
 	 * Check if class file exists
 	 * @param $name class name
 	 * @return bool
@@ -164,9 +173,13 @@ class CMS extends _Locks {
 
 		if (is_array($in)) {
 			foreach ($in as $v)
-
-		}
-		return isset(self::${$type}[$in]);
+				if (isset(self::${$type}[$v])) {
+					return true;
+					break;
+				}
+			return false;
+		} else
+			return isset(self::${$type}[$in]);
 	}
 
 	/**

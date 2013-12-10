@@ -53,7 +53,7 @@ class ViewGen {
 
 	///Is $this->cursor valid?
 	protected function checkPath() {
-		return CMS::fileExists($c = '/view/'.$this->cursor) || CMS::fileExists($c.'.php');
+		return (CMS::fileExists($c = '/view/'.$this->cursor) && !is_file(ROOT.$c) ) || CMS::fileExists($c.'.php');
 	}
 
 	///Is $this->next empty?
@@ -94,7 +94,7 @@ class ViewGen {
 
 		do {
 			//check current dir, then proceed
-			if (CMS::fileExists($dir = '/view'.$this->cursor)) {
+			if (CMS::dirExists($dir = '/view'.$this->cursor)) {
 				if($this->find_index && CMS::fileExists($file = $dir.'/index.php')) {
 					//index.php
 					$this->log('index.php', TRUE);

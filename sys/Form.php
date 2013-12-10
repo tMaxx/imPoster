@@ -3,16 +3,16 @@
  * HTML <form> handling class
  * Simplyfy all stuff ;)
  */
-
 class Form {
 
 	protected $fields;
 	protected $values;
 	protected $name;
 	protected $submitted = false;
+	protected $def;
 
 	/**
-	 * @todo everything
+	 * 
 	 * @param $def
 	 * array(
 	 * 'name' => 'nazwwaaaa',
@@ -28,7 +28,13 @@ class Form {
 			
 		$this->name = $def['name'];
 		$this->fields = $def['fields'];
+		unset($def['name'], $def['fields']);
 		$this->values = array();
+		$this->def = $def;
+		if (!isset($this->def['attributes']))
+			$this->def['attributes'] = NULL;
+
+		$this->submitted();
 	}
 
 	public function set(array $in) {
@@ -53,22 +59,38 @@ class Form {
 		} else
 			return $this->values;
 	}
+
+	protected static function attrib($in) {
+		$attr = '';
+		if (isset($in))
+			foreach ($in as $ak => $av)
+				$attr .= ' '.$ak. (isset($av) ? '="'.$av.'"' : '');
+		return $attr;
+	}
+
 	///Render form
 	public function r() {
-		echo '<form method="post">';
+		echo '<form method="post"', self::attrib($this->def['attributes']), '>';
 		foreach ($this->fields as $k => $v) {
 			if (($type = $v[0]) == 'raw') {
 				echo $v[1];
 				continue;
 			}
-			$name = $this->name.'::'.$k;
-			$val = isset($this->values[$k]) ? $this->values[$k] : '';
+
+			$val = '';
+			if (isset($this->values[$k]))
+				$val = $this->values[$k];
+			elseif (isset($v['value']))
+				$val = $v['value'];
+
 			$attr = '';
 			if (isset($v['attributes']))
-				foreach ($v['attributes'] as $ak => $av)
-					$attr .= $ak. (isset($av) ? '="'.$av.'" ' : ' ');
+				$attr = self::attrib($v['attributes']);
 
-			echo '<label>', isset($v['label']) ? $v['label'] : $k, ' ';
+			$name = $this->name.'::'.$k;
+			echo '<label>';
+			if (isset($v['label']) && $v['label'])
+				echo '<span class="form-label">'.$v['label'].'</span>';
 			switch ($type) {
 				//basic types
 				case 'email':
@@ -76,6 +98,8 @@ class Form {
 				case 'text':
 				case 'submit':
 				case 'search':
+				case 'file';
+				case 'checkbox':
 					echo '<input type="', $type, '" name="', $name,'" ', $attr, ' value="', $val, '" />';
 					break;
 				//select
@@ -86,21 +110,31 @@ class Form {
 						echo '<option value="', $ok, '"', (($val === $ok) ? ' selected' : ''), '>', $ov, '</option>';
 					echo '</select>';
 					break;
+				}
+				case 'textarea': {
+					echo '<textarea name="', $name, '" ', $attr, '>';
+					echo nl2br($val);
+					echo '</textarea>';
+					break;
+				}
 				default:
 					throw new ErrorCMS('Unsupported field type');
 					break;
-				}
 			}
 			echo '</label>';
 		}
 		echo '</form>';
 	}
-    
-    public function submitted() {
-        $r = array();
-        foreach ($this->fields as $k => $v)
-            $r[] = $k;
-        
-        $this->values = CMS::vars('GET', $r, NULL, TRUE);
-    }
+
+	public function submitted() {
+		if (!$this->submitted && CMS::varIsSet('POST', array_keys($this->fields))) {
+			$r = array();
+			foreach ($this->fields as $k => $v)
+				$r[] = $k;
+
+			$this->values = CMS::vars('GET', $r, NULL, TRUE);
+			$this->submitted = true;
+		}
+		return $this->submitted;
+	}
 }
