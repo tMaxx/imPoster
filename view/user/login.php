@@ -10,11 +10,17 @@ if (User::login($vars)) {
 	//chyba śnisz, walnij jakimś błędem
 }
 
+$form = new Form(array('name' => 'login', 'password', 
+                       'fields' => array('text', 'password', 'submit'), 
+                        'value' => 'Zaloguj'
+    ));
+
+r($form);
 ?>
     <form action="trocheinaczej.php" method="post">
 
             Login: <input type="text" name="login" size="3" maxlength="20" />
             Pass: <input type="password" name="password" size="3" maxlength="20" /> 
                <input type="submit" value="Zaloguj" />
-    </form>
+    </form> 
 <?php
