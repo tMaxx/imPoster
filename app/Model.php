@@ -1,7 +1,7 @@
 <?php //teo /app/Model.php
 
 class Model {
-	static $TABLE;
+	protected static $TABLE;
 
 	public function set(array $a) {
 		foreach ($a as $k => $v)
@@ -10,14 +10,12 @@ class Model {
 		return $this;
 	}
 
-	public function save() {
-		$s = $this->toArray();
-
-		if($this->getId())
-			DB::update($this->table(), $this->getId(), $s);
-		else
-			DB::insert($this->table(), $s);
+	public function __construct(array $a = array()) {
+		if ($a)
+			$this->set($a);
 	}
+
+	abstract public function toArray();
 
 	public static function getPK() {
 		return strtolower(get_called_class()).'_id';
@@ -28,6 +26,11 @@ class Model {
 			return $this->{static::getPK()};
 		else
 			return NULL;
+	}
+
+	public function setId($v) {
+		$this->{static::getPK()} = $v;
+		return $this;
 	}
 	
 	public function table() {

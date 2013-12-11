@@ -9,7 +9,7 @@ class DB extends _Locks {
 	const MODE_NONE = 0;
 	const MODE_DIRECT = 1;
 	const MODE_INSTANCE = 2;
-	const MODE_TABLE = 3;
+	const MODE_TABLE = 3; //query builder
 	////direct query, instance Model manipulation, repository mode
 	protected $mode = self::MODE_NONE;
 	///statement
@@ -20,6 +20,8 @@ class DB extends _Locks {
 	protected $param = array();
 	///Config
 	protected $c = array();
+	///Query config
+	protected $q = array();
 
 	/**
 	 * Prepare the DB and connect to it
@@ -63,6 +65,11 @@ class DB extends _Locks {
 		}
 		$this->param = array();
 		$this->c = array();
+		$this->q = array(
+			'query' => '',
+			'types' => '',
+			'params' => array(),
+		);
 		$this->mode = 0;
 	}
 
@@ -80,19 +87,19 @@ class DB extends _Locks {
 		switch ($mode) {
 			case self::MODE_TABLE:
 				$this->c['table'] = $var;
+				$this->c['action'] = ''; //insert, update, delete
+				$this->c['set'] = ''; //*only for update
 				$this->c['fields'] = '*';
 				$this->c['where'] = '';
-				$this->c['order'] = '';
-				$this->c['sort'] = '';
+				$this->c['order'] = ''; //order by
+				$this->c['sort'] = ''; //sort asc/desc
 				break;
 			case self::MODE_INSTANCE:
 				$this->c['inst'] = $var;
 				$this->c['table'] = $var::table();
 				break;
 			case self::MODE_DIRECT:
-				$this->c['query'] = $var;
-				$this->c['types'] = '';
-				$this->c['params'] => array();
+				$this->q['query'] = $var;
 				break;
 		}
 		$this->mode = $mode;
@@ -100,6 +107,11 @@ class DB extends _Locks {
 
 	public function mode_get() {
 		return $this->mode;
+	}
+
+	public function guess($name) {
+		$this->mode_set($name);
+		return $this;
 	}
 
 	function __construct($query = null) {
@@ -113,29 +125,6 @@ class DB extends _Locks {
 	function __destruct() {
 		$this->mode_clear();
 	}
-
-	public function guess($name) {
-		$this->mode_set($name);
-		return $this;
-	}
-
-	public function instance($inst) {
-		$this->mode_set(self::MODE_INSTANCE);
-		return $this;
-	}
-
-
-	protected function retrieveState() {
-		$this->param['affected_rows'] = self::$db->affected_rows;
-		$this->param['field_count'] = self::$db->field_count;
-		$this->param['insert_id'] = self::$db->insert_id;
-	}
-
-
-	public function exec() {
-		$this->retrieveState();
-	}
-
 
 	/**
 	 * Return no of rows affected by last query
@@ -161,10 +150,67 @@ class DB extends _Locks {
 		return $this->param['field_counts'];
 	}
 
+	protected function retrieveState() {
+		$this->param['affected_rows'] = self::$db->affected_rows;
+		$this->param['field_count'] = self::$db->field_count;
+		$this->param['insert_id'] = self::$db->insert_id;
+	}
+
+
+	public function exec() {
+		$this->bindQuery();
+		switch ($mode) {
+			case self::MODE_TABLE:
+
+				break;
+			case self::MODE_INSTANCE:
+
+				break;
+			case self::MODE_DIRECT:
+				if ($this->stmt)
+					$this->result = $this->stmt->get_result();
+				break;
+		}
+
+		$this->retrieveState();
+		return $this;
+	}
+
+	protected function hlp_paramKV($arr, $glue = ', ') {
+		$r = '';
+		foreach ($arr as $k => $_) {
+			$r .= $k . '=?';
+		}
+	}
+
+	public function save() {
+		if ($this->mode == self::MODE_INSTANCE) {
+			$obj = &$this->c['inst'];
+			$table = $this->c['table'];
+			$data = $obj->toArray();
+
+			if ($obj->getId()) {
+				$query = 'UPDATE '.$table.' SET ';
+
+				DB::update($table, $obj->getId(), $s);
+			} else
+				DB::insert($table, $s);
+
+			$this->retrieveState();
+		}
+		return $this;
+	}
+
 	public function param($type, $val = NULL) {
-		if($val === NULL)
+		$this->bindQuery();
+		if ($val === NULL) {
 			$val = $type;
+			$type = gettype($type)[0];
+		}
 		switch ($type[0]) {
+			case 'b':
+				$val = (bool) $val;
+				break;
 			case 'i':
 				$val = (int) $val;
 				break;
@@ -174,6 +220,9 @@ class DB extends _Locks {
 			case 'f':
 				$val = (float) $val;
 				break;
+			case 'n':
+			case 'N':
+				$val = null;
 			case 'c':
 				$val = (string) $val[0];
 			case 's':
@@ -182,7 +231,7 @@ class DB extends _Locks {
 				break;
 		}
 
-		$this->stmnt->bind_param($type[0], $val);
+		$this->stmt->bind_param($type[0], $val);
 		return $this;
 	}
 
@@ -193,27 +242,22 @@ class DB extends _Locks {
 	 * @return bool|mysqli_result
 	 */
 	public function params($tps = '', array $val = array()) {
-		if (!tps || !val)
-			$this->result = $db->query($q);
-		else {
-			if (strlen($tps) != ($c = count($val)))
-				throw new Exception('DB: Number of types != number of values!');
+		if (strlen($tps) != ($c = count($val)))
+			throw new Exception('DB: Number of types != number of values!');
 
-			if (!($this->stmnt = self::$db->prepare($q)))
-				throw new Exception('DB: Error while preparing query');
+		if (!($this->stmt = self::$db->prepare($q)))
+			throw new Exception('DB: Error while preparing query');
 
-			if ($c != $this->stmnt->param_count)
-				throw new Exception('DB: Number query params != number of values');
+		if ($c != $this->stmt->param_count)
+			throw new Exception('DB: Number query params != number of values');
 
-			for ($i = 0; $i < $c; $i++)
-				$this->param($tps[$i], $val[$i]);
+		for ($i = 0; $i < $c; $i++)
+			$this->param($tps[$i], $val[$i]);
 
-			//exec
-			if (!($this->stmnt->execute()))
-				throw new Exception('DB: Error while executing query');
+		//exec
+		if (!($this->stmt->execute()))
+			throw new Exception('DB: Error while executing query');
 
-			$this->result = $this->stmnt->get_result();
-		}
 		return $this;
 	}
 
@@ -232,8 +276,28 @@ class DB extends _Locks {
 		if (method_exists('mysqli_result', 'fetch_all'))
 			$r = $this->result->fetch_all(MYSQLI_ASSOC);
 		else
-			while($tmp = $this->result->fetch_assoc())
+			while ($tmp = $this->result->fetch_assoc())
 				$r[] = $tmp;
+
+		return $r;
+	}
+
+	public function object($type = null) {
+		if ($type === null)
+			$type = $this->c['table'];
+		$r = null;
+		if ($tmp = $this->result->fetch_assoc())
+			$r[] = new $type($tmp);
+
+		return $r;
+	}
+
+	public function objects($type = null) {
+		if ($type === null)
+			$type = $this->c['table'];
+		$r = array();
+		while ($tmp = $this->result->fetch_assoc())
+			$r[] = new $type($tmp);
 
 		return $r;
 	}
@@ -244,7 +308,9 @@ class DB extends _Locks {
 	 * @param $data key: field name, value: field value
 	 */
 	public function insert($table, $data) {
-		
+		if ($this->mode == self::MODE_TABLE) {
+
+		}
 	}
 
 	/**
