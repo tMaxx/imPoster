@@ -6,21 +6,20 @@ class DB extends _Locks {
 	//db object
 	private static $db = NULL;
 	///instance working mode
+	const MODE_NONE = 0;
 	const MODE_DIRECT = 1;
 	const MODE_INSTANCE = 2;
 	const MODE_TABLE = 3;
 	////direct query, instance Model manipulation, repository mode
-	private $mode = self::MODE_DIRECT;
-	///executed query
-	protected $query = null;
+	protected $mode = self::MODE_NONE;
 	///statement
-	protected $stmnt = null;
+	protected $stmt = null;
 	///last query's result
 	protected $result = null;
-	protected $resparam = array();
+	///db state after last query
+	protected $param = array();
 	///Config
-	protected $cnf = array();
-	protected $table = null;
+	protected $c = array();
 
 	/**
 	 * Prepare the DB and connect to it
@@ -53,69 +52,88 @@ class DB extends _Locks {
 		}
 	}
 
-	protected function mode_guess($v) {
-		if ($v instanceof Model)
-			return self::MODE_INSTANCE;
-		elseif (is_string($v) && CMS::appClassExists($v))
-			return self::MODE_TABLE;
-		else
-			return self::MODE_DIRECT;
+	protected function mode_clear() {
+		if ($this->stmt) {
+			$this->stmt->close();
+			$this->stmt = null;
+		}
+		if ($this->result) {
+			$this->result->free();
+			$this->result = null;
+		}
+		$this->param = array();
+		$this->c = array();
+		$this->mode = 0;
 	}
 
-	protected function mode_set($mode) {
+	protected function mode_set($var) {
+		$this->mode_clear();
+
+		if ($var instanceof Model)
+			$mode = self::MODE_INSTANCE;
+		elseif (is_string($var) && CMS::appClassExists($var))
+			$mode = self::MODE_TABLE;
+		else
+			$mode = self::MODE_DIRECT;
+
+		//set up
 		switch ($mode) {
 			case self::MODE_TABLE:
-
+				$this->c['table'] = $var;
+				$this->c['fields'] = '*';
+				$this->c['where'] = '';
+				$this->c['order'] = '';
+				$this->c['sort'] = '';
 				break;
 			case self::MODE_INSTANCE:
-
+				$this->c['inst'] = $var;
+				$this->c['table'] = $var::table();
 				break;
 			case self::MODE_DIRECT:
-				# code...
-				break;
-			default:
-				
+				$this->c['query'] = $var;
+				$this->c['types'] = '';
+				$this->c['params'] => array();
 				break;
 		}
+		$this->mode = $mode;
+	}
+
+	public function mode_get() {
+		return $this->mode;
 	}
 
 	function __construct($query = null) {
-		$this->cnf['query'] = $query;
-		$this->cnf['types'] = null;
-		$this->cnf['params'] = null;
+		$this->c['query'] = $query;
+		$this->c['types'] = null;
+		$this->c['params'] = null;
 		$this->table = NULL;
 		pre_dump($this);
 	}
 
 	function __destruct() {
-		if ($this->result) {
-			$this->result->free();
-			$this->result = NULL;
-			$this->resparam = array();
-		}
-		if ($this->stmnt) {
-			$this->stmnt->close();
-			$this->stmnt = NULL;
-		}
+		$this->mode_clear();
 	}
 
-	public function model($name) {
-		if ($name instanceof Model || is_string($name))
-			$this->table = $name::table();
-		else
-			throw new ErrorCMS('Cannot get table name');
+	public function guess($name) {
+		$this->mode_set($name);
 		return $this;
 	}
 
 	public function instance($inst) {
-		
+		$this->mode_set(self::MODE_INSTANCE);
+		return $this;
+	}
+
+
+	protected function retrieveState() {
+		$this->param['affected_rows'] = self::$db->affected_rows;
+		$this->param['field_count'] = self::$db->field_count;
+		$this->param['insert_id'] = self::$db->insert_id;
 	}
 
 
 	public function exec() {
-		$this->resparam['affected_rows'] = self::$db->affected_rows;
-		$this->resparam['field_count'] = self::$db->field_count;
-		$this->resparam['insert_id'] = self::$db->insert_id;
+		$this->retrieveState();
 	}
 
 
@@ -123,16 +141,24 @@ class DB extends _Locks {
 	 * Return no of rows affected by last query
 	 * @return int
 	 */
-	public function affectedRows() {
-		return $this->resparam['affected_rows'];
+	public function getAffectedRows() {
+		return $this->param['affected_rows'];
 	}
 
 	/**
 	 * Return id of last insert
 	 * @return int
 	 */
-	public function insertID() {
-		return $this->resparam['insert_id'];
+	public function getInsertID() {
+		return $this->param['insert_id'];
+	}
+
+	/**
+	 * Return field count of last query
+	 * @return int
+	 */
+	public function getFieldCount() {
+		return $this->param['field_counts'];
 	}
 
 	public function param($type, $val = NULL) {
