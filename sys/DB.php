@@ -12,6 +12,8 @@ class DB extends _Locks {
 	const MODE_TABLE = 3;
 	////direct query, instance Model manipulation, repository mode
 	protected $mode = self::MODE_NONE;
+	///compiled query
+	protected $query = '';
 	///statement
 	protected $stmt = null;
 	///last query's result
@@ -62,6 +64,7 @@ class DB extends _Locks {
 			$this->result = null;
 		}
 		$this->param = array();
+		$this->query = '';
 		$this->c = array();
 		$this->mode = 0;
 	}
@@ -77,8 +80,12 @@ class DB extends _Locks {
 			$mode = self::MODE_DIRECT;
 
 		//set up
+		$this->c['types'] = '';
+		$this->c['params'] = array();
+
 		switch ($mode) {
 			case self::MODE_TABLE:
+				$this->query = '';
 				$this->c['table'] = $var;
 				$this->c['fields'] = '*';
 				$this->c['where'] = '';
@@ -86,13 +93,12 @@ class DB extends _Locks {
 				$this->c['sort'] = '';
 				break;
 			case self::MODE_INSTANCE:
-				$this->c['inst'] = $var;
-				$this->c['table'] = $var::table();
+				$this->query = '';
+				$this->c['action'] = '';
+				$this->c['instance'] = $var;
 				break;
 			case self::MODE_DIRECT:
-				$this->c['query'] = $var;
-				$this->c['types'] = '';
-				$this->c['params'] = array();
+				$this->query = $var;
 				break;
 		}
 		$this->mode = $mode;
@@ -114,24 +120,8 @@ class DB extends _Locks {
 	}
 
 	public function guess($name) {
-		$this->mode_set($name);
-		return $this;
+		return $this->mode_set($name);
 	}
-
-	///Get DB state after action
-	protected function retrieveState() {
-		$this->param['affected_rows'] = self::$db->affected_rows;
-		$this->param['field_count'] = self::$db->field_count;
-		$this->param['insert_id'] = self::$db->insert_id;
-		return $this;
-	}
-
-	///Compile and execute query
-	public function exec() {
-		$this->retrieveState();
-		return $this;
-	}
-
 
 	/**
 	 * Return no of rows affected by last query
@@ -157,58 +147,124 @@ class DB extends _Locks {
 		return $this->param['field_counts'];
 	}
 
-	public function param($type, $val = NULL) {
-		if($val === NULL)
-			$val = $type;
-		switch ($type[0]) {
-			case 'i':
-				$val = (int) $val;
-				break;
-			case 'd':
-				$val = (double) $val;
-				break;
-			case 'f':
-				$val = (float) $val;
-				break;
-			case 'c':
-				$val = (string) $val[0];
-			case 's':
-			default:
-				$val = self::$db->escape_string($val);
-				break;
-		}
+	///Get DB state after action
+	protected function retrieveState() {
+		$this->param['affected_rows'] = self::$db->affected_rows;
+		$this->param['field_count'] = self::$db->field_count;
+		$this->param['insert_id'] = self::$db->insert_id;
+		return $this;
+	}
 
-		$this->stmnt->bind_param($type[0], $val);
+	//////////////////////////////////////////////QUERY HANDLING\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+	private function implode(array $arr, $glue) {
+		$r = '';
+
+		if (isset($arr[0])) { //assume all keys are numeric
+			// $r .= implode(
+		}
+	}
+
+	/**
+	 * Add param t.b. processed later
+	 * @param $type of value
+	 * @param $val
+	 * @return this
+	 */
+	public function param($type, $val = NULL) {
+		if ($val === NULL) {
+			$val = $type;
+			$type = strtolower(gettype($val)[0]);
+		}
+		$this->c['types'] .= $type;
+		$this->c['params'][] = $val;
 		return $this;
 	}
 
 	/**
-	 * Perform a query, w. binding if necessary
-	 * @param $tp types to bind
-	 * @param $val values to bind
-	 * @return bool|mysqli_result
+	 * Add params to be processed later
+	 * @param $types of values
+	 * @param $values
+	 * @return this
 	 */
-	public function params($tps = '', array $val = array()) {
-		if (!tps || !val)
-			$this->result = $db->query($q);
-		else {
-			if (strlen($tps) != ($c = count($val)))
+	public function params($types, array $values = array()) {
+		if (is_array($types))
+			foreach ($types as $v)
+				$this->param($v);
+		else
+			for ($i = 0, $c = count($val); $i < $c; $i++)
+				$this->param($types[$i], $values[$i]);
+		return $this;
+	}
+
+	///Get all pieces together
+	protected function compileQuery() {
+		switch ($this->mode) {
+			case self::MODE_INSTANCE: {
+				if ($this->c['instance']->getId()) { //save
+
+				} else { //insert
+
+				}
+				break;
+			}
+			case self::MODE_TABLE: {
+
+				break;
+			}
+		}
+		return $this;
+	}
+
+	///Prepare all queries
+	protected function prepareQuery() {
+		if (!$this->stmnt) {
+			$types = $this->c['types'];
+			$values = $this->c['params'];
+			if (strlen($types) != ($c = count($values)))
 				throw new Exception('DB: Number of types != number of values!');
 
-			if (!($this->stmnt = self::$db->prepare($q)))
+			$this->compileQuery();
+
+			if (!($this->stmnt = self::$db->prepare($this->query)))
 				throw new Exception('DB: Error while preparing query');
 
 			if ($c != $this->stmnt->param_count)
 				throw new Exception('DB: Number query params != number of values');
 
-			for ($i = 0; $i < $c; $i++)
-				$this->param($tps[$i], $val[$i]);
+			for ($i = 0; $i < $c; $i++) {
+				switch ($types[i]) {
+					case 'i':
+						$val[$i] = (int) $val[$i];
+						break;
+					case 'd':
+						$val[$i] = (double) $val[$i];
+						break;
+					case 'f':
+						$val[$i] = (float) $val[$i];
+						break;
+					case 'c':
+						$val[$i] = (string) $val[$i][0];
+					case 's':
+					default:
+						$val[$i] = self::$db->escape_string($val[$i]);
+						break;
+				}
 
-			//exec
+				$this->stmnt->bind_param($types[0], $val[$i]);
+			}
+		}
+		return $this;
+	}
+
+	///Compile and execute query
+	public function exec() {
+		if (!$this->result) {
 			if (!($this->stmnt->execute()))
 				throw new Exception('DB: Error while executing query');
 
 			$this->result = $this->stmnt->get_result();
+			$this->retrieveState();
 		}
 		return $this;
 	}
@@ -217,20 +273,11 @@ class DB extends _Locks {
 	 * Insert data into table
 	 * @param $data key: field name, value: field value
 	 */
-	public function insert($data) {
-		$this->exec();
-		
+	public function save() {
+
 	}
 
-	/**
-	 * Update data in table
-	 * @param $where key: field name, value: field value
-	 * @param $set key: field name, value: field value
-	 */
-	public function update($where, $set) {
-		$this->exec();
-		
-	}
+	//////////////////////////////////////////////RESULTS HANDLING\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 	///Fetch a single row from db
 	public function row() {
