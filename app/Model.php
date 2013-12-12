@@ -1,7 +1,7 @@
 <?php //teo /app/Model.php
 
 class Model {
-	protected static $TABLE;
+	static $TABLE;
 
 	public function set(array $a) {
 		foreach ($a as $k => $v)
@@ -10,12 +10,7 @@ class Model {
 		return $this;
 	}
 
-	public function __construct(array $a = array()) {
-		if ($a)
-			$this->set($a);
-	}
-
-	// abstract public function toArray();
+	public function toArray();
 
 	final public static function getPK() {
 		return strtolower(get_called_class()).'_id';
