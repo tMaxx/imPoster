@@ -92,7 +92,7 @@ class DB extends _Locks {
 			case self::MODE_DIRECT:
 				$this->c['query'] = $var;
 				$this->c['types'] = '';
-				$this->c['params'] => array();
+				$this->c['params'] = array();
 				break;
 		}
 		$this->mode = $mode;

@@ -127,13 +127,18 @@ class Form {
 	}
 
 	public function submitted() {
-		if (!$this->submitted && CMS::varIsSet('POST', array_keys($this->fields))) {
-			$r = array();
-			foreach ($this->fields as $k => $v)
-				$r[] = $k;
+		if (!$this->submitted) {
+			$field_keys = array_keys($this->fields);
+			foreach ($field_keys as &$v)
+				$v = $this->name.'::'.$v;
+			reset($field_keys);
 
-			$this->values = CMS::vars('GET', $r, NULL, TRUE);
-			$this->submitted = true;
+			if (CMS::varIsSet('POST', $field_keys)) {
+				reset($field_keys);
+
+				$this->values = CMS::vars('POST', $field_keys, NULL, TRUE);
+				$this->submitted = true;
+			}
 		}
 		return $this->submitted;
 	}

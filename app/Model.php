@@ -10,7 +10,7 @@ class Model {
 		return $this;
 	}
 
-	public function toArray();
+	public function toArray() {}
 
 	final public static function getPK() {
 		return strtolower(get_called_class()).'_id';
