@@ -127,12 +127,21 @@ class CMS extends _Locks {
 	}
 
 	/**
+	 * Check if file or directory exists on server
+	 * @param $node path, relative to /
+	 * @return bool
+	 */
+	public static function nodeExists($node) {
+		return file_exists(ROOT.$file);
+	}
+
+	/**
 	 * Check if $file exists in project
 	 * @param $file path, relative to /
 	 * @return bool
 	 */
 	public static function fileExists($file) {
-		return file_exists(ROOT.$file);
+		return is_file(ROOT.$file);
 	}
 
 	/**
@@ -219,6 +228,6 @@ class CMS extends _Locks {
 	 * @return string full path
 	 */
 	public static function l($target) {
-		
+		///TODO
 	}
 }

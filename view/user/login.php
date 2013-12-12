@@ -1,31 +1,30 @@
 <?php
-$form = new Form(
-	array(
-		'name' => 'loginform', 
-		'attributes' => array(
-			'class' => 'center',
+$form = new Form(array(
+	'name' => 'loginform',
+	'attributes' => array(
+		'class' => 'center',
+	),
+	'fields' => array(
+		'user' => array(
+			'email',
+			'label' => 'Email:',
 		),
-		'fields' => array(
-			'user' => array(
-				'email',
-				'label' => 'Email:',
-			), 
-			'pwd' => array(
-				'password',
-				'label' => 'Hasło:',
-			), 
-			'sub' => array(
-				'submit',
-				'value' => 'Wyślij',
-			),
+		'pwd' => array(
+			'password',
+			'label' => 'Hasło:',
 		),
-	)
-);
+		'sub' => array(
+			'submit',
+			'value' => 'Wyślij',
+		),
+	),
+));
 
-$form->r();
 
 if ($form->submitted())
-	echo 'submitted';
+	echo '<h2>Form submitted</h2>';
+else
+	$form->r();
 /*
 if (User::login($vars)) {
 	//hallelujah!

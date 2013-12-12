@@ -96,17 +96,16 @@ class DB extends _Locks {
 				break;
 		}
 		$this->mode = $mode;
+		return $this;
 	}
 
 	public function mode_get() {
 		return $this->mode;
 	}
 
-	function __construct($query = null) {
-		$this->c['query'] = $query;
-		$this->c['types'] = null;
-		$this->c['params'] = null;
-		$this->table = NULL;
+	function __construct($something = null) {
+		if ($something !== null)
+			$this->mode_set($something);
 		pre_dump($this);
 	}
 
@@ -119,21 +118,18 @@ class DB extends _Locks {
 		return $this;
 	}
 
-	public function instance($inst) {
-		$this->mode_set(self::MODE_INSTANCE);
-		return $this;
-	}
-
-
+	///Get DB state after action
 	protected function retrieveState() {
 		$this->param['affected_rows'] = self::$db->affected_rows;
 		$this->param['field_count'] = self::$db->field_count;
 		$this->param['insert_id'] = self::$db->insert_id;
+		return $this;
 	}
 
-
+	///Compile and execute query
 	public function exec() {
 		$this->retrieveState();
+		return $this;
 	}
 
 
@@ -218,16 +214,32 @@ class DB extends _Locks {
 	}
 
 	/**
-	 * Fetch a single row from db
+	 * Insert data into table
+	 * @param $data key: field name, value: field value
 	 */
-	public function row() {
-		return $this->result->fetch_assoc();
+	public function insert($data) {
+		$this->exec();
+		
 	}
 
 	/**
-	 * Fetch a set of rows from db
+	 * Update data in table
+	 * @param $where key: field name, value: field value
+	 * @param $set key: field name, value: field value
 	 */
+	public function update($where, $set) {
+		$this->exec();
+		
+	}
+
+	///Fetch a single row from db
+	public function row() {
+		return $this->exec()->result->fetch_assoc();
+	}
+
+	///Fetch a set of rows from db
 	public function rows() {
+		$this->exec();
 		$r = array();
 		if (method_exists('mysqli_result', 'fetch_all'))
 			$r = $this->result->fetch_all(MYSQLI_ASSOC);
@@ -238,23 +250,57 @@ class DB extends _Locks {
 		return $r;
 	}
 
-	/**
-	 * Insert data into table
-	 * @param $table name
-	 * @param $data key: field name, value: field value
-	 */
-	public function insert($table, $data) {
-		
+	public function rowsBy($key) {
+		$q = $this->rows();
+		$r = array();
+
+		foreach ($q as $v)
+			$r[$v[$key]] = $v;
+
+		return $r;
 	}
 
-	/**
-	 * Update data in table
-	 * @param $table name
-	 * @param $where key: field name, value: field value
-	 * @param $set key: field name, value: field value
-	 */
-	public function update($table, $where, $set) {
+	public function obj($type = NULL) {
+		if ($this->mode == self::MODE_TABLE)
+			$type = $this->c['table'];
+
+		return new $type($this->row());
+	}
+
+	public function objs($type = NULL) {
+		if ($this->mode == self::MODE_TABLE)
+			$type = $this->c['table'];
 		
+		$r = $this->rows();
+		foreach ($r as &$v)
+			$v = new $type($v);
+		reset($r);
+
+		return $r;
+	}
+
+	public function num() {
+		return $this->exec()->result->fetch_row();
+	}
+
+	public function nums() {
+		$this->exec();
+		$r = array();
+		if (method_exists('mysqli_result', 'fetch_all'))
+			$r = $this->result->fetch_all(MYSQLI_NUM);
+		else
+			while($tmp = $this->result->fetch_row())
+				$r[] = $tmp;
+
+		return $r;
+	}
+
+	public function pairs() {
+		$q = $this->nums();
+		$r = array();
+		foreach ($q as $v)
+			$r[$v[0]] = $v[1];
+		return $r;
 	}
 
 }
