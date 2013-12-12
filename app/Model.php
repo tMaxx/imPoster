@@ -15,25 +15,25 @@ class Model {
 			$this->set($a);
 	}
 
-	abstract public function toArray();
+	// abstract public function toArray();
 
-	public static function getPK() {
+	final public static function getPK() {
 		return strtolower(get_called_class()).'_id';
 	}
 	
-	public function getId() {
+	final public function getId() {
 		if(isset($this->{static::getPK()}))
 			return $this->{static::getPK()};
 		else
 			return NULL;
 	}
 
-	public function setId($v) {
+	final public function setId($v) {
 		$this->{static::getPK()} = $v;
 		return $this;
 	}
 	
-	public function table() {
+	final public function table() {
 		return static::$TABLE;
 	}
 

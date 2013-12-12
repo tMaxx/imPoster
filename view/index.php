@@ -6,5 +6,5 @@
 	<? $this->node('welcome') ?>
 </div>
 <?
-pre_dump(Model::getPK(), (new Model)->getID());
+pre_dump(Elem::getPK(), (new Elem)->getID());
 new DB("SELECT *");
