@@ -218,7 +218,7 @@ class DB extends _Locks {
 
 	///Prepare all queries
 	protected function prepareQuery() {
-		if (!$this->stmnt) {
+		if (!$this->stmt) {
 			$types = $this->c['types'];
 			$values = $this->c['params'];
 			if (strlen($types) != ($c = count($values)))
@@ -226,10 +226,13 @@ class DB extends _Locks {
 
 			$this->compileQuery();
 
-			if (!($this->stmnt = self::$db->prepare($this->query)))
+			if (!$this->c['types'])
+				return FALSE;
+
+			if (!($this->stmt = self::$db->stmt_init()) || !$this->stmt->prepare($this->query))
 				throw new Exception('DB: Error while preparing query');
 
-			if ($c != $this->stmnt->param_count)
+			if ($c != $this->stmt->param_count)
 				throw new Exception('DB: Number query params != number of values');
 
 			for ($i = 0; $i < $c; $i++) {
@@ -251,19 +254,24 @@ class DB extends _Locks {
 						break;
 				}
 
-				$this->stmnt->bind_param($types[0], $val[$i]);
+				$this->stmt->bind_param($types[$i], $val[$i]);
 			}
 		}
-		return $this;
+		return TRUE;
 	}
 
 	///Compile and execute query
 	public function exec() {
 		if (!$this->result) {
-			if (!($this->stmnt->execute()))
-				throw new Exception('DB: Error while executing query');
-
-			$this->result = $this->stmnt->get_result();
+			if ($this->prepareQuery()) {
+				if (!($this->stmt->execute()))
+					throw new Exception('DB: Error while executing query');
+				else
+					$this->result = $this->stmt->get_result();
+			} else {
+				$this->stmt = NULL;
+				$this->result = self::$db->query($this->query);
+			}
 			$this->retrieveState();
 		}
 		return $this;
