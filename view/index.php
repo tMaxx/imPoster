@@ -5,6 +5,3 @@
 <div class="content">
 	<? $this->node('welcome') ?>
 </div>
-<?
-$q = new DB("SELECT * FROM Elem");
-pre_dump($q->rows());
