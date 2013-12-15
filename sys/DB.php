@@ -9,7 +9,7 @@ class DB extends _Locks {
 	const MODE_NONE = 0;
 	const MODE_DIRECT = 1;
 	const MODE_INSTANCE = 2;
-	const MODE_TABLE = 3;
+	const MODE_TABLE = 3; //query builder
 	////direct query, instance Model manipulation, repository mode
 	protected $mode = self::MODE_NONE;
 	///compiled query
@@ -22,6 +22,8 @@ class DB extends _Locks {
 	protected $param = array();
 	///Config
 	protected $c = array();
+	///Query config
+	protected $q = array();
 
 	/**
 	 * Prepare the DB and connect to it
@@ -66,6 +68,11 @@ class DB extends _Locks {
 		$this->param = array();
 		$this->query = '';
 		$this->c = array();
+		$this->q = array(
+			'query' => '',
+			'types' => '',
+			'params' => array(),
+		);
 		$this->mode = 0;
 	}
 
@@ -87,10 +94,12 @@ class DB extends _Locks {
 			case self::MODE_TABLE:
 				$this->query = '';
 				$this->c['table'] = $var;
+				$this->c['action'] = ''; //insert, update, delete
+				$this->c['set'] = ''; //*only for update
 				$this->c['fields'] = '*';
 				$this->c['where'] = '';
-				$this->c['order'] = '';
-				$this->c['sort'] = '';
+				$this->c['order'] = ''; //order by
+				$this->c['sort'] = ''; //sort asc/desc
 				break;
 			case self::MODE_INSTANCE:
 				$this->query = '';
@@ -278,8 +287,7 @@ class DB extends _Locks {
 	}
 
 	/**
-	 * Insert data into table
-	 * @param $data key: field name, value: field value
+	 * Save
 	 */
 	public function save() {
 
