@@ -9,7 +9,7 @@ class DB extends _Locks {
 	const MODE_NONE = 0;
 	const MODE_DIRECT = 1;
 	const MODE_INSTANCE = 2;
-	const MODE_TABLE = 3; //query builder
+	const MODE_TABLE = 3;
 	////direct query, instance Model manipulation, repository mode
 	protected $mode = self::MODE_NONE;
 	///compiled query
@@ -22,8 +22,6 @@ class DB extends _Locks {
 	protected $param = array();
 	///Config
 	protected $c = array();
-	///Query config
-	protected $q = array();
 
 	/**
 	 * Prepare the DB and connect to it
@@ -68,11 +66,6 @@ class DB extends _Locks {
 		$this->param = array();
 		$this->query = '';
 		$this->c = array();
-		$this->q = array(
-			'query' => '',
-			'types' => '',
-			'params' => array(),
-		);
 		$this->mode = 0;
 	}
 
@@ -94,12 +87,10 @@ class DB extends _Locks {
 			case self::MODE_TABLE:
 				$this->query = '';
 				$this->c['table'] = $var;
-				$this->c['action'] = ''; //insert, update, delete
-				$this->c['set'] = ''; //*only for update
 				$this->c['fields'] = '*';
 				$this->c['where'] = '';
-				$this->c['order'] = ''; //order by
-				$this->c['sort'] = ''; //sort asc/desc
+				$this->c['order'] = '';
+				$this->c['sort'] = '';
 				break;
 			case self::MODE_INSTANCE:
 				$this->query = '';
@@ -121,7 +112,6 @@ class DB extends _Locks {
 	function __construct($something = null) {
 		if ($something !== null)
 			$this->mode_set($something);
-		pre_dump($this);
 	}
 
 	function __destruct() {
@@ -238,7 +228,7 @@ class DB extends _Locks {
 			if (!$this->c['types'])
 				return FALSE;
 
-			if (!($this->stmt = self::$db->stmt_init()) || !$this->stmt->prepare($this->query))
+			if (!($this->stmt = self::$db->prepare($this->query))
 				throw new Exception('DB: Error while preparing query');
 
 			if ($c != $this->stmt->param_count)
@@ -276,7 +266,7 @@ class DB extends _Locks {
 				if (!($this->stmt->execute()))
 					throw new Exception('DB: Error while executing query');
 				else
-					$this->result = $this->stmt->get_result();
+					$this->result = new DBresult($this->stmt);
 			} else {
 				$this->stmt = NULL;
 				$this->result = self::$db->query($this->query);
@@ -287,7 +277,8 @@ class DB extends _Locks {
 	}
 
 	/**
-	 * Save
+	 * Insert data into table
+	 * @param $data key: field name, value: field value
 	 */
 	public function save() {
 
@@ -366,4 +357,52 @@ class DB extends _Locks {
 		return $r;
 	}
 
+}
+
+/**
+ * DBresult - patch for missing mysqli_stmt->get_result()
+ */
+class DBresult {
+	protected $stmt = NULL;
+
+	protected function next($type) {
+		// call_user_func_array(function, param_arr);
+	}
+
+	/**
+	 * Constructor
+	 * @param $statement mysqli_stmt
+	 * @return NULL|mysqli_result
+	 */
+	function __construct(&$statement) {
+		if (method_exists('mysqli_stmt', 'get_result'))
+			return $statement->get_result();
+		$this->stmt = $statement;
+	}
+
+	public function fetch_row() {
+		
+	}
+
+	public function fetch_assoc() {
+		
+	}
+
+	public function fetch_all($type) {
+		$r = array();
+		switch ($type) {
+			case MYSQLI_NUM: {
+				$fun = 'fetch_row';
+				break;
+			}
+			case MYSQLI_ASSOC:
+			default: {
+				$fun = 'fetch_assoc';
+				break;
+			}
+		}
+
+
+		return $r;
+	}
 }
