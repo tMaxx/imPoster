@@ -54,7 +54,28 @@ class DB extends _Locks {
 		}
 	}
 
-	protected function mode_clear() {
+	protected function mode_set($var) {
+		$this->mode_clear();
+
+		//set up
+		$this->c['types'] = '';
+		$this->c['params'] = array();
+
+		return $this;
+	}
+
+	function __construct($var) {
+		if ($var instanceof Model)
+			return new DBinst($var);
+		elseif (is_string($var)) {
+			if (count(explode(' ', $var)) > 1)
+				return new DBtabl($var);
+			$this->query = $var;
+		} else
+			throw new ErrorDB('Unsupported $var type');
+	}
+
+	function __destruct() {
 		if ($this->stmt) {
 			$this->stmt->close();
 			$this->stmt = null;
@@ -63,63 +84,6 @@ class DB extends _Locks {
 			$this->result->free();
 			$this->result = null;
 		}
-		$this->param = array();
-		$this->query = '';
-		$this->c = array();
-		$this->mode = 0;
-	}
-
-	protected function mode_set($var) {
-		$this->mode_clear();
-
-		if ($var instanceof Model)
-			$mode = self::MODE_INSTANCE;
-		elseif (is_string($var) && CMS::appClassExists($var))
-			$mode = self::MODE_TABLE;
-		else
-			$mode = self::MODE_DIRECT;
-
-		//set up
-		$this->c['types'] = '';
-		$this->c['params'] = array();
-
-		switch ($mode) {
-			case self::MODE_TABLE:
-				$this->query = '';
-				$this->c['table'] = $var;
-				$this->c['fields'] = '*';
-				$this->c['where'] = '';
-				$this->c['order'] = '';
-				$this->c['sort'] = '';
-				break;
-			case self::MODE_INSTANCE:
-				$this->query = '';
-				$this->c['action'] = '';
-				$this->c['instance'] = $var;
-				break;
-			case self::MODE_DIRECT:
-				$this->query = $var;
-				break;
-		}
-		$this->mode = $mode;
-		return $this;
-	}
-
-	public function mode_get() {
-		return $this->mode;
-	}
-
-	function __construct($something = null) {
-		if ($something !== null)
-			$this->mode_set($something);
-	}
-
-	function __destruct() {
-		$this->mode_clear();
-	}
-
-	public function guess($name) {
-		return $this->mode_set($name);
 	}
 
 	/**
@@ -154,14 +118,22 @@ class DB extends _Locks {
 		return $this;
 	}
 
-	//////////////////////////////////////////////QUERY HANDLING\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+	// ==================================================================
+	//
+	// Query builders, handlers, internals
+	//
+	// ------------------------------------------------------------------
 
 	private function implode(array $arr, $glue) {
 		$r = '';
 
-		if (isset($arr[0])) { //assume all keys are numeric
-			// $r .= implode(
-		}
+		foreach ($arr as $k => $v)
+			if (is_numeric($k))
+				$r .= $v . $glue;
+			else
+				$r .= $k . '=' . $v . $glue;
+		
+		return $r;
 	}
 
 	/**
@@ -196,25 +168,6 @@ class DB extends _Locks {
 		return $this;
 	}
 
-	///Get all pieces together
-	protected function compileQuery() {
-		switch ($this->mode) {
-			case self::MODE_INSTANCE: {
-				if ($this->c['instance']->getId()) { //save
-
-				} else { //insert
-
-				}
-				break;
-			}
-			case self::MODE_TABLE: {
-
-				break;
-			}
-		}
-		return $this;
-	}
-
 	///Prepare all queries
 	protected function prepareQuery() {
 		if (!$this->stmt) {
@@ -223,7 +176,8 @@ class DB extends _Locks {
 			if (strlen($types) != ($c = count($values)))
 				throw new Exception('DB: Number of types != number of values!');
 
-			$this->compileQuery();
+			if (function_exists(array($this, 'compileQuery')))
+				$this->compileQuery();
 
 			if (!$this->c['types'])
 				return FALSE;
@@ -265,8 +219,7 @@ class DB extends _Locks {
 			if ($this->prepareQuery()) {
 				if (!($this->stmt->execute()))
 					throw new Exception('DB: Error while executing query');
-				else
-					$this->result = new DBresult($this->stmt);
+				$this->result = new DBresult($this->stmt);
 			} else {
 				$this->stmt = NULL;
 				$this->result = self::$db->query($this->query);
@@ -276,15 +229,11 @@ class DB extends _Locks {
 		return $this;
 	}
 
-	/**
-	 * Insert data into table
-	 * @param $data key: field name, value: field value
-	 */
-	public function save() {
-
-	}
-
-	//////////////////////////////////////////////RESULTS HANDLING\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+	// ==================================================================
+	//
+	// Result handling functions
+	//
+	// ------------------------------------------------------------------
 
 	///Fetch a single row from db
 	public function row() {
@@ -340,7 +289,7 @@ class DB extends _Locks {
 	public function nums() {
 		$this->exec();
 		$r = array();
-		if (method_exists('mysqli_result', 'fetch_all'))
+		if (method_exists($this->result, 'fetch_all'))
 			$r = $this->result->fetch_all(MYSQLI_NUM);
 		else
 			while($tmp = $this->result->fetch_row())
@@ -360,14 +309,15 @@ class DB extends _Locks {
 }
 
 /**
- * DBresult - patch for missing mysqli_stmt->get_result()
+ * DBresult
+ * Patch for missing mysqli_stmt->get_result()
  */
 class DBresult {
 	protected $stmt = NULL;
-
-	protected function next($type) {
-		// call_user_func_array(function, param_arr);
-	}
+	protected $last = NULL;
+	protected $fields_assoc = array();
+	protected $fields_num = array();
+	protected $result_fields = array();
 
 	/**
 	 * Constructor
@@ -378,31 +328,131 @@ class DBresult {
 		if (method_exists('mysqli_stmt', 'get_result'))
 			return $statement->get_result();
 		$this->stmt = $statement;
+		if ($meta = $this->stmt->result_metadata()) {
+			$i = 0;
+			$fields = $meta->fetch_fields();
+			foreach ($fields as $v) {
+				$this->fields_assoc[$v->name] = NULL;
+				$this->fields_num[$i] = NULL;
+				$i++;
+			}
+		} else
+			return true;
+	}
+
+	function __destruct() {
+		$this->stmt = NULL;
+	}
+
+	public function free() {
+		// noop
+	}
+
+	protected function next($type) {
+		if ($this->last != $type) {
+			$this->result_fields = array();
+			if ($type == MYSQLI_ASSOC)
+				foreach ($this->fields_assoc as $k => $_)
+					$this->result_fields[] = &$this->fields_assoc[$k];
+			else
+				foreach ($this->fields_num as $k => $_)
+					$this->result_fields[] = &$this->fields_num[$k];
+
+			$this->last = $type;
+			if (!call_user_func_array(array($this->stmt, 'bind_result'), $this->result_fields))
+				throw new ErrorDB('Error binding result set');
+		}
+
+		if (call_user_func(array($this->stmt, 'fetch')) === NULL)
+			return NULL;
+
+		return $this;
 	}
 
 	public function fetch_row() {
-		
+		return $this->next(MYSQLI_NUM)->fields_num;
 	}
 
 	public function fetch_assoc() {
-		
+		return $this->next(MYSQLI_ASSOC)->fields_assoc;
 	}
 
 	public function fetch_all($type) {
-		$r = array();
-		switch ($type) {
-			case MYSQLI_NUM: {
-				$fun = 'fetch_row';
-				break;
-			}
-			case MYSQLI_ASSOC:
-			default: {
-				$fun = 'fetch_assoc';
-				break;
-			}
-		}
+		if ($type == MYSQLI_NUM)
+			$fun = 'fetch_row';
+		else
+			$fun = 'fetch_assoc';
 
+		$r = array();
+		while ($q = $this->$fun())
+			$r[] = $q;
+		if ($q === NULL)
+			return NULL;
 
 		return $r;
 	}
+}
+
+
+/**
+ * DBinst - model instance handler
+ */
+class DBinst extends DB {
+	protected $inst = NULL;
+
+	function __construct($inst) {
+		$this->inst = $inst;
+	}
+
+	public function save() {
+		if (!$inst->getId())
+			return $this->insert();
+
+		if (function_exists(array($inst, 'preSave')))
+			$inst->preSave();
+
+		//TODO
+
+		if (function_exists(array($inst, 'postSave')))
+			$inst->postSave();
+	}
+
+	public function insert() {
+		if (function_exists(array($inst, 'preInsert')))
+			$inst->preInsert();
+
+		//TODO
+
+		if (function_exists(array($inst, 'postInsert')))
+			$inst->postInsert();		
+	}
+
+	public function remove() {
+		if (function_exists(array($inst, 'preRemove')))
+			$inst->preRemove();
+
+		//TODO
+
+		if (function_exists(array($inst, 'postRemove')))
+			$inst->postRemove();
+		$this->inst = NULL;
+	}
+}
+
+/**
+ * DBqb - query builder
+ */
+class DBqb extends DB {
+	protected $table = '';
+
+	function __construct($tab) {
+		$this->table = $tab;
+/*		$this->query = '';
+		$this->c['table'] = $var;
+		$this->c['fields'] = '*';
+		$this->c['where'] = '';
+		$this->c['order'] = '';
+		$this->c['sort'] = '';*/
+	}
+
 }
