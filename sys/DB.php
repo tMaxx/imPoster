@@ -5,17 +5,14 @@
 class DB extends _Locks {
 	//db object
 	private static $db = NULL;
-	///instance working mode
-	const MODE_NONE = 0;
-	const MODE_DIRECT = 1;
-	const MODE_INSTANCE = 2;
-	const MODE_TABLE = 3;
 	////direct query, instance Model manipulation, repository mode
 	protected $mode = self::MODE_NONE;
 	///compiled query
 	protected $query = '';
 	///statement
 	protected $stmt = null;
+	protected $stmt_types = '';
+	protected $stmt_param = array();
 	///last query's result
 	protected $result = null;
 	///db state after last query
@@ -52,16 +49,6 @@ class DB extends _Locks {
 			self::$db->close();
 			self::$db = NULL;
 		}
-	}
-
-	protected function mode_set($var) {
-		$this->mode_clear();
-
-		//set up
-		$this->c['types'] = '';
-		$this->c['params'] = array();
-
-		return $this;
 	}
 
 	function __construct($var) {
@@ -147,8 +134,8 @@ class DB extends _Locks {
 			$val = $type;
 			$type = strtolower(gettype($val)[0]);
 		}
-		$this->c['types'] .= $type;
-		$this->c['params'][] = $val;
+		$this->stmt_types .= $type;
+		$this->stmt_param[] = $val;
 		return $this;
 	}
 
@@ -171,15 +158,15 @@ class DB extends _Locks {
 	///Prepare all queries
 	protected function prepareQuery() {
 		if (!$this->stmt) {
-			$types = $this->c['types'];
-			$values = $this->c['params'];
+			$types = $this->stmt_types;
+			$values = $this->stmt_param;
 			if (strlen($types) != ($c = count($values)))
 				throw new Exception('DB: Number of types != number of values!');
 
 			if (function_exists(array($this, 'compileQuery')))
 				$this->compileQuery();
 
-			if (!$this->c['types'])
+			if (!$this->stmt_types)
 				return FALSE;
 
 			if (!($this->stmt = self::$db->prepare($this->query))
@@ -424,7 +411,7 @@ class DBinst extends DB {
 		//TODO
 
 		if (function_exists(array($inst, 'postInsert')))
-			$inst->postInsert();		
+			$inst->postInsert();
 	}
 
 	public function remove() {

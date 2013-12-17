@@ -144,7 +144,7 @@ class ViewGen {
 /**
  * View/HTML class
  */
-class View extends NoInst {
+class View extends _Locks {
 	///Main template used
 	const TEMPLATE = '/templ/index.php';
 	///Everything that wil be added in <head>here</head>

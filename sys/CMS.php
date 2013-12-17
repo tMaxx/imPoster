@@ -16,13 +16,31 @@ class CMS extends _Locks {
 	///URI parameters & exploded path
 	private static $URI = array();
 
+
+	/**
+	 * Class freeloader
+	 * @param $class class name
+	 */
+	public static function class_load($class) {
+		static $sysTab;
+		if (!isset($sysTab))
+			$sysTab = array_diff(scandir(ROOT.'/sys/'), array('..', '.', 'Errors.php'));
+
+		$classp = $class . '.php';
+
+		if (in_array($classp, $sysTab))
+			require_once ROOT.'/sys/'.$classp;
+		elseif (file_exists(ROOT.'/app/'.$classp))
+			require_once ROOT.'/app/'.$classp;
+		else
+			throw new Error('Class not found: '.$class);
+	}
+
 	///Perform any needed operations before executing any custom scripts
 	///Just to keep it clean
 	protected static function init() {
 		if (self::lock())
 			return;
-
-		self::safeIncludeOnce('/sys/Errors.php');
 
 		//revamp request to something more readable
 		$ipath = (array) explode('/', $_GET['__req__']);
@@ -63,6 +81,7 @@ class CMS extends _Locks {
 	public static function end() {
 		if (self::lock())
 			return;
+		Session::end();
 		DB::end();
 	}
 

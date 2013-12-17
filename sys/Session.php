@@ -20,4 +20,8 @@ class Session extends _Locks {
 	public static function save() {
 		
 	}
+
+	public static function end() {
+		
+	}
 }
