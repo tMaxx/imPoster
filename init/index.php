@@ -54,6 +54,7 @@ function pathdiff($str) {
 //get config
 include_once 'config.php';
 
+define('NOW_MICRO', microtime(true));
 define('NOW', time());
 define('HOST', $_SERVER['HTTP_HOST']);
 define('AJAX', (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'));

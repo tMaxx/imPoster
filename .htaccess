@@ -16,6 +16,8 @@ php_flag register_globals 0
 # https://bugs.php.net/bug.php?id=42396
 php_flag detect_unicode 0
 
+SetEnv r3vDEBUG "TRUE"
+
 RewriteEngine on
 RewriteBase /
 RewriteRule ^(.*)$ index.php?__req__=$1 [L,QSA]
