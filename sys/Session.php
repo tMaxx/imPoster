@@ -23,6 +23,12 @@ class Session extends _Locks {
 			return false;
 		$data = new DB('UserSession');
 		$data = $data->where('hash=?')->param('s', $_COOKIE['session'])->row();
+        self::$ts = $data['ts'];
+        self::$user = $data['user'];
+        self::$hash = $data['hash'];
+        self::$signature = $data['signature'];
+        self::$data = $data['data'];
+        return self::valid();
 	}
 
 	public static function create($user_id, array $v = array()) {
@@ -32,6 +38,14 @@ class Session extends _Locks {
 
 	public static function destroy() {
 		// remove session from db, clear local variables
+        
+        $data->where(array('hash' => $hash))->delete();
+        $ts = NULL;
+        $user = NULL;
+        $hash = NULL;
+        $signature = NULL;
+        $data = array();
+        
 	}
 
 	public static function get($key, $ifndef = NULL) {
