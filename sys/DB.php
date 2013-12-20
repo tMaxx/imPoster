@@ -66,14 +66,7 @@ class DB extends _Locks {
 	}
 
 	function __destruct() {
-		if ($this->stmt) {
-			$this->stmt->close();
-			$this->stmt = null;
-		}
-		if ($this->query_result) {
-			$this->query_result->free();
-			$this->query_result = null;
-		}
+		$this->query_result = null;
 	}
 
 	/**
@@ -317,8 +310,6 @@ class DBresult {
 	 * @return NULL|mysqli_result
 	 */
 	function __construct(&$statement) {
-		// if (method_exists('mysqli_stmt', 'get_result'))
-			// return $statement->get_result();
 		$this->stmt = $statement;
 		if ($meta = $this->stmt->result_metadata()) {
 			$i = 0;
@@ -333,11 +324,14 @@ class DBresult {
 	}
 
 	function __destruct() {
-		$this->stmt = NULL;
+		$this->free();
 	}
 
 	public function free() {
-		// noop
+		if ($this->stmt) {
+			$this->stmt->close();
+			$this->stmt = null;
+		}
 	}
 
 	protected function next($type) {

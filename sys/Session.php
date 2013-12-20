@@ -3,11 +3,11 @@
  * Session management class
  */
 class Session extends _Locks {
-	protected $ts = NULL;
-	protected $user = NULL;
-	protected $hash = NULL;
-	protected $signature = NULL;
-	protected $data = array();
+	protected static $ts = NULL;
+	protected static $user = NULL;
+	protected static $hash = NULL;
+	protected static $signature = NULL;
+	protected static $data = array();
 
 	public static function valid() {
 		//sprawdź, czy:
