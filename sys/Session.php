@@ -21,8 +21,9 @@ class Session extends _Locks {
 			return false;
 		if (!isset($_COOKIE['session']))
 			return false;
-		$data = new DB('UserSession');
-		$data = $data->where('hash=?')->param('s', $_COOKIE['session'])->row();
+		$data = DB('UserSession')->where('hash=?')->param('s', $_COOKIE['session'])->row();
+		if(!$data)
+			return false;
         self::$ts = $data['ts'];
         self::$user = $data['user'];
         self::$hash = $data['hash'];
@@ -39,12 +40,13 @@ class Session extends _Locks {
 	public static function destroy() {
 		// remove session from db, clear local variables
         
-        $data->where(array('hash' => $hash))->delete();
-        $ts = NULL;
-        $user = NULL;
-        $hash = NULL;
-        $signature = NULL;
-        $data = array();
+        DB('UserSession')->where(array('hash' => self::$hash))->delete();
+        setcookie('session', self::$hash, 1);
+        self::$ts = NULL;
+        self::$user = NULL;
+        self::$hash = NULL;
+        self::$signature = NULL;
+        self::$data = array();
         
 	}
 
