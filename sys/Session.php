@@ -61,7 +61,15 @@ class Session extends _Locks {
 	}
 
 	public static function save() {
-		//save current session in DB
+		DB('UserSession')->insert(array(
+                                    'hash' => self::$hash, 
+                                    'ts' => self::$ts, 
+                                    'user' => self::$user, 
+                                    '$signature' => self::$signature, 
+                                    '$data' => self::$data
+                ));
+        setcookie('session', $hash, NOW+30*60*60);
+        exec();
 	}
 
 	public static function end() {
