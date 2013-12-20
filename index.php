@@ -1,7 +1,7 @@
 <?php ///revCMS /index.php
 define('ROOT', realpath(dirname(__FILE__)));
 if (!defined('DEBUG')) {
-	if (getenv('r3vDEBUG') == 'TRUE')
+	if (strtolower(getenv('r3vDEBUG')) == 'true')
 		define('DEBUG', TRUE);
 	else
 		define('DEBUG', FALSE);

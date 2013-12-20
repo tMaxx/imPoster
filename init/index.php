@@ -1,9 +1,7 @@
 <?php ///revCMS init/index.php
 ///Initialize CMS, add templates, run commands
 
-/**
- * Implements locks for every class
- */
+///Implements locks for every class method
 class _Locks {
 	protected static $LOCKS = array();
 

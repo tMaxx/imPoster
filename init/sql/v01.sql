@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS `UserSession` (
 	`user_id` INT UNSIGNED NOT NULL,
 	`ts` INT(11),
 	`hash` VARCHAR(140),
+	`signature` VARCHAR(140),
 	`data` VARCHAR(512),
 
 	PRIMARY KEY (`usersession_id`),

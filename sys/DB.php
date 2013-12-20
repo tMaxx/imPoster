@@ -1,12 +1,22 @@
 <?php ///revCMS /sys/DB.php
+///DB factory
+function DB($var) {
+	if (($var instanceof Model))// || (is_object($var) && method_exists($var, 'toArray') && method_exists($var, 'set')))
+		return new DBinst($var);
+	elseif (is_string($var)) {
+		if (substr_count($var, ' ') == 0)
+			return new DBtabl($var);
+		return new DB($var);
+	} else
+		throw new ErrorDB('Unsupported $var type');
+}
+
 /**
  * DB - Database support class
  */
 class DB extends _Locks {
 	//db object
 	private static $db = NULL;
-	////direct query, instance Model manipulation, repository mode
-	protected $mode = self::MODE_NONE;
 	///compiled query
 	protected $query = '';
 	///statement
@@ -14,9 +24,9 @@ class DB extends _Locks {
 	protected $stmt_types = '';
 	protected $stmt_param = array();
 	///last query's result
-	protected $result = null;
+	protected $query_result = null;
 	///db state after last query
-	protected $param = array();
+	protected $db_param = array();
 	///Config
 	protected $c = array();
 
@@ -29,15 +39,15 @@ class DB extends _Locks {
 			return;
 
 		if (!isset($con['host']) || !isset($con['user']) || !isset($con['pass']) || !isset($con['dbname']))
-			throw new Exception('DB: Not sufficient connection parameters!');
+			throw new ErrorDB('Not sufficient connection parameters!');
 
 		self::$db = new mysqli($con['host'], $con['user'], $con['pass'], $con['dbname']);
 
 		if (self::$db->connect_error)
-			throw new Exception('DB: Error while connecting: '.self::$db->connect_errno);
+			throw new ErrorDB('Error while connecting: '.self::$db->connect_errno);
 
 		if(!self::$db->set_charset("utf8"))
-			throw new Exception('DB: Error while setting charset');
+			throw new ErrorDB('Error while setting charset');
 	}
 
 	///End execution, close everything
@@ -52,14 +62,7 @@ class DB extends _Locks {
 	}
 
 	function __construct($var) {
-		if ($var instanceof Model)
-			return new DBinst($var);
-		elseif (is_string($var)) {
-			if (count(explode(' ', $var)) > 1)
-				return new DBtabl($var);
-			$this->query = $var;
-		} else
-			throw new ErrorDB('Unsupported $var type');
+		$this->query = $var;
 	}
 
 	function __destruct() {
@@ -67,9 +70,9 @@ class DB extends _Locks {
 			$this->stmt->close();
 			$this->stmt = null;
 		}
-		if ($this->result) {
-			$this->result->free();
-			$this->result = null;
+		if ($this->query_result) {
+			$this->query_result->free();
+			$this->query_result = null;
 		}
 	}
 
@@ -78,7 +81,7 @@ class DB extends _Locks {
 	 * @return int
 	 */
 	public function getAffectedRows() {
-		return $this->param['affected_rows'];
+		return $this->db_param['affected_rows'];
 	}
 
 	/**
@@ -86,7 +89,7 @@ class DB extends _Locks {
 	 * @return int
 	 */
 	public function getInsertID() {
-		return $this->param['insert_id'];
+		return $this->db_param['insert_id'];
 	}
 
 	/**
@@ -94,14 +97,14 @@ class DB extends _Locks {
 	 * @return int
 	 */
 	public function getFieldCount() {
-		return $this->param['field_counts'];
+		return $this->db_param['field_counts'];
 	}
 
 	///Get DB state after action
 	protected function retrieveState() {
-		$this->param['affected_rows'] = self::$db->affected_rows;
-		$this->param['field_count'] = self::$db->field_count;
-		$this->param['insert_id'] = self::$db->insert_id;
+		$this->db_param['affected_rows'] = self::$db->affected_rows;
+		$this->db_param['field_count'] = self::$db->field_count;
+		$this->db_param['insert_id'] = self::$db->insert_id;
 		return $this;
 	}
 
@@ -111,7 +114,7 @@ class DB extends _Locks {
 	//
 	// ------------------------------------------------------------------
 
-	private function implode(array $arr, $glue) {
+	protected function implode(array $arr, $glue) {
 		$r = '';
 
 		foreach ($arr as $k => $v)
@@ -158,22 +161,22 @@ class DB extends _Locks {
 	///Prepare all queries
 	protected function prepareQuery() {
 		if (!$this->stmt) {
+			if (method_exists($this, 'compileQuery'))
+				$this->compileQuery();
+
+			if (!$this->stmt_types || !$this->stmt_param)
+				return FALSE;
+
 			$types = $this->stmt_types;
 			$values = $this->stmt_param;
 			if (strlen($types) != ($c = count($values)))
-				throw new Exception('DB: Number of types != number of values!');
+				throw new ErrorDB('Number of types != number of values!');
 
-			if (function_exists(array($this, 'compileQuery')))
-				$this->compileQuery();
-
-			if (!$this->stmt_types)
-				return FALSE;
-
-			if (!($this->stmt = self::$db->prepare($this->query))
-				throw new Exception('DB: Error while preparing query');
+			if (!($this->stmt = self::$db->prepare($this->query)))
+				throw new ErrorDB('Error while preparing query');
 
 			if ($c != $this->stmt->param_count)
-				throw new Exception('DB: Number query params != number of values');
+				throw new ErrorDB('Number query params != number of values');
 
 			for ($i = 0; $i < $c; $i++) {
 				switch ($types[i]) {
@@ -202,14 +205,16 @@ class DB extends _Locks {
 
 	///Compile and execute query
 	public function exec() {
-		if (!$this->result) {
+		if (!$this->query_result) {
 			if ($this->prepareQuery()) {
 				if (!($this->stmt->execute()))
-					throw new Exception('DB: Error while executing query');
-				$this->result = new DBresult($this->stmt);
+					throw new ErrorDB('DB: Error while executing query');
+				$this->query_result = new DBresult($this->stmt);
 			} else {
+				if (!$this->query)
+					throw new ErrorDB('Query not specified!');
 				$this->stmt = NULL;
-				$this->result = self::$db->query($this->query);
+				$this->query_result = self::$db->query($this->query);
 			}
 			$this->retrieveState();
 		}
@@ -232,9 +237,9 @@ class DB extends _Locks {
 		$this->exec();
 		$r = array();
 		if (method_exists('mysqli_result', 'fetch_all'))
-			$r = $this->result->fetch_all(MYSQLI_ASSOC);
+			$r = $this->query_result->fetch_all(MYSQLI_ASSOC);
 		else
-			while($tmp = $this->result->fetch_assoc())
+			while($tmp = $this->query_result->fetch_assoc())
 				$r[] = $tmp;
 
 		return $r;
@@ -251,14 +256,14 @@ class DB extends _Locks {
 	}
 
 	public function obj($type = NULL) {
-		if ($this->mode == self::MODE_TABLE)
+		if (!$type && $this instanceof DBtabl)
 			$type = $this->c['table'];
 
 		return new $type($this->row());
 	}
 
 	public function objs($type = NULL) {
-		if ($this->mode == self::MODE_TABLE)
+		if (!$type && $this instanceof DBtabl)
 			$type = $this->c['table'];
 		
 		$r = $this->rows();
@@ -276,10 +281,10 @@ class DB extends _Locks {
 	public function nums() {
 		$this->exec();
 		$r = array();
-		if (method_exists($this->result, 'fetch_all'))
-			$r = $this->result->fetch_all(MYSQLI_NUM);
+		if (method_exists($this->query_result, 'fetch_all'))
+			$r = $this->query_result->fetch_all(MYSQLI_NUM);
 		else
-			while($tmp = $this->result->fetch_row())
+			while($tmp = $this->query_result->fetch_row())
 				$r[] = $tmp;
 
 		return $r;
@@ -312,8 +317,8 @@ class DBresult {
 	 * @return NULL|mysqli_result
 	 */
 	function __construct(&$statement) {
-		if (method_exists('mysqli_stmt', 'get_result'))
-			return $statement->get_result();
+		// if (method_exists('mysqli_stmt', 'get_result'))
+			// return $statement->get_result();
 		$this->stmt = $statement;
 		if ($meta = $this->stmt->result_metadata()) {
 			$i = 0;
@@ -337,16 +342,16 @@ class DBresult {
 
 	protected function next($type) {
 		if ($this->last != $type) {
-			$this->result_fields = array();
+			$this->query_result_fields = array();
 			if ($type == MYSQLI_ASSOC)
 				foreach ($this->fields_assoc as $k => $_)
-					$this->result_fields[] = &$this->fields_assoc[$k];
+					$this->query_result_fields[] = &$this->fields_assoc[$k];
 			else
 				foreach ($this->fields_num as $k => $_)
-					$this->result_fields[] = &$this->fields_num[$k];
+					$this->query_result_fields[] = &$this->fields_num[$k];
 
 			$this->last = $type;
-			if (!call_user_func_array(array($this->stmt, 'bind_result'), $this->result_fields))
+			if (!call_user_func_array(array($this->stmt, 'bind_result'), $this->query_result_fields))
 				throw new ErrorDB('Error binding result set');
 		}
 
@@ -386,50 +391,63 @@ class DBresult {
  */
 class DBinst extends DB {
 	protected $inst = NULL;
+	protected $table = '';	
 
-	function __construct($inst) {
-		$this->inst = $inst;
+	function __construct(&$inst) {
+		$this->inst =& $inst;
+		$this->table = $inst->table();
 	}
 
 	public function save() {
-		if (!$inst->getId())
+		if (!isset($inst->getId()))
 			return $this->insert();
 
-		if (function_exists(array($inst, 'preSave')))
+		if (method_exists($inst, 'preSave'))
 			$inst->preSave();
 
 		//TODO
 
-		if (function_exists(array($inst, 'postSave')))
+		if (method_exists($inst, 'postSave'))
 			$inst->postSave();
 	}
 
 	public function insert() {
-		if (function_exists(array($inst, 'preInsert')))
+		if (method_exists($inst, 'preInsert'))
 			$inst->preInsert();
 
-		//TODO
+		$vals = $this->inst->toArray();
+		$pks = (array) $this->inst->getPK();
+		foreach ($pks as $v)
+			unset($vals[$v]);
+		unset($pks, $v);
 
-		if (function_exists(array($inst, 'postInsert')))
+		$val_args = implode(', ', array_keys($vals));
+		//FIXME: haxxor
+		$val_list = implode(', ', array_fill(0, count($vals), '?'));
+
+		$this->query = 'INSERT INTO '.$this->table.'('.$val_args.') VALUES ('.$val_list.')';
+		$this->params($vals)->exec();
+
+		if (method_exists($inst, 'postInsert'))
 			$inst->postInsert();
 	}
 
 	public function remove() {
-		if (function_exists(array($inst, 'preRemove')))
+		if (method_exists($inst, 'preRemove'))
 			$inst->preRemove();
 
 		//TODO
 
-		if (function_exists(array($inst, 'postRemove')))
+		if (method_exists($inst, 'postRemove'))
 			$inst->postRemove();
 		$this->inst = NULL;
 	}
 }
 
 /**
- * DBqb - query builder
+ * DBtabl - query builder
  */
-class DBqb extends DB {
+class DBtabl extends DB {
 	protected $table = '';
 
 	function __construct($tab) {
