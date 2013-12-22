@@ -116,7 +116,7 @@ class ViewGen {
 					return;
 			}
 
-			throw new Error404('Requested node not found');
+			throw new Error404();
 		} while(TRUE);
 	}
 
@@ -179,7 +179,10 @@ class View extends _Locks {
 		} catch (ErrorHTTP $e) {
 			ob_end_clean();
 			ob_start();
-			echo '<div class="clear"></div><div class="center">', $e->getFancyMessage(), '</div>';
+			echo '<div class="clear"></div><div class="errorhttp center">', $e->getFancyMessage();
+			if (DEBUG)
+				echo '<div style="text-align:left;margin:0 auto;width:70%;">', Error::prettyTrace($e->getTrace()), '</div>';
+			echo '</div>';
 		}
 
 		self::$BODY = ob_get_clean();

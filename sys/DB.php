@@ -152,10 +152,10 @@ class DB extends _Locks {
 	}
 
 	///Prepare all queries
-	protected function prepareQuery() {
+	protected function bindquery() {
 		if (!$this->stmt) {
-			if (method_exists($this, 'compileQuery'))
-				$this->compileQuery();
+			if (method_exists($this, 'createquery'))
+				$this->createquery();
 
 			if (!$this->stmt_types || !$this->stmt_param)
 				return FALSE;
@@ -199,7 +199,7 @@ class DB extends _Locks {
 	///Compile and execute query
 	public function exec() {
 		if (!$this->query_result) {
-			if ($this->prepareQuery()) {
+			if ($this->bindquery()) {
 				if (!($this->stmt->execute()))
 					throw new ErrorDB('DB: Error while executing query');
 				$this->query_result = new DBresult($this->stmt);
@@ -393,7 +393,7 @@ class DBinst extends DB {
 	}
 
 	public function save() {
-		if (!isset($inst->getId()))
+		if (!$inst->getId())
 			return $this->insert();
 
 		if (method_exists($inst, 'preSave'))

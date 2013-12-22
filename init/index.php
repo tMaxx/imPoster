@@ -43,10 +43,7 @@ function pre_dump() {
  * @return trimmed ROOT
  */
 function pathdiff($str) {
-	static $ar;
-	if (!$ar)
-		$ar = str_replace('/', '\/', ROOT);
-	return str_replace(array(ROOT, $ar), '', $str);
+	return str_replace(ROOT, '', $str);
 }
 
 //get config

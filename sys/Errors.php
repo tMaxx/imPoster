@@ -2,8 +2,36 @@
 ///Error class
 class Error extends ErrorException {
 	/**
+	 * Prettify trace
+	 * @param $trace
+	 * @return string
+	 */
+	public static function prettyTrace($trace) {
+		$result = array('<br />Stack trace:<br />');
+		foreach($trace as $i => $v) {
+			$result[] = $i.'# ';
+
+			if (isset($v['file']) && $v['file'])
+				$result[] = pathdiff($v['file']).':'.$v['line'].' - ';
+			else
+				$result[] = '[<i>internal call</i>] ';
+
+			if (isset($v['class']))
+				$result[] = $v['class'].$v['type'];
+
+			$result[] = $v['function'].'()';
+
+			if (isset($v['args']) && $v['args'])
+				$result[] = ' argv'.htmlspecialchars(pathdiff(json_encode($v['args'], JSON_UNESCAPED_SLASHES|JSON_NUMERIC_CHECK)), ENT_COMPAT|ENT_HTML5);
+
+			$result[] = '<br />';
+		}
+		return implode('', $result);
+	}
+
+	/**
 	 * Custom all-error handler
-	 * @param standard params
+	 * @param [standard params]
 	 * @return varies
 	 */
 	public static function h($eno = NULL, $estr = NULL, $efile = NULL, $eline = NULL, $econtext = NULL) {
@@ -61,27 +89,8 @@ class Error extends ErrorException {
 			CMS::flushHeaders();
 		}
 
-		if ($trace) {
-			$result[] = '<br />Stack trace:<br />';
-			foreach($trace as $i => $v) {
-				$result[] = $i.'# ';
-
-				if (isset($v['file']) && $v['file'])
-					$result[] = pathdiff($v['file']).':'.$v['line'].' - ';
-				else
-					$result[] = '[<i>internal call</i>] ';
-
-				if (isset($v['class']))
-					$result[] = $v['class'].$v['type'];
-
-				$result[] = $v['function'].'()';
-
-				if (isset($v['args']) && $v['args'])
-					$result[] = ', args: '.htmlspecialchars(pathdiff(json_encode($v['args'])), ENT_COMPAT|ENT_HTML5);
-
-				$result[] = '<br />';
-			}
-		}
+		if ($trace)
+			$result[] = Error::prettyTrace($trace);
 
 		echo implode('', $result);
 	}
@@ -110,36 +119,58 @@ class ErrorHTTP extends Error {
 	}
 
 	public function getFancyMessage() {
-		return '<h1>HTTP '.$this->httpcode.'</h1>'.$this->inmessage;
+		return '<h1 class="white">HTTP '.$this->httpcode.'</h1>'.$this->inmessage.'';
 	}
 }
 
 class Error404 extends ErrorHTTP {
 	public function __construct($m = NULL, $add = NULL) {
+		if (!$m) $m = 'Page not found';
 		parent::__construct($m, 404, $add);
 	}
 }
 
 class Error403 extends ErrorHTTP {
 	public function __construct($m = NULL, $add = NULL) {
+		if (!$m) $m = 'Forbidden';
 		parent::__construct($m, 403, $add);
 	}
 }
 
 class Error400 extends ErrorHTTP {
 	public function __construct($m = NULL) {
+		if (!$m) $m = 'Bad Request';
+		parent::__construct($m, 400);
+	}
+}
+
+class Error418 extends ErrorHTTP {
+	public function __construct($m = NULL) {
+		if (!$m) $m = "I\'m a teapot :D<br />(Some funny error occured, please return to <a href=\"/\">index</a> page)";
 		parent::__construct($m, 400);
 	}
 }
 
 class Error500 extends ErrorHTTP {
 	public function __construct($m = NULL) {
+		if (!$m) $m = 'Internal Server Error';
 		parent::__construct($m, 500);
 	}
 }
 
 class Error503 extends ErrorHTTP {
 	public function __construct($m = NULL) {
+		if (!$m) $m = 'Site Overlo[ar]d';
 		parent::__construct($m, 503);
+	}
+}
+
+class Redirect extends ErrorHTTP {
+	public function __construct($target = NULL) {
+		if (!$target)
+			throw new ErrorCMS('No redirect specified');
+		parent::__construct('Redirect', 303);
+		CMS::addHeader('Location: '.$target);
+		die(); //die nicely
 	}
 }

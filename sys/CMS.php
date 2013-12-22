@@ -15,7 +15,7 @@ class CMS extends _Locks {
 	private static $POST = array();
 	///URI parameters & exploded path
 	private static $URI = array();
-
+	private static $SERVER = array();
 
 	/**
 	 * Class freeloader
@@ -62,7 +62,8 @@ class CMS extends _Locks {
 		//set variables
 		self::$GET = $_GET;
 		self::$POST = $_POST;
-		unset($_GET, $_POST);
+		self::$SERVER = $_SERVER;
+		unset($_GET, $_POST, $_REQUEST);//, $_SERVER);
 
 		self::$HTTPheaders = array(
 			'content-type' => 'Content-Type: text/html; charset=utf-8',
@@ -81,7 +82,7 @@ class CMS extends _Locks {
 	public static function end() {
 		if (self::lock())
 			return;
-		Session::end();
+		Session::save();
 		DB::end();
 	}
 

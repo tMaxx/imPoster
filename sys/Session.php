@@ -3,51 +3,84 @@
  * Session management class
  */
 class Session extends _Locks {
+	const SESSION_PERIOD = 2592000;//30days*24hours*60minutes*60seconds
+	const SALT_PRE = '$2y$05$';
 	protected static $ts = NULL;
-	protected static $user = NULL;
+	protected static $id = NULL;
 	protected static $hash = NULL;
 	protected static $signature = NULL;
 	protected static $data = array();
 
-	public static function valid() {
-		//sprawdź, czy:
-		//ts jest nie starszy niż tydzień
-		//sygnatura zgadza się z danymi prezentowanymi przez przeglądarkę
-
+	///Return client signature based on UA & IP
+	protected static function signature() {
+		$str = sha1(strtoupper($_SERVER['HTTP_USER_AGENT'])).':P'.md5($_SERVER['REMOTE_ADDR']);
+		return crypt(self::$ts.'merryKissMyAss'.$str, self::SALT_PRE.strrev($str));
 	}
 
+	///Return user session hash
+	protected static function hash() {
+		return crypt(strrev('r3v'.self::$id.':'.self::$ts.'//'.self::$signature.'CMS'), self::SALT_PRE.strrev(self::$signature));
+	}
+
+	///Return readable format of hash
+	protected static function trhash() {
+		return substr(self::$hash, strlen(self::SALT_PRE));
+	}
+
+	///Recalculate signature, hash, update ts and cookie
+	public static function recalc() {
+		self::$ts = NOW;
+		self::$signature = self::signature();
+		self::$hash = self::hash();
+		setcookie('session', self::trhash(), NOW+self::SESSION_PERIOD);
+	}
+
+	///Is current session valid?
+	public static function valid() {
+		if ((!self::$hash) || (!self::$signature) ||
+			(self::$hash != self::trhash()) ||
+			(NOW - self::$ts > self::SESSION_PERIOD) ||
+			(self::$signature != self::signature())) {
+			self::destroy();
+			return false;
+		}
+		return true;
+	}
+
+	///Load session from DB, if any
 	public static function load() {
 		if (self::lock())
-			return false;
+			return self::valid();
 		if (!isset($_COOKIE['session']))
 			return false;
 		$data = DB('UserSession')->where('hash=?')->param('s', $_COOKIE['session'])->row();
 		if(!$data)
 			return false;
-        self::$ts = $data['ts'];
-        self::$user = $data['user'];
-        self::$hash = $data['hash'];
-        self::$signature = $data['signature'];
-        self::$data = $data['data'];
-        return self::valid();
+		self::$ts = $data['ts'];
+		self::$id = $data['id'];
+		self::$hash = $data['hash'];
+		self::$signature = $data['signature'];
+		self::$data = @json_decode($data['data']);
+		return self::valid();
 	}
 
-	public static function create($user_id, array $v = array()) {
-		//utwórz nową sesję na podstawie user id, dorzuć też dane opcjonalne $v
-		//hash i signature tworzymy sami, do rozpisania, jak
+	///Set id, data, generate new hashes
+	public static function create($id, array $v = array()) {
+		self::$id = $id;
+		self::$data = $v;
+		self::recalc();
 	}
 
+	///Delete session from DB, 'unset' variables
 	public static function destroy() {
-		// remove session from db, clear local variables
-        
-        DB('UserSession')->where(array('hash' => self::$hash))->delete();
-        setcookie('session', self::$hash, 1);
-        self::$ts = NULL;
-        self::$user = NULL;
-        self::$hash = NULL;
-        self::$signature = NULL;
-        self::$data = array();
-        
+		return;//FIXME
+		DB('UserSession')->where(array('hash' => self::$hash))->delete();
+		setcookie('session', self::$hash, 1);
+		self::$ts = NULL;
+		self::$id = NULL;
+		self::$hash = NULL;
+		self::$signature = NULL;
+		self::$data = array();
 	}
 
 	public static function get($key, $ifndef = NULL) {
@@ -60,19 +93,15 @@ class Session extends _Locks {
 		self::$data[$key] = $value;
 	}
 
+	///Save session into DB
 	public static function save() {
-		DB('UserSession')->insert(array(
-                                    'hash' => self::$hash, 
-                                    'ts' => self::$ts, 
-                                    'user' => self::$user, 
-                                    '$signature' => self::$signature, 
-                                    '$data' => self::$data
-                ));
-        setcookie('session', $hash, NOW+30*60*60);
-        exec();
-	}
-
-	public static function end() {
-		//funkcja przestarzała, do wywalenia
+		if (!self::$hash || !self::$id)
+			return;
+		$db = DB('UserSession')->set(array(
+			'ts' => self::$ts,
+			'id' => self::$id,
+			'signature' => self::$signature,
+			'data' => json_encode(self::$data)
+		))->where(array('hash' => self::$hash))->exec();
 	}
 }
