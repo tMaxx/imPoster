@@ -26,9 +26,7 @@ class DB extends _Locks {
 	///last query's result
 	protected $query_result = null;
 	///db state after last query
-	protected $db_param = array();
-	///Config
-	protected $c = array();
+	protected $db_status = array();
 
 	/**
 	 * Prepare the DB and connect to it
@@ -74,7 +72,7 @@ class DB extends _Locks {
 	 * @return int
 	 */
 	public function getAffectedRows() {
-		return $this->db_param['affected_rows'];
+		return $this->db_status['affected_rows'];
 	}
 
 	/**
@@ -82,7 +80,7 @@ class DB extends _Locks {
 	 * @return int
 	 */
 	public function getInsertID() {
-		return $this->db_param['insert_id'];
+		return $this->db_status['insert_id'];
 	}
 
 	/**
@@ -90,14 +88,14 @@ class DB extends _Locks {
 	 * @return int
 	 */
 	public function getFieldCount() {
-		return $this->db_param['field_counts'];
+		return $this->db_status['field_counts'];
 	}
 
 	///Get DB state after action
 	protected function retrieveState() {
-		$this->db_param['affected_rows'] = self::$db->affected_rows;
-		$this->db_param['field_count'] = self::$db->field_count;
-		$this->db_param['insert_id'] = self::$db->insert_id;
+		$this->db_status['affected_rows'] = self::$db->affected_rows;
+		$this->db_status['field_count'] = self::$db->field_count;
+		$this->db_status['insert_id'] = self::$db->insert_id;
 		return $this;
 	}
 
@@ -107,16 +105,25 @@ class DB extends _Locks {
 	//
 	// ------------------------------------------------------------------
 
-	protected function implode(array $arr, $glue) {
-		$r = '';
+	protected function implode($glue, array $arr, $parametrize = FALSE) {
+		$r = array();
 
+		//prepare keys
 		foreach ($arr as $k => $v)
 			if (is_numeric($k))
-				$r .= $v . $glue;
-			else
-				$r .= $k . '=' . $v . $glue;
+				$r[] = $v;
+			else {
+				if ($v === NULL)
+					$k .= ' is null';
+				elseif ($parametrize) {
+					$k .= '=?';
+					$this->param($v);
+				} else
+					$k .= '=' . $v;
+				$r[] = $k;
+			}
 		
-		return $r;
+		return implode($glue, $r);
 	}
 
 	/**
@@ -222,7 +229,7 @@ class DB extends _Locks {
 
 	///Fetch a single row from db
 	public function row() {
-		return $this->exec()->result->fetch_assoc();
+		return $this->exec()->query_result->fetch_assoc();
 	}
 
 	///Fetch a set of rows from db
@@ -268,7 +275,7 @@ class DB extends _Locks {
 	}
 
 	public function num() {
-		return $this->exec()->result->fetch_row();
+		return $this->exec()->query_result->fetch_row();
 	}
 
 	public function nums() {
@@ -310,7 +317,7 @@ class DBresult {
 	 * @return NULL|mysqli_result
 	 */
 	function __construct(&$statement) {
-		$this->stmt = $statement;
+		$this->stmt = &$statement;
 		if ($meta = $this->stmt->result_metadata()) {
 			$i = 0;
 			$fields = $meta->fetch_fields();
@@ -372,8 +379,6 @@ class DBresult {
 		$r = array();
 		while ($q = $this->$fun())
 			$r[] = $q;
-		if ($q === NULL)
-			return NULL;
 
 		return $r;
 	}
@@ -388,8 +393,12 @@ class DBinst extends DB {
 	protected $table = '';	
 
 	function __construct(&$inst) {
-		$this->inst =& $inst;
+		$this->inst = &$inst;
 		$this->table = $inst->table();
+	}
+
+	public function __destruct() {
+		$this->inst = NULL;
 	}
 
 	public function save() {
@@ -399,10 +408,21 @@ class DBinst extends DB {
 		if (method_exists($inst, 'preSave'))
 			$inst->preSave();
 
-		//TODO
+		$vals = $this->inst->toArray();
+		$pk_key = (array) $this->inst->getPK();
+		foreach ($pk_key as $v)
+			unset($vals[$v]);
+		$pk_val = (array) $this->inst->getId();
+
+		$pks_list = $this->implode(' AND ', array_combine($pk_key, $pk_val), true);
+		$vals_list = $this->implode(', ', $vals, true);
+
+		$this->query = 'UPDATE '.$this->table.' SET '.$vals_list.' WHERE '.$pks_list;
+		$this->exec();
 
 		if (method_exists($inst, 'postSave'))
 			$inst->postSave();
+		return $this;
 	}
 
 	public function insert() {
@@ -424,34 +444,45 @@ class DBinst extends DB {
 
 		if (method_exists($inst, 'postInsert'))
 			$inst->postInsert();
+		return $this;
 	}
 
 	public function remove() {
 		if (method_exists($inst, 'preRemove'))
 			$inst->preRemove();
 
-		//TODO
+		$pks = (array) $this->inst->getPK();
+
+		$pks_list = $this->implode(' AND ', $pks, true);
+
+		$this->query = 'DELETE FROM '.$this->table.' WHERE '.$pks_list;
+		$this->exec();
 
 		if (method_exists($inst, 'postRemove'))
 			$inst->postRemove();
 		$this->inst = NULL;
+		return $this;
 	}
 }
 
 /**
- * DBtabl - query builder
+ * DBtabl - query builder/repository
  */
 class DBtabl extends DB {
+	protected $fields = '';
+
 	protected $table = '';
+
+	protected $set = '';
+	protected $where = '';
+
+	protected $values = '';
 
 	function __construct($tab) {
 		$this->table = $tab;
-/*		$this->query = '';
-		$this->c['table'] = $var;
-		$this->c['fields'] = '*';
-		$this->c['where'] = '';
-		$this->c['order'] = '';
-		$this->c['sort'] = '';*/
 	}
 
+	public function flush() {
+		// code...
+	}
 }
