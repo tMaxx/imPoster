@@ -1,20 +1,32 @@
 <?php ///revCMS /sys/DB.php
+namespace {
 ///DB factory
 function DB($var) {
-	if (($var instanceof Model))// || (is_object($var) && method_exists($var, 'toArray') && method_exists($var, 'set')))
-		return new DBinst($var);
+	if (is_object($var) && ($var instanceof Model))// || ($var instanceof CMS\DB\Saveable))
+		return new CMS\DB\Instance($var);
 	elseif (is_string($var)) {
 		if (substr_count($var, ' ') == 0)
-			return new DBtabl($var);
-		return new DB($var);
+			return new CMS\DB\Table($var);
+		return new CMS\DB\Base($var);
 	} else
-		throw new ErrorDB('Unsupported $var type');
+		throw new \ErrorDB('Unsupported $var type');
+}
+
+class ErrorDB extends \Error {}
+}
+namespace CMS\DB {
+///Make a class saveable via DB\Instance
+interface Saveable {
+	public function toArray();
+	public static function getKeyName();
+	public function getId();
+	public function getTableName();
 }
 
 /**
- * DB - Database support class
+ * Base - Database support class
  */
-class DB extends _Locks {
+class Base extends \_Locks {
 	//db object
 	private static $db = NULL;
 	///compiled query
@@ -37,15 +49,15 @@ class DB extends _Locks {
 			return;
 
 		if (!isset($con['host']) || !isset($con['user']) || !isset($con['pass']) || !isset($con['dbname']))
-			throw new ErrorDB('Not sufficient connection parameters!');
+			throw new \ErrorDB('Not sufficient connection parameters!');
 
-		self::$db = new mysqli($con['host'], $con['user'], $con['pass'], $con['dbname']);
+		self::$db = new \mysqli($con['host'], $con['user'], $con['pass'], $con['dbname']);
 
 		if (self::$db->connect_error)
-			throw new ErrorDB('Error while connecting: '.self::$db->connect_errno);
+			throw new \ErrorDB('Error while connecting: '.self::$db->connect_errno);
 
 		if(!self::$db->set_charset("utf8"))
-			throw new ErrorDB('Error while setting charset');
+			throw new \ErrorDB('Error while setting charset');
 	}
 
 	///End execution, close everything
@@ -53,7 +65,7 @@ class DB extends _Locks {
 		if (self::lock())
 			return;
 
-		if (isset(self::$db)){
+		if (isset(self::$db)) {
 			self::$db->close();
 			self::$db = NULL;
 		}
@@ -105,7 +117,7 @@ class DB extends _Locks {
 	//
 	// ------------------------------------------------------------------
 
-	protected function implode($glue, array $arr, $parametrize = FALSE) {
+	protected function implode($glue, array $arr, $parametrize = FALSE, $setter = FALSE) {
 		$r = array();
 
 		//prepare keys
@@ -113,7 +125,7 @@ class DB extends _Locks {
 			if (is_numeric($k))
 				$r[] = $v;
 			else {
-				if ($v === NULL)
+				if ($v === NULL && !$setter)
 					$k .= ' is null';
 				elseif ($parametrize) {
 					$k .= '=?';
@@ -170,13 +182,13 @@ class DB extends _Locks {
 			$types = $this->stmt_types;
 			$values = $this->stmt_param;
 			if (strlen($types) != ($c = count($values)))
-				throw new ErrorDB('Number of types != number of values!');
+				throw new \ErrorDB('Number of types != number of values!');
 
 			if (!($this->stmt = self::$db->prepare($this->query)))
-				throw new ErrorDB('Error while preparing query');
+				throw new \ErrorDB('Error while preparing query');
 
 			if ($c != $this->stmt->param_count)
-				throw new ErrorDB('Number query params != number of values');
+				throw new \ErrorDB('Number query params != number of values');
 
 			for ($i = 0; $i < $c; $i++) {
 				switch ($types[i]) {
@@ -208,11 +220,11 @@ class DB extends _Locks {
 		if (!$this->query_result) {
 			if ($this->bindquery()) {
 				if (!($this->stmt->execute()))
-					throw new ErrorDB('DB: Error while executing query');
-				$this->query_result = new DBresult($this->stmt);
+					throw new \ErrorDB('DB: Error while executing query');
+				$this->query_result = new Result($this->stmt);
 			} else {
 				if (!$this->query)
-					throw new ErrorDB('Query not specified!');
+					throw new \ErrorDB('Query not specified!');
 				$this->stmt = NULL;
 				$this->query_result = self::$db->query($this->query);
 			}
@@ -256,15 +268,15 @@ class DB extends _Locks {
 	}
 
 	public function obj($type = NULL) {
-		if (!$type && $this instanceof DBtabl)
-			$type = $this->c['table'];
+		if (!$type && $this instanceof Table)
+			$type = $this->table;
 
 		return new $type($this->row());
 	}
 
 	public function objs($type = NULL) {
-		if (!$type && $this instanceof DBtabl)
-			$type = $this->c['table'];
+		if (!$type && $this instanceof Table)
+			$type = $this->table;
 		
 		$r = $this->rows();
 		foreach ($r as &$v)
@@ -304,7 +316,7 @@ class DB extends _Locks {
  * DBresult
  * Patch for missing mysqli_stmt->get_result()
  */
-class DBresult {
+class Result {
 	protected $stmt = NULL;
 	protected $last = NULL;
 	protected $fields_assoc = array();
@@ -353,7 +365,7 @@ class DBresult {
 
 			$this->last = $type;
 			if (!call_user_func_array(array($this->stmt, 'bind_result'), $this->query_result_fields))
-				throw new ErrorDB('Error binding result set');
+				throw new \ErrorDB('Error binding result set');
 		}
 
 		if (call_user_func(array($this->stmt, 'fetch')) === NULL)
@@ -386,15 +398,15 @@ class DBresult {
 
 
 /**
- * DBinst - model instance handler
+ * Instance - model instance handler
  */
-class DBinst extends DB {
+class Instance extends Base {
 	protected $inst = NULL;
-	protected $table = '';	
+	protected $table = '';
 
 	function __construct(&$inst) {
 		$this->inst = &$inst;
-		$this->table = $inst->table();
+		$this->table = $inst->getTableName();
 	}
 
 	public function __destruct() {
@@ -409,13 +421,13 @@ class DBinst extends DB {
 			$inst->preSave();
 
 		$vals = $this->inst->toArray();
-		$pk_key = (array) $this->inst->getPK();
+		$pk_key = (array) $this->inst->getKeyName();
 		foreach ($pk_key as $v)
 			unset($vals[$v]);
 		$pk_val = (array) $this->inst->getId();
 
 		$pks_list = $this->implode(' AND ', array_combine($pk_key, $pk_val), true);
-		$vals_list = $this->implode(', ', $vals, true);
+		$vals_list = $this->implode(', ', $vals, true, true);
 
 		$this->query = 'UPDATE '.$this->table.' SET '.$vals_list.' WHERE '.$pks_list;
 		$this->exec();
@@ -430,7 +442,7 @@ class DBinst extends DB {
 			$inst->preInsert();
 
 		$vals = $this->inst->toArray();
-		$pks = (array) $this->inst->getPK();
+		$pks = (array) $this->inst->getKeyName();
 		foreach ($pks as $v)
 			unset($vals[$v]);
 		unset($pks, $v);
@@ -451,7 +463,7 @@ class DBinst extends DB {
 		if (method_exists($inst, 'preRemove'))
 			$inst->preRemove();
 
-		$pks = (array) $this->inst->getPK();
+		$pks = (array) $this->inst->getKeyName();
 
 		$pks_list = $this->implode(' AND ', $pks, true);
 
@@ -466,14 +478,20 @@ class DBinst extends DB {
 }
 
 /**
- * DBtabl - query builder/repository
+ * Table - query builder/repository
  */
-class DBtabl extends DB {
+class Table extends Base {
+	const MODE_NONE = 0;
+	const MODE_DELETE = 1;
+	const MODE_INSERT = 2;
+	const MODE_UPDATE = 3;
+	const MODE_SELECT = 4;
+	protected $mode = self::MODE_NONE;
 	protected $fields = '';
-
 	protected $table = '';
 
-	protected $set = '';
+	protected $data = array();
+
 	protected $where = '';
 
 	protected $values = '';
@@ -482,7 +500,31 @@ class DBtabl extends DB {
 		$this->table = $tab;
 	}
 
-	public function flush() {
+	public function delete() {
+		$this->mode = self::MODE_DELETE;
+		return $this;
+	}
+
+	public function insert($data) {
+		$this->mode = self::MODE_INSERT;
+		$this->data = $data;
+		return $this;
+	}
+
+	public function update($data) {
+		$this->mode = self::MODE_UPDATE;
+		$this->data = $data;
+		return $this;
+	}
+
+	public function select($fields) {
+		$this->mode = self::MODE_UPDATE;
+		$this->data = $fields;
+		return $this;
+	}
+
+	public function where($arg, $replace = FALSE) {
 		// code...
 	}
+}
 }

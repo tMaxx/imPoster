@@ -3,4 +3,3 @@
 class User extends Model {
     
 }
-

@@ -1,4 +1,5 @@
 <?php ///revCMS /sys/View.php
+namespace CMS;
 ///Actually just a complete view generator
 class ViewGen {
 	///Mode
@@ -120,6 +121,10 @@ class ViewGen {
 		} while(TRUE);
 	}
 
+	public function redirect($v) {
+		throw new Redirect($v);
+	}
+
 	///Return $this->vars
 	public function getVars() {
 		return $this->vars;
@@ -144,7 +149,7 @@ class ViewGen {
 /**
  * View/HTML class
  */
-class View extends _Locks {
+class View extends \_Locks {
 	///Main template used
 	const TEMPLATE = '/templ/index.php';
 	///Everything that wil be added in <head>here</head>
@@ -196,7 +201,7 @@ class View extends _Locks {
 
 	///Render footer
 	public static function footer() {
-		echo '<span id="exec-time">InEXt: ', round(((microtime(true) - NOW_MICRO)*1000.0), 3), 'ms</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&copy;&nbsp;2013';
+		echo '<span id="exec-time">Exec time: ', round(((microtime(true) - NOW_MICRO)*1000.0), 3), 'ms</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&copy;&nbsp;2013';
 	}
 
 	/**

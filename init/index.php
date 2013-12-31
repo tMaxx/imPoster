@@ -53,6 +53,7 @@ define('NOW_MICRO', microtime(true));
 define('NOW', time());
 define('HOST', $_SERVER['HTTP_HOST']);
 define('AJAX', (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'));
+define('CLI', FALSE); //FIXME
 
 require_once ROOT.'/sys/Errors.php';
 
@@ -60,8 +61,8 @@ set_exception_handler('Error::h');
 set_error_handler('Error::h', E_ALL);
 register_shutdown_function('Error::h');
 
-require_once ROOT.'/sys/CMS.php';
+require_once ROOT.'/sys/Mod.php';
 
-spl_autoload_register('CMS::class_load');
+spl_autoload_register('CMS\Mod::class_load');
 
 CMS::go();

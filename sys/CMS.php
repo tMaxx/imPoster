@@ -1,4 +1,5 @@
 <?php ///revCMS /sys/CMS.php
+namespace {
 /**
  * CMS - basic content management class
  */
@@ -16,25 +17,6 @@ class CMS extends _Locks {
 	///URI parameters & exploded path
 	private static $URI = array();
 	private static $SERVER = array();
-
-	/**
-	 * Class freeloader
-	 * @param $class class name
-	 */
-	public static function class_load($class) {
-		static $sysTab;
-		if (!isset($sysTab))
-			$sysTab = array_diff(scandir(ROOT.'/sys/'), array('..', '.', 'Errors.php'));
-
-		$classp = $class . '.php';
-
-		if (in_array($classp, $sysTab))
-			require_once ROOT.'/sys/'.$classp;
-		elseif (file_exists(ROOT.'/app/'.$classp))
-			require_once ROOT.'/app/'.$classp;
-		else
-			throw new Error('Class not found: '.$class);
-	}
 
 	///Perform any needed operations before executing any custom scripts
 	///Just to keep it clean
@@ -74,7 +56,7 @@ class CMS extends _Locks {
 		global $SQL_CONNECTION;
 
 		//config DB, clear config
-		DB::go($SQL_CONNECTION);
+		CMS\DB\Base::go($SQL_CONNECTION);
 		unset($GLOBALS['SQL_CONNECTION']);
 	}
 
@@ -82,8 +64,8 @@ class CMS extends _Locks {
 	public static function end() {
 		if (self::lock())
 			return;
-		Session::save();
-		DB::end();
+		CMS\Session::save();
+		CMS\DB\Base::end();
 	}
 
 	///Run this house
@@ -93,7 +75,7 @@ class CMS extends _Locks {
 
 		self::init();
 
-		View::go(self::$URI);
+		CMS\View::go(self::$URI);
 
 		self::end();
 	}
@@ -250,4 +232,8 @@ class CMS extends _Locks {
 	public static function l($target) {
 		///TODO
 	}
+}
+}
+namespace CMS {
+class CMS extends \CMS {}
 }

@@ -1,6 +1,6 @@
 <?php //teo /app/Model.php
 
-class Model {
+class Model implements CMS\DB\Saveable {
 	static $TABLE;
 
 	public function set(array $a) {
@@ -10,31 +10,31 @@ class Model {
 		return $this;
 	}
 
-	function __construct(array $a) {
-		$this->set($a);
+	function __construct(array $a = array()) {
+		if ($a)
+			$this->set($a);
 	}
 
 	public function toArray() {}
 
-	final public static function getPK() {
+	final public static function getKeyName() {
 		return strtolower(get_called_class()).'_id';
 	}
 	
 	final public function getId() {
-		if(isset($this->{static::getPK()}))
-			return $this->{static::getPK()};
+		if(isset($this->{static::getKeyName()}))
+			return $this->{static::getKeyName()};
 		else
 			return NULL;
 	}
 
 	final public function setId($v) {
-		$this->{static::getPK()} = $v;
+		$this->{static::getKeyName()} = $v;
 		return $this;
 	}
 	
-	final public function table() {
+	final public function getTableName() {
 		return static::$TABLE;
 	}
 
 } 
-

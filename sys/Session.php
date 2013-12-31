@@ -1,8 +1,9 @@
 <?php
+namespace CMS;
 /**
  * Session management class
  */
-class Session extends _Locks {
+class Session extends \_Locks {
 	const SESSION_PERIOD = 2592000;//30days*24hours*60minutes*60seconds
 	const SALT_PRE = '$2y$05$';
 	protected static $ts = NULL;
@@ -81,6 +82,10 @@ class Session extends _Locks {
 		self::$hash = NULL;
 		self::$signature = NULL;
 		self::$data = array();
+	}
+
+	public static function getId() {
+		return self::$id;
 	}
 
 	public static function get($key, $ifndef = NULL) {

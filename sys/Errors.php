@@ -7,7 +7,7 @@ class Error extends ErrorException {
 	 * @return string
 	 */
 	public static function prettyTrace($trace) {
-		$result = array('<br />Stack trace:<br />');
+		$result = array('<br>');
 		foreach($trace as $i => $v) {
 			$result[] = $i.'# ';
 
@@ -19,14 +19,16 @@ class Error extends ErrorException {
 			if (isset($v['class']))
 				$result[] = $v['class'].$v['type'];
 
-			$result[] = $v['function'].'()';
+			$result[] = $v['function'];
 
 			if (isset($v['args']) && $v['args'])
-				$result[] = ' argv'.htmlspecialchars(pathdiff(json_encode($v['args'], JSON_UNESCAPED_SLASHES|JSON_NUMERIC_CHECK)), ENT_COMPAT|ENT_HTML5);
+				$result[] = htmlspecialchars(pathdiff(json_encode($v['args'], JSON_UNESCAPED_SLASHES|JSON_NUMERIC_CHECK)), ENT_COMPAT|ENT_HTML5);
+			else
+				$result[] = '()';
 
-			$result[] = '<br />';
+			$result[] = '<br>';
 		}
-		return implode('', $result);
+		return implode($result);
 	}
 
 	/**
@@ -42,7 +44,7 @@ class Error extends ErrorException {
 		}
 
 		$trace = debug_backtrace();
-		$result = array('<br /><br />');
+		$result = array('<br><br>');
 
 		if ((isset($eno, $estr, $efile)) || (!isset($eno) && (($e_last = error_get_last()) !== NULL))) { //error
 			$eName = '?';
@@ -65,20 +67,13 @@ class Error extends ErrorException {
 			}
 
 			$result[] = '<big><b>Error</b></big>: '.$eName.': '.$estr.' at '.pathdiff($efile).':'.$eline;
-		}
-		elseif (isset($eno)) { //exception handler
-			if ($eno instanceof Error)
-				$result[] = '<big><b>Error</b></big>: ';
-			elseif ($eno instanceof Exception)
-				$result[] = '<big><b>Exception</b></big>: ';
-			elseif ($eno instanceof ErrorException)
-				$result[] = '<big><b>Error/Exception</b></big>: ';
+		} elseif (isset($eno)) { //exception handler
+			$result[] = '<big><b>'.get_class($eno).'</b></big>: ';
 
 			$result[] = $eno->getMessage().' at '.pathdiff($eno->getFile()).':'.$eno->getLine();
 
 			$trace = $eno->getTrace();
-		}
-		else {
+		} else {
 			if (!isset($e_last))
 				CMS::end();
 			return;
@@ -92,12 +87,11 @@ class Error extends ErrorException {
 		if ($trace)
 			$result[] = Error::prettyTrace($trace);
 
-		echo implode('', $result);
+		echo implode($result);
 	}
 }
 
-class ErrorCMS extends Error {};
-class ErrorDB extends Error {};
+class ErrorCMS extends Error {}
 
 class ErrorHTTP extends Error {
 	private $httpcode;
