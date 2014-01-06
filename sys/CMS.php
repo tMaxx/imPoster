@@ -7,7 +7,7 @@ class CMS extends _Locks {
 	///CMS identificator
 	const CMS_ID = 'revCMS codename /shadow/';
 	///CMS version
-	const CMS_VER = '0.3';
+	const CMS_VER = '0.4';
 	///HTTP headers to be sent through header('here');
 	private static $HTTPheaders = array();
 	///GET parameters
