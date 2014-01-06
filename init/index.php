@@ -46,6 +46,21 @@ function pathdiff($str) {
 	return str_replace(ROOT, '', $str);
 }
 
+///clone array, w. dereferencing
+function array_copy($source) {
+	$arr = array();
+
+	foreach ($source as $k => $el)
+		if (is_array($el))
+			$arr[$k] = array_copy($el);
+		elseif (is_object($el))
+			// make an object copy
+			$arr[$k] = clone $el;
+		else
+			$arr[$k] = $el;
+	return $arr;
+}
+
 //get config
 include_once 'config.php';
 

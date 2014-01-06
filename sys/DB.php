@@ -131,7 +131,7 @@ class Base extends \_Locks {
 			} elseif (is_numeric($k)) {
 				if ($iglue && $parametrize) {
 					$r[] = '?';
-					$this->param($v)
+					$this->param($v);
 				} else
 					$r[] = $v;
 			} else {
@@ -204,25 +204,25 @@ class Base extends \_Locks {
 				throw new Error('Number query params != number of values');
 
 			for ($i = 0; $i < $c; $i++) {
-				switch ($types[i]) {
+				switch ($types[$i]) {
 					case 'i':
-						$val[$i] = (int) $val[$i];
+						$values[$i] = (int) $values[$i];
 						break;
 					case 'd':
-						$val[$i] = (double) $val[$i];
+						$values[$i] = (double) $values[$i];
 						break;
 					case 'f':
-						$val[$i] = (float) $val[$i];
+						$values[$i] = (float) $values[$i];
 						break;
 					case 'c':
-						$val[$i] = (string) $val[$i][0];
+						$values[$i] = (string) $values[$i][0];
 					case 's':
 					default:
-						$val[$i] = self::$db->escape_string($val[$i]);
+						$values[$i] = self::$db->escape_string($values[$i]);
 						break;
 				}
 
-				$this->stmt->bind_param($types[$i], $val[$i]);
+				$this->stmt->bind_param($types[$i], $values[$i]);
 			}
 		}
 		return TRUE;
@@ -239,7 +239,8 @@ class Base extends \_Locks {
 				if (!$this->query)
 					throw new Error('Query not specified!');
 				$this->stmt = NULL;
-				$this->query_result = self::$db->query($this->query);
+				if (($this->query_result = self::$db->query($this->query)) === FALSE)
+					throw new Error('Query execution unsuccessful: "'.$this->query.'"');
 			}
 			$this->retrieveState();
 		}
@@ -387,11 +388,13 @@ class Result {
 	}
 
 	public function fetch_row() {
-		return $this->next(MYSQLI_NUM)->fields_num;
+		$r = $this->next(MYSQLI_NUM);
+		return $r !== NULL ? array_copy($this->fields_num) : NULL;
 	}
 
 	public function fetch_assoc() {
-		return $this->next(MYSQLI_ASSOC)->fields_assoc;
+		$r = $this->next(MYSQLI_ASSOC);
+		return $r !== NULL ? array_copy($this->fields_assoc) : NULL;
 	}
 
 	public function fetch_all($type) {
@@ -457,7 +460,7 @@ class Instance extends Base {
 		unset($pks, $v);
 
 		$val_args = implode(', ', array_keys($vals));
-		$val_list = $this->implode(', ', $vals, true, true, ', '));
+		$val_list = $this->implode(', ', $vals, true, true, ', ');
 
 		$this->query = 'INSERT INTO '.$this->inst->getTableName().'('.$val_args.') VALUES ('.$val_list.')';
 		$this->exec();
@@ -495,12 +498,14 @@ class Table extends Base {
 	const MODE_UPDATE = 3;
 	const MODE_SELECT = 4;
 	protected $mode = self::MODE_NONE;
-	protected $fields = array();
+
 	protected $table = '';
 
 	protected $data = array();
 
+	protected $fields = array();
 	protected $where = array();
+	protected $orderby = array();
 
 	function __construct($tab) {
 		$this->table = $tab;
@@ -525,7 +530,7 @@ class Table extends Base {
 		$this->mode = self::MODE_INSERT;
 		$this->data = $data;
 		if ($fields)
-			$this->fields = $fields;
+			$this->fields[] = $fields;
 		return $this;
 	}
 
@@ -536,8 +541,8 @@ class Table extends Base {
 	}
 
 	public function select($fields) {
-		$this->mode = self::MODE_UPDATE;
-		$this->data = $fields;
+		$this->mode = self::MODE_SELECT;
+		$this->fields[] = $fields;
 		return $this;
 	}
 
@@ -592,7 +597,7 @@ class Table extends Base {
 				$parts[] = 'FROM '.$this->table;
 				if ($this->where) {
 					$parts[] = 'WHERE';
-					$parts[] = $this->implode(' AND ', $this->data, true);
+					$parts[] = $this->implode(' AND ', $this->where, true);
 				}
 				if ($this->orderby) {
 					$parts[] = 'ORDER BY';
@@ -604,7 +609,7 @@ class Table extends Base {
 				$parts[] = 'DELETE FROM '.$this->table;
 				if ($this->where) {
 					$parts[] = 'WHERE';
-					$parts[] = $this->implode(' AND ', $this->data, true);
+					$parts[] = $this->implode(' AND ', $this->where, true);
 				}
 				break;
 			}
@@ -614,7 +619,7 @@ class Table extends Base {
 				$parts[] = $this->implode(', ', $this->data, true, true);
 				if ($this->where) {
 					$parts[] = 'WHERE';
-					$parts[] = $this->implode(' AND ', $this->data, true);
+					$parts[] = $this->implode(' AND ', $this->where, true);
 				}
 				break;
 			}
