@@ -9,12 +9,12 @@ function DB($var) {
 			return new CMS\DB\Table($var);
 		return new CMS\DB\Base($var);
 	} else
-		throw new \ErrorDB('Unsupported $var type');
+		throw new CMS\DB\Error('Unsupported $var type');
 }
-
-class ErrorDB extends \Error {}
 }
 namespace CMS\DB {
+class Error extends \Error {}
+
 ///Make a class saveable via DB\Instance
 interface Saveable {
 	public function toArray();
@@ -49,15 +49,15 @@ class Base extends \_Locks {
 			return;
 
 		if (!isset($con['host']) || !isset($con['user']) || !isset($con['pass']) || !isset($con['dbname']))
-			throw new \ErrorDB('Not sufficient connection parameters!');
+			throw new Error('Not sufficient connection parameters!');
 
 		self::$db = new \mysqli($con['host'], $con['user'], $con['pass'], $con['dbname']);
 
 		if (self::$db->connect_error)
-			throw new \ErrorDB('Error while connecting: '.self::$db->connect_errno);
+			throw new Error('Connecting error: '.self::$db->connect_errno);
 
 		if(!self::$db->set_charset("utf8"))
-			throw new \ErrorDB('Error while setting charset');
+			throw new Error('Set charset failed');
 	}
 
 	///End execution, close everything
@@ -117,20 +117,31 @@ class Base extends \_Locks {
 	//
 	// ------------------------------------------------------------------
 
-	protected function implode($glue, array $arr, $parametrize = FALSE, $setter = FALSE) {
+	protected function implode($glue, array $arr, $parametrize = FALSE, $setter = FALSE, $iglue = '') {
 		$r = array();
 
-		//prepare keys
 		foreach ($arr as $k => $v)
-			if (is_array($v))
-				$r = $this->implode($glue, $v, $parametrize, $setter);
-			elseif (is_numeric($k))
-				$r[] = $v;
-			else {
-				if ($v === NULL && !$setter)
+			if (is_array($v)){
+				$el = '';
+				if ($iglue) {
+					$el = array_pop($r);
+					$el = ($el ? $el : '').$iglue;
+				}
+				$r[] = $el.$this->implode($glue, $v, $parametrize, $setter, $iglue);
+			} elseif (is_numeric($k)) {
+				if ($iglue && $parametrize) {
+					$r[] = '?';
+					$this->param($v)
+				} else
+					$r[] = $v;
+			} else {
+				if ($v === NULL && !$setter && !iglue)
 					$k .= ' is null';
 				elseif ($parametrize) {
-					$k .= '=?';
+					if ($iglue)
+						$k = '?';
+					else
+						$k .= '=?';
 					$this->param($v);
 				} else
 					$k .= '=' . $v;
@@ -184,13 +195,13 @@ class Base extends \_Locks {
 			$types = $this->stmt_types;
 			$values = $this->stmt_param;
 			if (strlen($types) != ($c = count($values)))
-				throw new \ErrorDB('Number of types != number of values!');
+				throw new Error('Number of types != number of values!');
 
 			if (!($this->stmt = self::$db->prepare($this->query)))
-				throw new \ErrorDB('Error while preparing query');
+				throw new Error('Mishap while preparing query');
 
 			if ($c != $this->stmt->param_count)
-				throw new \ErrorDB('Number query params != number of values');
+				throw new Error('Number query params != number of values');
 
 			for ($i = 0; $i < $c; $i++) {
 				switch ($types[i]) {
@@ -222,11 +233,11 @@ class Base extends \_Locks {
 		if (!$this->query_result) {
 			if ($this->bindquery()) {
 				if (!($this->stmt->execute()))
-					throw new \ErrorDB('DB: Error while executing query');
+					throw new Error('Query execution unsuccessful');
 				$this->query_result = new Result($this->stmt);
 			} else {
 				if (!$this->query)
-					throw new \ErrorDB('Query not specified!');
+					throw new Error('Query not specified!');
 				$this->stmt = NULL;
 				$this->query_result = self::$db->query($this->query);
 			}
@@ -327,8 +338,7 @@ class Result {
 
 	/**
 	 * Constructor
-	 * @param $statement mysqli_stmt
-	 * @return NULL|mysqli_result
+	 * @param $statement \mysqli_stmt
 	 */
 	function __construct(&$statement) {
 		$this->stmt = &$statement;
@@ -341,7 +351,7 @@ class Result {
 				$i++;
 			}
 		} else
-			return true;
+			throw new Error('Could not get statement metadata');
 	}
 
 	function __destruct() {
@@ -367,7 +377,7 @@ class Result {
 
 			$this->last = $type;
 			if (!call_user_func_array(array($this->stmt, 'bind_result'), $this->query_result_fields))
-				throw new \ErrorDB('Error binding result set');
+				throw new Error('Could not bind result set');
 		}
 
 		if (call_user_func(array($this->stmt, 'fetch')) === NULL)
@@ -398,17 +408,14 @@ class Result {
 	}
 }
 
-
 /**
  * Instance - model instance handler
  */
 class Instance extends Base {
-	protected $inst = NULL;
-	protected $table = '';
+	protected $inst;
 
 	function __construct(&$inst) {
 		$this->inst = &$inst;
-		$this->table = $inst->getTableName();
 	}
 
 	public function __destruct() {
@@ -419,8 +426,8 @@ class Instance extends Base {
 		if (!$inst->getId())
 			return $this->insert();
 
-		if (method_exists($inst, 'preSave'))
-			$inst->preSave();
+		if (method_exists($this->inst, 'preSave'))
+			$this->inst->preSave();
 
 		$vals = $this->inst->toArray();
 		$pk_key = (array) $this->inst->getKeyName();
@@ -431,17 +438,17 @@ class Instance extends Base {
 		$pks_list = $this->implode(' AND ', array_combine($pk_key, $pk_val), true);
 		$vals_list = $this->implode(', ', $vals, true, true);
 
-		$this->query = 'UPDATE '.$this->table.' SET '.$vals_list.' WHERE '.$pks_list;
+		$this->query = 'UPDATE '.$this->inst->getTableName().' SET '.$vals_list.' WHERE '.$pks_list;
 		$this->exec();
 
-		if (method_exists($inst, 'postSave'))
-			$inst->postSave();
+		if (method_exists($this->inst, 'postSave'))
+			$this->inst->postSave();
 		return $this;
 	}
 
 	public function insert() {
-		if (method_exists($inst, 'preInsert'))
-			$inst->preInsert();
+		if (method_exists($this->inst, 'preInsert'))
+			$this->inst->preInsert();
 
 		$vals = $this->inst->toArray();
 		$pks = (array) $this->inst->getKeyName();
@@ -450,30 +457,29 @@ class Instance extends Base {
 		unset($pks, $v);
 
 		$val_args = implode(', ', array_keys($vals));
-		//FIXME: haxxor
-		$val_list = implode(', ', array_fill(0, count($vals), '?'));
+		$val_list = $this->implode(', ', $vals, true, true, ', '));
 
-		$this->query = 'INSERT INTO '.$this->table.'('.$val_args.') VALUES ('.$val_list.')';
-		$this->params($vals)->exec();
+		$this->query = 'INSERT INTO '.$this->inst->getTableName().'('.$val_args.') VALUES ('.$val_list.')';
+		$this->exec();
 
-		if (method_exists($inst, 'postInsert'))
-			$inst->postInsert();
+		if (method_exists($this->inst, 'postInsert'))
+			$this->inst->postInsert();
 		return $this;
 	}
 
 	public function remove() {
-		if (method_exists($inst, 'preRemove'))
-			$inst->preRemove();
+		if (method_exists($this->inst, 'preRemove'))
+			$this->inst->preRemove();
 
 		$pks = (array) $this->inst->getKeyName();
 
 		$pks_list = $this->implode(' AND ', $pks, true);
 
-		$this->query = 'DELETE FROM '.$this->table.' WHERE '.$pks_list;
+		$this->query = 'DELETE FROM '.$this->inst->getTableName().' WHERE '.$pks_list;
 		$this->exec();
 
-		if (method_exists($inst, 'postRemove'))
-			$inst->postRemove();
+		if (method_exists($this->inst, 'postRemove'))
+			$this->inst->postRemove();
 		$this->inst = NULL;
 		return $this;
 	}
@@ -502,12 +508,12 @@ class Table extends Base {
 
 	function guard_mode($mode) {
 		if ($this->mode != $mode)
-			throw new \ErrorDB('Incorrect mode for this operation');
+			throw new Error('Incorrect mode for this operation');
 	}
 
 	function guard_notmode($mode) {
 		if ($this->mode == $mode)
-			throw new \ErrorDB('Incorrect mode for this operation');
+			throw new Error('Incorrect mode for this operation');
 	}
 
 	public function delete() {
@@ -563,17 +569,6 @@ class Table extends Base {
 		return $this;
 	}
 
-	protected function _values() {
-		$r = array();
-		if (isset($this->data[0]) && is_array($this->data[0]))
-			foreach ($this->data as $a) {
-				$r[] = '(' . $this->implode(', ', $a, true, true) . ')';
-			}
-		else
-			$r[] = '(' . $this->implode(', ', $this->data, true, true) . ')';
-		return implode(', ', $r);
-	}
-
 	protected function createquery() {
 		$parts = array();
 
@@ -588,7 +583,7 @@ class Table extends Base {
 				if ($this->fields)
 					$parts[] = '('.implode(', ', $this->fields).')';
 				$parts[] = 'VALUES';
-				$parts[] = $this->_values();
+				$parts[] = '(' . $this->implode(', ', $this->data, true, true, '), (') . ')';
 				break;
 			}
 			case self::MODE_SELECT: {
