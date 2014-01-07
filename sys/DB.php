@@ -23,6 +23,11 @@ interface Saveable {
 	public function getTableName();
 }
 
+///Enable class saving
+interface Instanceable {
+	function __construct(array $a = array());
+}
+
 /**
  * Base - Database support class
  */
@@ -282,20 +287,19 @@ class Base extends \_Locks {
 	}
 
 	public function obj($type = NULL) {
-		if (!$type && $this instanceof Table)
+		if (!$type && $this instanceof Table) //FIXME
 			$type = $this->table;
 
-		return new $type($this->row());
+		return ($r = $this->row() ? new $type($r) : $r);
 	}
 
 	public function objs($type = NULL) {
-		if (!$type && $this instanceof Table)
+		if (!$type && $this instanceof Table) //FIXME
 			$type = $this->table;
 		
 		$r = $this->rows();
-		foreach ($r as &$v)
-			$v = new $type($v);
-		reset($r);
+		foreach ($r as $k => $v)
+			$r[$k] = new $type($v);
 
 		return $r;
 	}

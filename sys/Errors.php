@@ -1,4 +1,5 @@
 <?php ///revCMS /sys/Error.php
+namespace {
 ///Error class
 class Error extends ErrorException {
 	/**
@@ -7,14 +8,14 @@ class Error extends ErrorException {
 	 * @return string
 	 */
 	public static function prettyTrace($trace) {
-		$result = array('<br>');
+		$result = array();
 		foreach($trace as $i => $v) {
 			$result[] = $i.'# ';
 
 			if (isset($v['file']) && $v['file'])
 				$result[] = pathdiff($v['file']).':'.$v['line'].' - ';
 			else
-				$result[] = '[<i>internal call</i>] ';
+				$result[] = '[internal call] ';
 
 			if (isset($v['class']))
 				$result[] = $v['class'].$v['type'];
@@ -84,8 +85,10 @@ class Error extends ErrorException {
 			CMS::flushHeaders();
 		}
 
-		if ($trace)
+		if ($trace){
+			$result[] = '<br>';
 			$result[] = Error::prettyTrace($trace);
+		}
 
 		echo implode($result);
 	}
@@ -166,4 +169,8 @@ class Redirect extends ErrorHTTP {
 		CMS::addHeader('Location: '.$target);
 		die(); //die nicely
 	}
+}
+}
+namespace CMS {
+class Error extends \Error {}
 }

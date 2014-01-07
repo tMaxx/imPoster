@@ -1,6 +1,6 @@
 <?php //teo /app/Model.php
 
-class Model implements CMS\DB\Saveable {
+class Model implements CMS\DB\Saveable, CMS\DB\Instanceable {
 	static $TABLE;
 
 	public function set(array $a) {

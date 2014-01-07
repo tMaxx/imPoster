@@ -11,6 +11,7 @@ class Session extends \_Locks {
 	protected static $hash = NULL;
 	protected static $signature = NULL;
 	protected static $data = array();
+	protected static $addit = '';
 
 	///Return client signature based on UA & IP
 	protected static function signature() {
@@ -18,9 +19,13 @@ class Session extends \_Locks {
 		return crypt(self::$ts.'merryKissMyAss'.$str, self::SALT_PRE.strrev($str));
 	}
 
+	public static function addit($a) {
+		self::$addit = $a;
+	}
+
 	///Return user session hash
 	protected static function hash() {
-		return crypt(strrev('r3v'.self::$id.':'.self::$ts.'//'.self::$signature.'CMS'), self::SALT_PRE.strrev(self::$signature));
+		return crypt(strrev('r3v'.self::$id.':'.self::$addit.'()'.self::$ts.'//'.self::$signature.'CMS'), self::SALT_PRE.strrev(self::$signature));
 	}
 
 	///Return readable format of hash
@@ -54,7 +59,7 @@ class Session extends \_Locks {
 			return self::valid();
 		if (!isset($_COOKIE['session']))
 			return false;
-		$data = DB('UserSession')->where('hash=?')->param('s', $_COOKIE['session'])->row();
+		$data = DB('Session')->where('hash=?')->param('s', $_COOKIE['session'])->row();
 		if(!$data)
 			return false;
 		self::$ts = $data['ts'];
@@ -74,8 +79,7 @@ class Session extends \_Locks {
 
 	///Delete session from DB, 'unset' variables
 	public static function destroy() {
-		return;//FIXME
-		DB('UserSession')->where(array('hash' => self::$hash))->delete();
+		DB('Session')->delete()->where(array('hash' => self::$hash))->exec();
 		setcookie('session', self::$hash, 1);
 		self::$ts = NULL;
 		self::$id = NULL;
@@ -102,7 +106,7 @@ class Session extends \_Locks {
 	public static function save() {
 		if (!self::$hash || !self::$id)
 			return;
-		$db = DB('UserSession')->set(array(
+		$db = DB('Session')->set(array(
 			'ts' => self::$ts,
 			'id' => self::$id,
 			'signature' => self::$signature,

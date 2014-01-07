@@ -151,7 +151,7 @@ class ViewGen {
  */
 class View extends \_Locks {
 	///Main template used
-	const TEMPLATE = '/templ/index.php';
+	const TEMPLATE = '/appdata/index.php';
 	///Everything that wil be added in <head>here</head>
 	private static $HTMLhead = array();
 	///Generated body, only if MODE is set as full

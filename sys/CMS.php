@@ -75,7 +75,8 @@ class CMS extends _Locks {
 
 		self::init();
 
-		CMS\View::go(self::$URI);
+		if (!CMS\Mod::checkServices())
+			CMS\View::go(self::$URI);
 
 		self::end();
 	}
@@ -162,6 +163,15 @@ class CMS extends _Locks {
 	 */
 	public static function appClassExists($name) {
 		return self::fileExists('/app/'.$name.'.php');
+	}
+
+	/**
+	 * Returns an array retrieved from json file from path
+	 * @param $path relative to /
+	 * @return false|array
+	 */
+	public static function jsonFromFile($path) {
+		return CMS\Mod::jsonFromFile($path);
 	}
 
 	/**

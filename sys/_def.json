@@ -1,0 +1,15 @@
+{
+	"r3v": {
+		"class": {
+			"CMS": "CMS.php",
+			"CMS\\CMS": "CMS.php",
+			"Form": "Form.php",
+			"CMS\\Session": "Session.php",
+			"CMS\\View": "View.php",
+			"CMS\\DB\\Base": "DB.php",
+			"CMS\\Me": "Me.php",
+			"Me": "Me.php",
+			"CMS\\User": "Me.php"
+		}
+	}
+}
