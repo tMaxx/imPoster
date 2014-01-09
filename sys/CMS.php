@@ -58,6 +58,8 @@ class CMS extends _Locks {
 		//config DB, clear config
 		CMS\DB\Base::go($SQL_CONNECTION);
 		unset($GLOBALS['SQL_CONNECTION']);
+
+		CMS\Me::autoload();
 	}
 
 	///Pre-exit commands

@@ -32,17 +32,17 @@ class Mod {
 
 	/**
 	 * Class freeloader
-	 * @param $class class name
+	 * @param $name of class
 	 */
-	public static function class_load($class) {
-		if (isset(self::$sysclass[$class]))
-			require_once ROOT.'/sys/'.self::$sysclass[$class];
-		elseif (file_exists(ROOT.'/app/'.$class.'.php'))
-			require_once ROOT.'/app/'.$class.'.php';
-		elseif (isset(self::$classes[$class]))
-			require_once ROOT.self::$classes[$class];
+	public static function class_load($name) {
+		if (isset(self::$sysclass[$name]))
+			require_once ROOT.'/sys/'.self::$sysclass[$name];
+		elseif (file_exists(ROOT.'/app/'.$name.'.php'))
+			require_once ROOT.'/app/'.$name.'.php';
+		elseif (isset(self::$class[$name]))
+			require_once ROOT.self::$class[$name];
 		else
-			throw new \ErrorCMS('Class not found: '.$class);
+			throw new Error('Class not found: '.$name);
 	}
 
 	/**

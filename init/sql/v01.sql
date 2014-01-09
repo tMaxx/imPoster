@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS `User` (
 	`user_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	`email` VARCHAR(50) NOT NULL,
-	`login` VARCHAR(16) NOT NULL,
+	`email` VARCHAR(50) NOT NULL UNIQUE,
+	`login` VARCHAR(16) NOT NULL UNIQUE,
 	`password` VARCHAR(128) NOT NULL,
 	`ts_seen` INT(11),
 	`is_active` TINYINT(1) DEFAULT 0,
@@ -10,14 +10,15 @@ CREATE TABLE IF NOT EXISTS `User` (
 	PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB;
 CREATE INDEX iudex_User_email ON `User`(`email`);
+CREATE INDEX iudex_User_login ON `User`(`login`);
 
 CREATE TABLE IF NOT EXISTS `Session` (
 	`session_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`id` INT UNSIGNED NOT NULL,
 	`ts` INT(11),
-	`hash` VARCHAR(140),
-	`signature` VARCHAR(140),
-	`data` VARCHAR(512),
+	`hash` VARCHAR(70),
+	`signature` VARCHAR(70),
+	`data` VARCHAR(256),
 
 	PRIMARY KEY (`session_id`),
 	FOREIGN KEY (`id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE

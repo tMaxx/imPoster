@@ -4,7 +4,7 @@ namespace CMS;
 /**
  * User - user object
  */
-class User implements CMS\DB\Instanceable {
+class User implements DB\Instanceable {
 	protected $user_id;
 	protected $email;
 	protected $login;
@@ -26,9 +26,10 @@ class User implements CMS\DB\Instanceable {
 	}
 
 	public function get($name = NULL) {
-		// code...
+		if ($name && property_exists($this, $name))
+			return $this->{$name};
+		return array();
 	}
-
 }
 
 
@@ -36,33 +37,79 @@ class User implements CMS\DB\Instanceable {
  * User class handler
  */
 class Me {
-	protected static var $me = NULL;
-	private static var $id = NULL;
+	const SALT_PRE = '$2y$07$';
+	public static $me = NULL;
+	private static $id = NULL;
 
-	public static function login($user, $pass) {
-		// code...
+	public static function login($email, $pass) {
+		if (self::$me || self::$id)
+			return;
+
+		if (!($obj = self::load($email)))
+			return false;
+
+		if (!self::checkpw($pass, $obj->get('password')))
+			return 0;
+
+		self::$me = $obj;
+		Session::create($obj->get('user_id'));
+		return true;
 	}
 
-	public static function load($e) {
-		$res = DB('User')->select('*');
+	public static function autoload() {
+		if ($st = Session::load()) {
+			if ($obj = self::load(Session::getId())) {
+				self::$id = $obj->get('user_id');
+				self::$me = $obj;
+			} else
+				Session::destroy();
+		}
+	}
+
+	protected static function load($e) {
+		$res = DB('User')->select()->where('is_active!=0');
 		if (is_numeric($e))
-			$res->where(array('user_id' => $e));
+			$res->where('user_id=?')->param('i', $e);
 		elseif (is_string($e))
-			$res->where(array('email' => $e));
+			$res->where('email=?')->param('s', $e);
 		else
 			return null;
+
 		return $res->obj('CMS\\User');
 	}
 
 	public static function logout() {
-		// code...
+		if (self::$me || self::$id) {
+			Session::destroy();
+			self::$me = NULL;
+			self::$id = NULL;
+			return true;
+		}
+		return false;
 	}
 
-	public static function checkpw($pass) {
-		// code...
+	public static function register($email, $login, $password, $active = 0) {
+		if (DB('SELECT user_id FROM User WHERE email=? OR login=?')->params('ss', array($email, $login))->row())
+			return false;
+
+		$hash = crypt($password, self::SALT_PRE.Sys::randString(22));
+		$q = DB('User')->insert(array(
+			'password' => $hash,
+			'email' => $email,
+			'login' => $login,
+			'is_active' => $active,
+		));
+		if ($q->bool())
+			return $q->getInsertID();
+		else
+			return 0;
 	}
 
-	public function id() {
+	public static function checkpw($pass, $hash) {
+		return !!(crypt($pass, $hash) == $hash);
+	}
+
+	public static function id() {
 		return self::$id;
 	}
 }

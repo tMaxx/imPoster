@@ -1,7 +1,2 @@
-Be welcomed, my dear user!
-<br><br>
-<?
-$q = DB("Elem")->select('*')->where('content LIKE "%a%"'); // TODO
-pre_dump(/*$q, */$q->rows());
-
-	crypt("test", '$2y$13$sdasdasdasdasdasdasdasdasdasdasdasda');
+<h3>theOrganizer - nazwa kodowa 'teo'</h3>
+<p>Prosty organizer zdarzeń i wydarzeń. Projekt w trakcie tworzenia oraz implementacji.</p>

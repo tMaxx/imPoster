@@ -1,38 +1,36 @@
 <?php
+if (CMS\Me::id())
+	throw new Redirect('/');
+
 $form = new Form(array(
 	'name' => 'loginform',
 	'attributes' => array(
 		'class' => 'center',
 	),
 	'fields' => array(
-		'user' => array(
+		'email' => array(
 			'email',
-			'label' => 'Email:',
+			'label' => 'Email',
 		),
-		'pwd' => array(
+		'password' => array(
 			'password',
-			'label' => 'Hasło:',
+			'label' => 'Hasło',
 		),
 		'sub' => array(
 			'submit',
-			'value' => 'Wyślij',
+			'value' => 'Zaloguj',
 		),
 	),
 ));
 
-
-if ($form->submitted())
-	echo '<h2>Form submitted</h2>';
-else
-	$form->r();
-/*
-if (User::login($vars)) {
-	//hallelujah!
-	//TODO
-
-	//generalnie redirect, rozwiązanie z dupy
-	throw new ErrorHTTP('Redirect', 300);
-} else {
-	//chyba śnisz, walnij jakimś błędem
+if ($form->submitted()) {
+	$err = CMS\Me::login($form->get('email'), $form->get('password'));
+	if ($err === false)
+		echo 'Brak takiego użytkownika';
+	elseif ($err === 0)
+		echo 'Nieprawidłowa para email-hasło';
+	elseif ($err)
+		throw new Redirect('/');
 }
-*/
+
+$form->r();

@@ -9,7 +9,8 @@
 			"CMS\\DB\\Base": "DB.php",
 			"CMS\\Me": "Me.php",
 			"Me": "Me.php",
-			"CMS\\User": "Me.php"
+			"CMS\\User": "Me.php",
+			"CMS\\Sys": "Sys.php"
 		}
 	}
 }

@@ -15,12 +15,8 @@ class Session extends \_Locks {
 
 	///Return client signature based on UA & IP
 	protected static function signature() {
-		$str = sha1(strtoupper($_SERVER['HTTP_USER_AGENT'])).':P'.md5($_SERVER['REMOTE_ADDR']);
+		$str = sha1(strtoupper($_SERVER['HTTP_USER_AGENT'])).':'.self::$ts.'P'.md5($_SERVER['REMOTE_ADDR']);
 		return crypt(self::$ts.'merryKissMyAss'.$str, self::SALT_PRE.strrev($str));
-	}
-
-	public static function addit($a) {
-		self::$addit = $a;
 	}
 
 	///Return user session hash
@@ -33,18 +29,26 @@ class Session extends \_Locks {
 		return substr(self::$hash, strlen(self::SALT_PRE));
 	}
 
+	protected static function trsign() {
+		return substr(self::$signature, strlen(self::SALT_PRE));
+	}
+
+	protected static function tr($in) {
+		return substr($in, strlen(self::SALT_PRE));
+	}
+
 	///Recalculate signature, hash, update ts and cookie
 	public static function recalc() {
 		self::$ts = NOW;
 		self::$signature = self::signature();
 		self::$hash = self::hash();
-		setcookie('session', self::trhash(), NOW+self::SESSION_PERIOD);
+		setcookie('session', self::trhash(), NOW+self::SESSION_PERIOD, '/');
 	}
 
 	///Is current session valid?
 	public static function valid() {
 		if ((!self::$hash) || (!self::$signature) ||
-			(self::$hash != self::trhash()) ||
+			(self::$hash != self::hash()) ||
 			(NOW - self::$ts > self::SESSION_PERIOD) ||
 			(self::$signature != self::signature())) {
 			self::destroy();
@@ -59,14 +63,14 @@ class Session extends \_Locks {
 			return self::valid();
 		if (!isset($_COOKIE['session']))
 			return false;
-		$data = DB('Session')->where('hash=?')->param('s', $_COOKIE['session'])->row();
+		$data = DB('Session')->select()->where('hash=?')->param('s', $_COOKIE['session'])->row();
 		if(!$data)
 			return false;
 		self::$ts = $data['ts'];
 		self::$id = $data['id'];
-		self::$hash = $data['hash'];
-		self::$signature = $data['signature'];
-		self::$data = @json_decode($data['data']);
+		self::$hash = self::SALT_PRE.$data['hash'];
+		self::$signature = self::SALT_PRE.$data['signature'];
+		self::$data = @json_decode($data['data'], true);
 		return self::valid();
 	}
 
@@ -79,8 +83,11 @@ class Session extends \_Locks {
 
 	///Delete session from DB, 'unset' variables
 	public static function destroy() {
-		DB('Session')->delete()->where(array('hash' => self::$hash))->exec();
-		setcookie('session', self::$hash, 1);
+		return;
+		if (self::$hash) {
+			DB('Session')->delete()->where(array('hash' => self::trhash()))->exec();
+			setcookie('session', self::trhash(), self::SESSION_PERIOD, '/');
+		}
 		self::$ts = NULL;
 		self::$id = NULL;
 		self::$hash = NULL;
@@ -90,6 +97,10 @@ class Session extends \_Locks {
 
 	public static function getId() {
 		return self::$id;
+	}
+
+	public static function addit($a) {
+		self::$addit = $a;
 	}
 
 	public static function get($key, $ifndef = NULL) {
@@ -106,11 +117,18 @@ class Session extends \_Locks {
 	public static function save() {
 		if (!self::$hash || !self::$id)
 			return;
-		$db = DB('Session')->set(array(
+		$db = DB('Session');
+		$arr = array(
 			'ts' => self::$ts,
 			'id' => self::$id,
-			'signature' => self::$signature,
+			'signature' => self::trsign(),
 			'data' => json_encode(self::$data)
-		))->where(array('hash' => self::$hash))->exec();
+		);
+		$hsh = array('hash' => self::trhash());
+		if (self::$ts == NOW)
+			$db->insert($arr+$hsh);
+		else
+			$db->update($arr)->where($hsh);
+		$db->exec();
 	}
 }

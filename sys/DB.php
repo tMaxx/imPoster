@@ -108,10 +108,32 @@ class Base extends \_Locks {
 		return $this->db_status['field_counts'];
 	}
 
+	/**
+	 * Return number of rows from last query
+	 * @return int
+	 */
+	public function getNumberOfRows() {
+		return $this->db_status['num_rows'];
+	}
+
 	///Get DB state after action
 	protected function retrieveState() {
-		$this->db_status['affected_rows'] = self::$db->affected_rows;
-		$this->db_status['field_count'] = self::$db->field_count;
+		if (isset($this->stmt)) {
+			$num = $this->stmt->num_rows;
+			$aff = $this->stmt->affected_rows;
+			$fc = $this->stmt->field_count;
+		} else {
+			if ($this->query_result instanceof \mysqli_result)
+				$num = $this->query_result->num_rows;
+			else
+				$num = false;
+			$aff = self::$db->affected_rows;
+			$fc = self::$db->field_count;
+		}
+
+		$this->db_status['num_rows'] = $num;
+		$this->db_status['affected_rows'] = $aff;
+		$this->db_status['field_count'] = $fc;
 		$this->db_status['insert_id'] = self::$db->insert_id;
 		return $this;
 	}
@@ -183,7 +205,7 @@ class Base extends \_Locks {
 			foreach ($types as $v)
 				$this->param($v);
 		else
-			for ($i = 0, $c = count($val); $i < $c; $i++)
+			for ($i = 0, $c = count($values); $i < $c; $i++)
 				$this->param($types[$i], $values[$i]);
 		return $this;
 	}
@@ -202,14 +224,18 @@ class Base extends \_Locks {
 			if (strlen($types) != ($c = count($values)))
 				throw new Error('Number of types != number of values!');
 
-			if (!($this->stmt = self::$db->prepare($this->query)))
+			if (($this->stmt = self::$db->prepare($this->query)) === false)
 				throw new Error('Mishap while preparing query');
 
 			if ($c != $this->stmt->param_count)
 				throw new Error('Number query params != number of values');
 
+			$params = array();
+
 			for ($i = 0; $i < $c; $i++) {
 				switch ($types[$i]) {
+					case 'b': //blob - noop
+						break;
 					case 'i':
 						$values[$i] = (int) $values[$i];
 						break;
@@ -218,17 +244,22 @@ class Base extends \_Locks {
 						break;
 					case 'f':
 						$values[$i] = (float) $values[$i];
+						$types[$i] = 'd';
 						break;
 					case 'c':
 						$values[$i] = (string) $values[$i][0];
-					case 's':
 					default:
+						$types[$i] = 's';
+					case 's':
 						$values[$i] = self::$db->escape_string($values[$i]);
 						break;
 				}
-
-				$this->stmt->bind_param($types[$i], $values[$i]);
+				$params[] = &$values[$i];
 			}
+
+			array_unshift($params, $types);
+			if (!call_user_func_array(array($this->stmt, 'bind_param'), $params))
+				throw new Error('Could not bind query params');
 		}
 		return TRUE;
 	}
@@ -237,9 +268,11 @@ class Base extends \_Locks {
 	public function exec() {
 		if (!$this->query_result) {
 			if ($this->bindquery()) {
-				if (!($this->stmt->execute()))
+				if (!($this->query_result = $this->stmt->execute()))
 					throw new Error('Query execution unsuccessful');
-				$this->query_result = new Result($this->stmt);
+
+				if ($this->stmt->result_metadata()) //has result set
+					$this->query_result = new Result($this->stmt);
 			} else {
 				if (!$this->query)
 					throw new Error('Query not specified!');
@@ -260,12 +293,16 @@ class Base extends \_Locks {
 
 	///Fetch a single row from db
 	public function row() {
-		return $this->exec()->query_result->fetch_assoc();
+		if (!is_object($this->exec()->query_result))
+			return null;
+		return $this->query_result->fetch_assoc();
 	}
 
 	///Fetch a set of rows from db
 	public function rows() {
-		$this->exec();
+		if (!is_object($this->exec()->query_result))
+			return array();
+
 		$r = array();
 		if (method_exists('mysqli_result', 'fetch_all'))
 			$r = $this->query_result->fetch_all(MYSQLI_ASSOC);
@@ -290,7 +327,7 @@ class Base extends \_Locks {
 		if (!$type && $this instanceof Table) //FIXME
 			$type = $this->table;
 
-		return ($r = $this->row() ? new $type($r) : $r);
+		return (($r = $this->row()) ? new $type($r) : $r);
 	}
 
 	public function objs($type = NULL) {
@@ -305,11 +342,16 @@ class Base extends \_Locks {
 	}
 
 	public function num() {
-		return $this->exec()->query_result->fetch_row();
+		if (!is_object($this->exec()->query_result))
+			return null;
+
+		return $this->query_result->fetch_row();
 	}
 
 	public function nums() {
-		$this->exec();
+		if (!is_object($this->exec()->query_result))
+			return array();
+
 		$r = array();
 		if (method_exists($this->query_result, 'fetch_all'))
 			$r = $this->query_result->fetch_all(MYSQLI_NUM);
@@ -326,6 +368,11 @@ class Base extends \_Locks {
 		foreach ($q as $v)
 			$r[$v[0]] = $v[1];
 		return $r;
+	}
+
+	public function bool() {
+		$this->exec();
+		return !!($this->getAffectedRows() || $this->getNumberOfRows());
 	}
 
 }
@@ -535,6 +582,8 @@ class Table extends Base {
 		$this->data = $data;
 		if ($fields)
 			$this->fields[] = $fields;
+		elseif (!isset($data[0]))
+			$this->fields = array_keys($data);
 		return $this;
 	}
 
@@ -544,7 +593,7 @@ class Table extends Base {
 		return $this;
 	}
 
-	public function select($fields) {
+	public function select($fields = '*') {
 		$this->mode = self::MODE_SELECT;
 		$this->fields[] = $fields;
 		return $this;
@@ -627,6 +676,9 @@ class Table extends Base {
 				}
 				break;
 			}
+			default:
+				throw new Error('Table: mode not specified');
+				return;
 		}
 
 		$this->query = implode(' ', $parts);

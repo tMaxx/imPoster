@@ -129,14 +129,17 @@ class Form {
 	public function submitted() {
 		if (!$this->submitted) {
 			$field_keys = array_keys($this->fields);
+			$prefix = $this->name.'::';
 			foreach ($field_keys as &$v)
-				$v = $this->name.'::'.$v;
+				$v = $prefix.$v;
 			reset($field_keys);
 
 			if (CMS::varIsSet('POST', $field_keys)) {
 				reset($field_keys);
 
-				$this->values = CMS::vars('POST', $field_keys, NULL, TRUE);
+				$field_keys = CMS::vars('POST', $field_keys, NULL, TRUE);
+				foreach ($field_keys as $k => $v)
+					$this->values[str_replace($prefix, '', $k)] = $v;
 				$this->submitted = true;
 			}
 		}

@@ -201,7 +201,7 @@ class View extends \_Locks {
 
 	///Render footer
 	public static function footer() {
-		echo '<span id="exec-time">Exec time: ', round(((microtime(true) - NOW_MICRO)*1000.0), 3), 'ms</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&copy;&nbsp;2013';
+		echo '<span id="exec-time">Exec time: ', round(((microtime(true) - NOW_MICRO)*1000.0), 3), 'ms</span>';
 	}
 
 	/**

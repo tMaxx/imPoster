@@ -1,4 +1,5 @@
 <?php
+namespace CMS {
 /**
  * Sys - Static system helpers
  */
@@ -55,4 +56,13 @@ class Sys {
 			}
 		}
 	}
+
+	public static function randString($length, $charset='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789') {
+		$str = '';
+		$count = strlen($charset) - 1;
+		while ($length--)
+			$str .= $charset[mt_rand(0, $count)];
+		return $str;
+	}
+}
 }

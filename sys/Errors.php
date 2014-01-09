@@ -167,6 +167,7 @@ class Redirect extends ErrorHTTP {
 		if (!$target)
 			throw new ErrorCMS('No redirect specified');
 		CMS::addHeader('Location: '.$target);
+		CMS::flushHeaders();
 		die(); //die nicely
 	}
 }
