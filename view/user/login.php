@@ -30,7 +30,7 @@ if ($form->submitted()) {
 	elseif ($err === 0)
 		echo 'Nieprawidłowa para email-hasło';
 	elseif ($err)
-		throw new Redirect('/');
+		$this->redirect('/');
 }
 
 $form->r();

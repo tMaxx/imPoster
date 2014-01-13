@@ -25,7 +25,7 @@ class ViewGen {
 	 * @param $param CMS params override
 	 * @param $findindex look for index.php in $cursor?
 	 */
-	function __construct($cursor, array $next = array(), $parent = NULL, array $vars = array(), $findindex = TRUE) {
+	function __construct($cursor, array $next = array(), $parent = NULL, $findindex = TRUE) {
 		if (((static::$i--)) <= 0)
 			throw new Error('ViewGen: object count limit reached');
 		if (!is_bool($findindex))
@@ -34,11 +34,10 @@ class ViewGen {
 		//set this thing
 		$this->cursor = $cursor;
 		if (!$this->checkPath())
-			throw new Error404('Node not found: '.$cursor);
+			throw new \Error404('Node not found: '.$cursor);
 		$this->find_index = $findindex;
 		$this->next = $next;
 		$this->parent = $parent;
-		$this->vars = $vars;
 	}
 
 	/**
@@ -67,8 +66,8 @@ class ViewGen {
 	 * @param $path what to render
 	 * @param $vars what to pass
 	 */
-	function subnode($path, $vars = array()) {
-		return (new ViewGen($path, array(), $this, $vars))->node();
+	function subnode($path, array $vars = array()) {
+		return (new ViewGen($path, array(), $this))->node(NULL, $vars);
 	}
 
 	/**
@@ -83,12 +82,11 @@ class ViewGen {
 				return $this->subnode($path, $vars);
 
 			//if we don't know where to go...
-			if ($this->checkNext()) {
+			if ($this->checkNext())
 				$this->next = (array) explode('/', $path);
-				$this->vars = $vars;
-			}
 		} elseif ($path === '' && $this->checkNext())
 			return;
+		$this->vars = $vars;
 		unset($vars, $path);
 
 		$this->log($this->cursor);
@@ -117,32 +115,38 @@ class ViewGen {
 					return;
 			}
 
-			throw new Error404();
+			throw new \Error404();
 		} while(TRUE);
 	}
 
-	public function redirect($v) {
-		throw new Redirect($v);
-	}
-
-	///Return $this->vars
-	public function getVars() {
-		return $this->vars;
+	///Redirect through HTTP headers to a $path
+	public function redirect($path) {
+		throw new \Redirect($path);
 	}
 
 	///Scope sandbox
 	private function inc($file) {
+		foreach ($this->vars as $k => $v)
+			${$k} = $v;
+		$this->vars = array();
 		include ROOT.$file;
 	}
 
-	function guard_auth($guard, $defpath) {
-		// if (!)
+	///check if user has authentication of $auth
+	function guard_auth($auth) {
+		throw new \Error501();
+	}
+
+	///Allow viewing only by user
+	function guard_user() {
+		if (!Me::id())
+			throw new \Error403();
 	}
 
 	///Guard: node is available only as part of another view when doing FULL render
 	function guard_nonrequest() {
 		if ($this->parent === NULL && !AJAX)
-			throw new Error400('Direct node render disallowed');
+			throw new \Error400('Direct node render disallowed');
 	}
 }
 
@@ -154,7 +158,7 @@ class View extends \_Locks {
 	const TEMPLATE = '/appdata/index.php';
 	///Everything that wil be added in <head>here</head>
 	private static $HTMLhead = array();
-	///Generated body, only if MODE is set as full
+	///Generated body
 	private static $BODY = '';
 	///Title of page
 	private static $TITLE = 'Codename teo';
@@ -165,15 +169,17 @@ class View extends \_Locks {
 	 * Try to retrieve and render view, handle errors
 	 * @param $path path from CMS
 	 */
-	public static function go($path) {
+	public static function go() {
 		if (self::lock())
 			return;
 
+		$path = Vars::URI(array('r3v/path', 'r3v/nodes'));
+
 		if (AJAX) {
 			$next = array();
-			$path = $path[0];
+			$path = $path['r3v/path'];
 		} else {
-			$next = $path[1];
+			$next = $path['r3v/nodes'];
 			$path = '';
 		}
 
@@ -181,12 +187,12 @@ class View extends \_Locks {
 
 		try {
 			(new ViewGen($path, $next))->node();
-		} catch (ErrorHTTP $e) {
+		} catch (\ErrorHTTP $e) {
 			ob_end_clean();
 			ob_start();
 			echo '<div class="clear"></div><div class="errorhttp center">', $e->getFancyMessage();
 			if (DEBUG)
-				echo '<div style="text-align:left;margin:0 auto;width:70%;">', Error::prettyTrace($e->getTrace()), '</div>';
+				echo '<br><br><div style="font-size:0.9em;text-align:left;margin:0 auto;width:70%;">', Error::prettyTrace($e->getTrace()), '</div>';
 			echo '</div>';
 		}
 
@@ -201,7 +207,7 @@ class View extends \_Locks {
 
 	///Render footer
 	public static function footer() {
-		echo '<span id="exec-time">Exec time: ', round(((microtime(true) - NOW_MICRO)*1000.0), 3), 'ms</span>';
+		echo '<span id="exec-time">', round(((microtime(true)*10000) - NOW_MICRO)/10, 2), 'ms</span>';
 	}
 
 	/**
@@ -214,7 +220,7 @@ class View extends \_Locks {
 
 		foreach ($header as $v) {
 			if (!is_string($v))
-				throw new Exception('Parameter is not a string!');
+				throw new Error('Parameter is not a string!');
 			self::$HTMLhead[] = $v;
 		}
 	}
@@ -227,7 +233,7 @@ class View extends \_Locks {
 
 	///Return site title, based on whatever needed
 	public static function title() {
-		return self::$TITLE;
+		return self::$TITLE . ' '. implode(self::$TITLE_ADD);
 	}
 
 	/**

@@ -18,7 +18,7 @@ class Mod {
 	public static function jsonFromFile($path) {
 		if (($path = file_get_contents(ROOT.$path)) === false)
 			return false;
-		return json_decode($path,true);
+		return json_decode($path, true);
 	}
 
 	///Set system files definition
@@ -51,7 +51,11 @@ class Mod {
 	 * @return bool status
 	 */
 	public static function loadDef($name) {
-		if (!is_dir($name = '/mod/'.$name.'/'))
+		if (!$name)
+			return false;
+
+		$name = '/mod/'.CMS::sanitizePath($name).'/';
+		if (!is_dir(ROOT.($name)))
 			return false;
 		if (!($def = self::jsonFromFile($name.'def.json')))
 			return false;
@@ -77,10 +81,13 @@ class Mod {
 	 * @param $prefix optional prefix
 	 */
 	protected static function insert($arr, $data, $prefix = '') {
-		foreach ($data as $k => $v)
+		foreach ($data as $k => $v) {
+			//no jumping between directories
+			$v = str_replace('..', '', $v);
 			//don't overwrite; don't write if file is not present
-			if (!isset(self::${$arr}[$k]) && is_file($v = $prefix.$v))
+			if (!isset(self::${$arr}[$k]) && CMS::fileExists($v = $prefix.$v))
 				self::${$arr}[$k] = $v;
+		}
 	}
 
 	public static function registerClasses(array $in, $src) {
@@ -96,11 +103,22 @@ class Mod {
 	}
 
 	public static function checkServices() {
-		return false;
-		// if (service exists from cms uri var) {
-		//	load and launch service;
-		//	return true;
-		// }
+		$path = Vars::uri('r3v/path');
+		if (substr($path, 0, 5) != '/r3v/')
+			return false;
+		$dirs = CMS::scandir('/mod/');
+		foreach ($dirs as $d)
+			self::loadDef($d);
+
+		$path = substr($path, 5);
+		if (!isset(self::$service[$path]))
+			return false;
+
+		ob_start();
+		CMS::safeIncludeOnce(self::$service[$path]);
+		ob_end_flush();
+
+		return true;
 	}
 }
 Mod::go();

@@ -1,8 +1,14 @@
-<? $this->guard_nonrequest() ?>
+<? $this->guard_nonrequest();
+$items = array('/' => 'About');
+$cur = CMS\Vars::uri('r3v/path');
+if (!$cur)
+	$cur = '/';
+if (CMS\Me::id())
+	$items['/task/my'] = 'Moje zadania';
+?>
 <div id="menu">
-	<a href="/" id="cur">Strona główna</a>
-<? if (CMS\Me::id()): ?>
-	<a href="/task/my">Moje zadania</a>
-<? endif; ?>
+<? foreach ($items as $k => $v): ?>
+	<a href="<?= $k ?>"<?= $k == $cur ? ' id="cur"' : '' ?>><?= $v ?></a>
+<? endforeach; ?>
 </div>
 <div class="clear"></div>

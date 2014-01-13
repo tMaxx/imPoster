@@ -15,7 +15,7 @@ class Session extends \_Locks {
 
 	///Return client signature based on UA & IP
 	protected static function signature() {
-		$str = sha1(strtoupper($_SERVER['HTTP_USER_AGENT'])).':'.self::$ts.'P'.md5($_SERVER['REMOTE_ADDR']);
+		$str = sha1(strtoupper(Vars::server('HTTP_USER_AGENT'))).':'.self::$ts.'P'.md5(Vars::server('REMOTE_ADDR'));
 		return crypt(self::$ts.'merryKissMyAss'.$str, self::SALT_PRE.strrev($str));
 	}
 
@@ -39,17 +39,17 @@ class Session extends \_Locks {
 
 	///Recalculate signature, hash, update ts and cookie
 	public static function recalc() {
-		self::$ts = NOW;
+		self::$ts = NOW_MICRO;
 		self::$signature = self::signature();
 		self::$hash = self::hash();
-		setcookie('session', self::trhash(), NOW+self::SESSION_PERIOD, '/');
+		setcookie('session', self::trhash(), (NOW_MICRO/10000)+self::SESSION_PERIOD, '/');
 	}
 
 	///Is current session valid?
 	public static function valid() {
 		if ((!self::$hash) || (!self::$signature) ||
 			(self::$hash != self::hash()) ||
-			(NOW - self::$ts > self::SESSION_PERIOD) ||
+			(((NOW_MICRO - self::$ts)/10000) > self::SESSION_PERIOD) ||
 			(self::$signature != self::signature())) {
 			self::destroy();
 			return false;
@@ -61,9 +61,10 @@ class Session extends \_Locks {
 	public static function load() {
 		if (self::lock())
 			return self::valid();
-		if (!isset($_COOKIE['session']))
+		$cookie = Vars::cookie('session');
+		if (!$cookie)
 			return false;
-		$data = DB('Session')->select()->where('hash=?')->param('s', $_COOKIE['session'])->row();
+		$data = DB('Session')->select()->where('hash=?')->param('s', $cookie)->row();
 		if(!$data)
 			return false;
 		self::$ts = $data['ts'];
@@ -83,7 +84,6 @@ class Session extends \_Locks {
 
 	///Delete session from DB, 'unset' variables
 	public static function destroy() {
-		return;
 		if (self::$hash) {
 			DB('Session')->delete()->where(array('hash' => self::trhash()))->exec();
 			setcookie('session', self::trhash(), self::SESSION_PERIOD, '/');
@@ -125,7 +125,7 @@ class Session extends \_Locks {
 			'data' => json_encode(self::$data)
 		);
 		$hsh = array('hash' => self::trhash());
-		if (self::$ts == NOW)
+		if (self::$ts == NOW_MICRO)
 			$db->insert($arr+$hsh);
 		else
 			$db->update($arr)->where($hsh);

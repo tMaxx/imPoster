@@ -64,14 +64,14 @@ class Error extends ErrorException {
 				$eName = '<b>FATAL</b>: '.$eName;
 				$efile = $e_last['file'];
 				$eline = $e_last['line'];
-				$estr = $e_last['message'];
+				$estr = nl2br(pathdiff($e_last['message']));
 			}
 
 			$result[] = '<big><b>Error</b></big>: '.$eName.': '.$estr.' at '.pathdiff($efile).':'.$eline;
 		} elseif (isset($eno)) { //exception handler
 			$result[] = '<big><b>'.get_class($eno).'</b></big>: ';
 
-			$result[] = $eno->getMessage().' at '.pathdiff($eno->getFile()).':'.$eno->getLine();
+			$result[] = (method_exists($eno, 'getExtMessage') ? $eno->getExtMessage() : $eno->getMessage()).' at '.pathdiff($eno->getFile()).':'.$eno->getLine();
 
 			$trace = $eno->getTrace();
 		} else {
@@ -82,7 +82,7 @@ class Error extends ErrorException {
 
 		if ((isset($eno) && !($eno instanceof ErrorHTTP)) || isset($e_last)) {
 			http_response_code(500);
-			CMS::flushHeaders();
+			CMS::end();
 		}
 
 		if ($trace){
@@ -91,6 +91,7 @@ class Error extends ErrorException {
 		}
 
 		echo implode($result);
+		return true;
 	}
 }
 
@@ -155,6 +156,13 @@ class Error500 extends ErrorHTTP {
 	}
 }
 
+class Error501 extends ErrorHTTP {
+	public function __construct($m = NULL) {
+		if (!$m) $m = 'Not (Yet...) Implemented';
+		parent::__construct($m, 500);
+	}
+}
+
 class Error503 extends ErrorHTTP {
 	public function __construct($m = NULL) {
 		if (!$m) $m = 'Site Overlo[ar]d';
@@ -167,7 +175,6 @@ class Redirect extends ErrorHTTP {
 		if (!$target)
 			throw new ErrorCMS('No redirect specified');
 		CMS::addHeader('Location: '.$target);
-		CMS::flushHeaders();
 		die(); //die nicely
 	}
 }

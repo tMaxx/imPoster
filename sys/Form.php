@@ -8,11 +8,11 @@ class Form {
 	protected $fields;
 	protected $values;
 	protected $name;
-	protected $submitted = false;
+	protected $submitted;
 	protected $def;
 
 	/**
-	 * 
+	 * Construct form
 	 * @param $def
 	 * array(
 	 * 'name' => 'nazwwaaaa',
@@ -24,7 +24,7 @@ class Form {
 	 */
 	function __construct($def) {
 		if (!is_array($def))
-			throw new ErrorCMS("Type not yet supported");
+			throw new CMS\Error("Form definition must be an array");
 			
 		$this->name = $def['name'];
 		$this->fields = $def['fields'];
@@ -34,7 +34,19 @@ class Form {
 		if (!isset($this->def['attributes']))
 			$this->def['attributes'] = NULL;
 
-		$this->submitted();
+		$field_keys = array_keys($this->fields);
+		$prefix = $this->name.'::';
+		foreach ($field_keys as $k => $v)
+			$field_keys[$k] = $prefix.$v;
+
+		$field_keys = CMS\Vars::POST($field_keys, true);
+		if ($field_keys) {
+			$prefix = strlen($prefix);
+			foreach ($field_keys as $k => $v)
+				$this->values[substr($k, $prefix)] = $v;
+			$this->submitted = true;
+		} else
+			$this->submitted = false;
 	}
 
 	public function set(array $in) {
@@ -63,8 +75,20 @@ class Form {
 	protected static function attrib($in) {
 		$attr = '';
 		if (isset($in))
-			foreach ($in as $ak => $av)
-				$attr .= ' '.$ak. (isset($av) ? '="'.$av.'"' : '');
+			foreach ($in as $k => $v) {
+				$attr .= ' ';
+				if (is_numeric($k)) {
+					$attr .= (isset($v) && $v ? $v : '');
+				} else {
+					$attr .= $k;
+					if (isset($v) && $v) {
+						if (is_array($v))
+							$v = implode(' ', $v);
+					} else
+						continue;
+					$attr .= '="'.$v.'"';
+				}
+			}
 		return $attr;
 	}
 
@@ -88,10 +112,16 @@ class Form {
 				$attr = self::attrib($v['attributes']);
 
 			$name = $this->name.'::'.$k;
-			echo '<label>';
-			if (isset($v['label']) && $v['label'])
-				echo '<span class="form-label">'.$v['label'].'</span>';
+			echo '<span class="form-label">';
+			if (isset($v['label']) && $v['label']) {
+				if ($type == 'submit' && !$val)
+					$val = $v['label'];
+				else
+					echo '<span class="form-label-text">'.$v['label'].'</span>';
+			}
 			switch ($type) {
+				case 'string':
+					$type = 'text';
 				//basic types
 				case 'email':
 				case 'password':
@@ -112,37 +142,19 @@ class Form {
 					break;
 				}
 				case 'textarea': {
-					echo '<textarea name="', $name, '" ', $attr, '>';
-					echo nl2br($val);
-					echo '</textarea>';
+					echo '<textarea name="', $name, '" ', $attr, '>', nl2br($val), '</textarea>';
 					break;
 				}
 				default:
-					throw new ErrorCMS('Unsupported field type');
+					throw new CMS\Error('Unsupported field type');
 					break;
 			}
-			echo '</label>';
+			echo '</span>';
 		}
 		echo '</form>';
 	}
 
 	public function submitted() {
-		if (!$this->submitted) {
-			$field_keys = array_keys($this->fields);
-			$prefix = $this->name.'::';
-			foreach ($field_keys as &$v)
-				$v = $prefix.$v;
-			reset($field_keys);
-
-			if (CMS::varIsSet('POST', $field_keys)) {
-				reset($field_keys);
-
-				$field_keys = CMS::vars('POST', $field_keys, NULL, TRUE);
-				foreach ($field_keys as $k => $v)
-					$this->values[str_replace($prefix, '', $k)] = $v;
-				$this->submitted = true;
-			}
-		}
 		return $this->submitted;
 	}
 }

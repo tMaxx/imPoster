@@ -34,7 +34,7 @@ class Model implements CMS\DB\Saveable, CMS\DB\Instanceable {
 	}
 	
 	final public function getTableName() {
-		return static::$TABLE;
+		return static::$TABLE ? static::$TABLE : get_called_class();
 	}
 
 } 

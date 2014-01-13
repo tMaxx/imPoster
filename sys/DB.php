@@ -13,7 +13,25 @@ function DB($var) {
 }
 }
 namespace CMS\DB {
-class Error extends \Error {}
+class Error extends \Error {
+	protected $inst = NULL;
+
+	public function __construct($msg = NULL, $inst = NULL) {
+		if (is_object($inst))
+			$this->inst = $inst;
+		parent::__construct($msg);
+	}
+
+	public function getExtMessage() {
+		$r = parent::getMessage();
+		$s = Base::getErrors();
+		if (!$s && isset($this->stmt))
+			$s = $this->getStmtErrors();
+		if ($s)
+			$r .= ', details: "' . $s . '"';
+		return $r;
+	}
+}
 
 ///Make a class saveable via DB\Instance
 interface Saveable {
@@ -138,6 +156,23 @@ class Base extends \_Locks {
 		return $this;
 	}
 
+	public static function getErrors() {
+		$r = self::$db->error;// . '<br>';
+		if (!$r && self::$db->error_list)
+			$r = print_r(self::$db->error_list, true);
+		return $r;
+	}
+
+	public function getStmtErrors() {
+		if (isset($this->stmt)) {
+			$r = $this->stmt->error;
+			if (!$r && $this->stmt->error_list)
+				$r = print_r($this->stmt->error_list, true);
+			return $r;
+		}
+		return '';
+	}
+
 	// ==================================================================
 	//
 	// Query builders, handlers, internals
@@ -222,44 +257,54 @@ class Base extends \_Locks {
 			$types = $this->stmt_types;
 			$values = $this->stmt_param;
 			if (strlen($types) != ($c = count($values)))
-				throw new Error('Number of types != number of values!');
+				throw new Error('Number of types != number of values!', $this);
 
 			if (($this->stmt = self::$db->prepare($this->query)) === false)
-				throw new Error('Mishap while preparing query');
+				throw new Error('Mishap while preparing query', $this);
 
 			if ($c != $this->stmt->param_count)
-				throw new Error('Number query params != number of values');
+				throw new Error('Number query params != number of values', $this);
 
 			$params = array();
 
 			for ($i = 0; $i < $c; $i++) {
 				switch ($types[$i]) {
-					case 'b': //blob - noop
+					case 'b': //blob - noop || boolean
+						if (is_bool($values[$i]))
+							$types[$i] = 'i';
+						else {
+							throw new Error('Param type blob not yet supported');
+							//$types[$i] = 's';
+						}
 						break;
-					case 'i':
-						$values[$i] = (int) $values[$i];
+					case 'n': //null
+						$values[$i] = NULL;
+						$types[$i] = 'i';
 						break;
-					case 'd':
-						$values[$i] = (double) $values[$i];
-						break;
-					case 'f':
-						$values[$i] = (float) $values[$i];
-						$types[$i] = 'd';
-						break;
-					case 'c':
-						$values[$i] = (string) $values[$i][0];
 					default:
 						$types[$i] = 's';
-					case 's':
-						$values[$i] = self::$db->escape_string($values[$i]);
 						break;
 				}
+				if ($values[$i] !== NULL)
+					switch ($types[$i]) {
+						case 'i':
+							if (!is_numeric($values[$i]))
+								$values[$i] = (int) $values[$i];
+							break;
+						case 'd':
+							if (!is_numeric($values[$i]))
+								$values[$i] = (double) $values[$i];
+							break;
+						case 's':
+							$values[$i] = self::$db->escape_string($values[$i]);
+							break;
+					}
 				$params[] = &$values[$i];
 			}
 
 			array_unshift($params, $types);
 			if (!call_user_func_array(array($this->stmt, 'bind_param'), $params))
-				throw new Error('Could not bind query params');
+				throw new Error('Could not bind query params', $this);
 		}
 		return TRUE;
 	}
@@ -269,7 +314,7 @@ class Base extends \_Locks {
 		if (!$this->query_result) {
 			if ($this->bindquery()) {
 				if (!($this->query_result = $this->stmt->execute()))
-					throw new Error('Query execution unsuccessful');
+					throw new Error('Query execution unsuccessful', $this);
 
 				if ($this->stmt->result_metadata()) //has result set
 					$this->query_result = new Result($this->stmt);

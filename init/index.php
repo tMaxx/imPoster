@@ -64,7 +64,7 @@ function array_copy($source) {
 //get config
 include_once 'config.php';
 
-define('NOW_MICRO', microtime(true));
+define('NOW_MICRO', (int)(microtime(true) * 10000));
 define('NOW', time());
 define('HOST', $_SERVER['HTTP_HOST']);
 define('AJAX', (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'));

@@ -10,13 +10,6 @@ class CMS extends _Locks {
 	const CMS_VER = '0.4';
 	///HTTP headers to be sent through header('here');
 	private static $HTTPheaders = array();
-	///GET parameters
-	private static $GET = array();
-	///POST parameters
-	private static $POST = array();
-	///URI parameters & exploded path
-	private static $URI = array();
-	private static $SERVER = array();
 
 	///Perform any needed operations before executing any custom scripts
 	///Just to keep it clean
@@ -24,34 +17,13 @@ class CMS extends _Locks {
 		if (self::lock())
 			return;
 
-		//revamp request to something more readable
-		$ipath = (array) explode('/', $_GET['__req__']);
-		unset($_GET['__req__']);
-		$rpath = '/';
-		self::$URI[1] = array();
-		foreach ($ipath as $k => $v) {
-			if (empty($v) || !is_numeric($k))
-				continue;
-			$e = (array) explode(':', $v, 2);
-			$rpath .= $e[0];
-			self::$URI[1][] = $e[0];
-			if (isset($e[1]))
-				self::$URI[$e[0]] = $e[1];
-			$rpath .= '/';
-		}
-		self::$URI[0] = substr($rpath, 0, -1);
-
-		//set variables
-		self::$GET = $_GET;
-		self::$POST = $_POST;
-		self::$SERVER = $_SERVER;
-		unset($_GET, $_POST, $_REQUEST);//, $_SERVER);
-
 		self::$HTTPheaders = array(
 			'content-type' => 'Content-Type: text/html; charset=utf-8',
 			'X-Powered-By: monkeys on bikes',
 			'X-Backend: '.self::CMS_ID.' '.self::CMS_VER,
 		);
+
+		new CMS\Vars();
 
 		global $SQL_CONNECTION;
 
@@ -66,8 +38,10 @@ class CMS extends _Locks {
 	public static function end() {
 		if (self::lock())
 			return;
+
 		CMS\Session::save();
 		CMS\DB\Base::end();
+		self::flushHeaders();
 	}
 
 	///Run this house
@@ -78,7 +52,7 @@ class CMS extends _Locks {
 		self::init();
 
 		if (!CMS\Mod::checkServices())
-			CMS\View::go(self::$URI);
+			CMS\View::go();
 
 		self::end();
 	}
@@ -177,63 +151,21 @@ class CMS extends _Locks {
 	}
 
 	/**
-	 * Check if this type is allowed in here
-	 * @param $type
+	 * Return scandir() without dots
+	 * @param $dir ectory
+	 * @return array
 	 */
-	public static function guard_allowedVarTypes($type) {
-		if (!in_array($type, array('POST', 'GET', 'URI')))
-			throw new ErrorCMS('Invalid var $type');
+	public static function scandir($dir) {
+		return array_diff(scandir(ROOT.$dir), array('.', '..'));
 	}
 
 	/**
-	 * Get isset's return value
-	 * @param $type POST, GET, URI
-	 * @param $var name
-	 * @return bool
+	 * Return path with any dots, slashes and tildes removed
+	 * @param $path
+	 * @return string
 	 */
-	public static function varIsSet($type, $in) {
-		self::guard_allowedVarTypes($type);
-
-		if (is_array($in)) {
-			foreach ($in as $v)
-				if (isset(self::${$type}[$v])) {
-					return true;
-					break;
-				}
-			return false;
-		} else
-			return isset(self::${$type}[$in]);
-	}
-
-	/**
-	 * Get value(s) from self::${$type}
-	 * @param $type POST, GET, URI
-	 * @param $in string|array
-	 * string: single variable name
-	 * array: values (as values, not keys), to be filled
-	 * @param $unset bool unset variable(s) from $in
-	 * @return string|array
-	 * string: single value
-	 * array: returns filled array with variable names as keys
-	 */
-	public static function vars($type, $in, $ifnset = NULL, $unset = FALSE) {
-		self::guard_allowedVarTypes($type);
-
-		if (is_array($in)) {
-			$r = array();
-			foreach ($in as $v) {
-				$r[$v] = isset(self::${$type}[$v]) ? self::${$type}[$v] : $ifnset;
-				if ($unset)
-					unset(self::${$type}[$v]);
-			}
-		} elseif (is_string($in)) {
-			$r = isset(self::${$type}[$in]) ? self::${$type}[$in] : $ifnset;
-			if ($unset)
-				unset(self::${$type}[$in]);
-		} else
-			throw new Error('Unsupported $var type; only array or string');
-
-		return $r;
+	public static function sanitizePath($path) {
+		return str_replace(array('.', '/', '~'), '', $path);
 	}
 
 	/**
@@ -242,7 +174,7 @@ class CMS extends _Locks {
 	 * @return string full path
 	 */
 	public static function l($target) {
-		///TODO
+		throw new Error501();
 	}
 }
 }

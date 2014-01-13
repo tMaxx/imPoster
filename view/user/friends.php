@@ -1,3 +1,1 @@
-<?php
-if (!CMS\Me::id())
-	throw new Error403();
+<?php $this->guard_user();
