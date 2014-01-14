@@ -157,7 +157,7 @@ class Base extends \_Locks {
 	}
 
 	public static function getErrors() {
-		$r = self::$db->error;// . '<br>';
+		$r = self::$db->error;
 		if (!$r && self::$db->error_list)
 			$r = print_r(self::$db->error_list, true);
 		return $r;
@@ -272,10 +272,8 @@ class Base extends \_Locks {
 					case 'b': //blob - noop || boolean
 						if (is_bool($values[$i]))
 							$types[$i] = 'i';
-						else {
+						else
 							throw new Error('Param type blob not yet supported');
-							//$types[$i] = 's';
-						}
 						break;
 					case 'n': //null
 						$values[$i] = NULL;
@@ -316,8 +314,8 @@ class Base extends \_Locks {
 				if (!($this->query_result = $this->stmt->execute()))
 					throw new Error('Query execution unsuccessful', $this);
 
-				if ($this->stmt->result_metadata()) //has result set
-					$this->query_result = new Result($this->stmt);
+				if ($meta = $this->stmt->result_metadata()) //has result set
+					$this->query_result = new Result($this->stmt, $meta);
 			} else {
 				if (!$this->query)
 					throw new Error('Query not specified!');
@@ -437,9 +435,9 @@ class Result {
 	 * Constructor
 	 * @param $statement \mysqli_stmt
 	 */
-	function __construct(&$statement) {
+	function __construct(&$statement, &$meta) {
 		$this->stmt = &$statement;
-		if ($meta = $this->stmt->result_metadata()) {
+		if ($meta) {
 			$i = 0;
 			$fields = $meta->fetch_fields();
 			foreach ($fields as $v) {
@@ -455,6 +453,7 @@ class Result {
 		$this->free();
 	}
 
+	///Free the statement
 	public function free() {
 		if ($this->stmt) {
 			$this->stmt->close();
@@ -511,6 +510,7 @@ class Result {
  * Instance - model instance handler
  */
 class Instance extends Base {
+	///Instance
 	protected $inst;
 
 	function __construct(&$inst) {
@@ -521,6 +521,7 @@ class Instance extends Base {
 		$this->inst = NULL;
 	}
 
+	///Perform saving of instance - insert or update
 	public function save() {
 		if (!$inst->getId())
 			return $this->insert();
@@ -545,6 +546,7 @@ class Instance extends Base {
 		return $this;
 	}
 
+	///Insert instance into DB
 	public function insert() {
 		if (method_exists($this->inst, 'preInsert'))
 			$this->inst->preInsert();
@@ -566,6 +568,7 @@ class Instance extends Base {
 		return $this;
 	}
 
+	///Remove instance of object from DB by key names
 	public function remove() {
 		if (method_exists($this->inst, 'preRemove'))
 			$this->inst->preRemove();

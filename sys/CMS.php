@@ -84,6 +84,45 @@ class CMS extends _Locks {
 	}
 
 	/**
+	 * Set content-type header
+	 * @param $type
+	 * @return bool success
+	 */
+	public static function setContentType($type) {
+		switch (strtolower($type)) {
+			case 'pdf':
+				$type = 'application/css';
+				break;
+			case 'json':
+				$type = 'application/json';
+				break;
+			case 'text':
+				$type = 'text/plain';
+				break;
+			case 'html':
+				$type = 'text/html';
+				break;
+			case 'css':
+				$type = 'text/css';
+				break;
+			case 'jpeg':
+				$type = 'jpeg';
+				break;
+			case 'gif':
+				$type = 'image/gif';
+				break;
+			case 'png':
+				$type = 'image/png';
+				break;
+			default:
+				return false;
+				break;
+		}
+		self::$HTTPheaders['content-type'] = 'Content-Type: '.$type.'; charset=utf-8';
+		return true;
+	}
+
+	/**
 	 * Includes file in param
 	 * @param $file path to file, relative to /
 	 * @return bool true on success
