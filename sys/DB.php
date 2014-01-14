@@ -2,7 +2,7 @@
 namespace {
 ///DB factory
 function DB($var) {
-	if (is_object($var) && ($var instanceof Model))// || ($var instanceof CMS\DB\Saveable))
+	if (is_object($var) && ($var instanceof CMS\DB\Saveable))
 		return new CMS\DB\Instance($var);
 	elseif (is_string($var)) {
 		if (substr_count($var, ' ') == 0)
