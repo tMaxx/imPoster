@@ -18,10 +18,11 @@ class CMS extends _Locks {
 			return;
 
 		self::$HTTPheaders = array(
-			'content-type' => 'Content-Type: text/html; charset=utf-8',
 			'X-Powered-By: monkeys on bikes',
 			'X-Backend: '.self::CMS_ID.' '.self::CMS_VER,
 		);
+
+		self::setContentType('html');
 
 		new CMS\Vars();
 
