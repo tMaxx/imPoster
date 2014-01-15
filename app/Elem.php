@@ -236,4 +236,11 @@ class Elem extends Model {
 	public function getEditLink() {
 		return '/task:'.$this->getID().'/edit';
 	}
+
+	public function isList() {
+		if ($this->elem_id === NULL)
+			return false;
+		return !!(DB('Elem')->select('count(*) as count')->where(array('list_id' => $this->elem_id))->val());
+	}
+
 }
