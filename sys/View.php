@@ -173,6 +173,8 @@ class View extends \_Locks {
 		if (self::lock())
 			return;
 
+		CMS::setContentType('html');
+
 		$path = Vars::URI(array('r3v/path', 'r3v/nodes'));
 
 		if (AJAX) {

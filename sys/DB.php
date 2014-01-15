@@ -418,6 +418,20 @@ class Base extends \_Locks {
 		return !!($this->getAffectedRows() || $this->getNumberOfRows());
 	}
 
+	public function val() {
+		if (!is_object($this->exec()->query_result))
+			return null;
+		$v = $this->query_result->fetch_row();
+		return $v[0];
+	}
+
+	public function vals() {
+		$q = $this->nums();
+		$r = array();
+		foreach ($q as $v)
+			$r[] = $v[0];
+		return $r;
+	}
 }
 
 /**

@@ -1,8 +1,11 @@
 {
 	"r3v": {
 		"class": {
-			"scss": "repo/scss.inc.php",
-			"scss_server": "repo/scss.inc.php"
+			"scssc": "scss.inc.php",
+			"scss_server": "scss.inc.php"
+		},
+		"service": {
+			"scss": "parser.php"
 		}
 	}
 }

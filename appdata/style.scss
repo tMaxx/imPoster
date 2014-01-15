@@ -1,4 +1,4 @@
-/*! revCMS stylesheet | codename /neon/ | (c) 2013 Maxx
+/*! revCMS stylesheet | codename /neon/ | (c) 2014 Maxx
  * colors based on Tango palette
  * DO NOT MODIFY OR REDISTRIBUTE WITHOUT AUTHOR'S PERMISSION!
  */
@@ -14,11 +14,17 @@ $dv: 0.5em;
 $em: (1 / 16) + 0em; // unit conversion
 $fontsmono: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
 // Mixins
-@mixin mrg($dmul: 1, $lmul: 0) {
+@mixin mrg($dmul: 1.0, $lmul: 0.0) {
 	margin: 0 0 ($dmul * $dv) ($lmul * $dv);
 }
 
 // General setup, commons
+* {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;
+}
 body {
 	background: $bgcolor;
 	color: $fontcolor;
@@ -70,7 +76,7 @@ a {
 // Header
 #toppanel {
 	float: right;
-	font-size: 1em;
+	font-size: 0.98em;
 	height: 0;
 	color: $lgrey;
 	a {
@@ -95,7 +101,6 @@ a {
 
 // Footer
 #footer {
-	//margin: 2*$dv 2*$dv 0 2*$dv;
 	font-size: 0.9em;
 	color: $lgrey;
 	position: absolute;
@@ -106,10 +111,10 @@ a {
 // Generics, these hold some kind of content
 #menu, .frame, #info, #content {
 	// Border box - Should it be global (*{ ... }) ?
-	-webkit-box-sizing: border-box;
+/* 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	-ms-box-sizing: border-box;
-	box-sizing: border-box;
+	box-sizing: border-box; */
 
 	overflow: auto;
 	width: 100%;
@@ -125,14 +130,18 @@ a {
 			color: $blue;
 			font-size: 1.1em;
 		}
-		&:hover:before, &:hover:after {color: $lgrey;}
+		&:hover:before, &:hover:after {
+			color: $lgrey;
+		}
 	}
 
-	#cur { //current
+	#cur { //current item
 		color: $fontimp;
 		font-weight: bold;
 
-		&:before, &:after {color: $fontimp !important;} //override
+		&:before, &:after {
+			color: $fontimp !important;
+		}
 	}
 
 	.switch { //switch - open/close, close message, confirm sth
@@ -186,7 +195,8 @@ a {
 	background-color: mix($clr, $2clr, $fde);
 	border-left: 2px solid $clr;
 	border-right: 2px solid $clr;
-	&:before {
+
+ 	&:before {
 		color: lighten($clr,10%);
 		content: $fstr;
 	}
@@ -194,7 +204,7 @@ a {
 // Information, confirmation, warning, critical
 .frame.inf, .frame.ok, .frame.wrn, .frame.crt {
 	margin: $dv 0;
-	padding: $dv*4/5;
+	padding: ($dv*4)/5;
 	border-top-left-radius: 5px;
 	border-bottom-right-radius: 5px;
 	&:before {
@@ -212,12 +222,19 @@ a {
 		}
 	}
 }
-.frame.inf {@extend framecolor(#729fcf, 40%, '(i)');}
-.frame.ok  {@extend framecolor(#8ae234, 40%, '(+)');} //(+)
-.frame.wrn {@extend framecolor(#cc0000, 40%, '[!]');}
+
+.frame.inf {
+	@include framecolor(#729fcf, 40%, '(i)');
+}
+.frame.ok  {
+	@include framecolor(#8ae234, 40%, '(+)');
+}
+.frame.wrn {
+	@include framecolor(#cc0000, 40%, '[!]');
+}
 .frame.crt {
 	$darkclr: darken(#2e3436, 15%); // is: near black; was: black
-	@extend .framecolor(#cc0000, 0%, '!#!', $darkclr);
+	@include framecolor(#cc0000, 0%, '!#!', $darkclr);
 }
 
 // Information panel
@@ -231,7 +248,7 @@ a {
 		float: right;
 		font-size: 0.8em;
 		font-weight: normal;
-		@extend mrg(0.7,0.7);
+		@include mrg(0.7,0.7);
 	}
 }
 
@@ -243,7 +260,7 @@ a {
 
 	p, blockquote {
 		text-align: justify;
-		@extend mrg(2);
+		@include mrg(2);
 	}
 	p {
 		text-indent: 1em;
@@ -257,7 +274,9 @@ a {
 			display: inline;
 		}
 	}
-	code, blockquote {@extend mrg(2,1);}
+	code, blockquote {
+		@include mrg(2,1);
+	}
 	blockquote {
 		border-left: 3px double $fontimp;
 		display: inline-block;
@@ -277,13 +296,13 @@ a {
 	code {
 		text-align: left;
 		display: block;
-		@extend mrg(2,1);
+		@include mrg(2,1);
 	}
 	h1, h2, h3 {
 		color: $fontimp;
 		display: block;
 		font-weight: bold;
-		@extend mrg(1);
+		@include mrg(1);
 	}
 	h1 {font-size: 2em;}
 	h2 {font-size: 1.5em;}
@@ -291,7 +310,7 @@ a {
 
 	ol, ul {
 		display: block;
-		@extend mrg(2);
+		@include mrg(2);
 		padding: 0 0 0 2em;
 		li {
 			display: list-item;
@@ -302,23 +321,16 @@ a {
 	.imgdesc {}
 
 	form {
-		@extend mrg(1,3);
+		@include mrg(1,3);
 		line-height: 1.9em;
 	}
-	.button {
-		/*appearance: button;
-		-webkit-appearance: push-button;
-		-moz-appearance: button;
-		-ms-appearance: button;
-		-o-appearance: button;*/
-		cursor: default;
+	.button, a.button {
+		cursor: pointer;
 		text-decoration: none;
+		display: inline-block;
 	}
-	input, .button {
-		-webkit-box-sizing: border-box;
-		-moz-box-sizing: border-box;
-		-ms-box-sizing: border-box;
-		box-sizing: border-box;
+	a.button:hover {
+		border-bottom: none;
 	}
 
 	input.big, textarea.big {
@@ -360,5 +372,42 @@ a {
 	}
 	label {
 		margin-bottom: 0.5em;
+	}
+
+
+	// ==================================================================
+	//
+	// Application-specific styles
+	//
+	// ------------------------------------------------------------------
+	
+
+	div.elem-item.task {
+		margin-top: 2*$dv;
+		// &:
+		h4 {
+			font-size: 1.25em;
+			color: $fontimp;
+			margin-top: 0;
+			margin-bottom: 0.3em;
+		}
+		span.type {
+			font: $fontsmono;
+		}
+		.elem-options {
+			color: $lgrey;
+			font-size: 0.9em;
+		}
+		a {
+			&:before {
+				content: '[';
+			}
+			&:after {
+				content: ']';
+			}
+		}
+		p:last-of-type {
+			margin-bottom: 0;
+		}
 	}
 }

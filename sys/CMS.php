@@ -22,8 +22,6 @@ class CMS extends _Locks {
 			'X-Backend: '.self::CMS_ID.' '.self::CMS_VER,
 		);
 
-		self::setContentType('html');
-
 		new CMS\Vars();
 
 		global $SQL_CONNECTION;
