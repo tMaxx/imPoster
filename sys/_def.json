@@ -11,7 +11,9 @@
 			"Me": "Me.php",
 			"CMS\\User": "Me.php",
 			"CMS\\Sys": "Sys.php",
-			"CMS\\Vars": "Vars.php"
+			"CMS\\Vars": "Vars.php",
+			"CMS\\Mail": "Mail.php",
+			"CMS\\MailObject": "Mail.php"
 		}
 	}
 }
