@@ -1,5 +1,6 @@
-<?php ///revCMS /sys/View.php
+<?php ///r3vCMS /sys/View.php
 namespace CMS;
+
 ///Actually just a complete view generator
 class ViewGen {
 	///Mode

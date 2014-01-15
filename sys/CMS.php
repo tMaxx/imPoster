@@ -1,4 +1,4 @@
-<?php ///revCMS /sys/CMS.php
+<?php ///r3vCMS /sys/CMS.php
 namespace {
 /**
  * CMS - basic content management class

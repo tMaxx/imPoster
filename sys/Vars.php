@@ -1,5 +1,6 @@
-<?
+<?php ///r3vCMS /sys/Vars.php
 namespace CMS;
+
 /**
  * CMS\Vars
  * Environment variable handling class

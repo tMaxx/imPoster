@@ -1,4 +1,4 @@
-<?php
+<?php ///r3vCMS /sys/Me.php
 namespace CMS;
 
 /**
@@ -105,10 +105,12 @@ class Me {
 			return 0;
 	}
 
+	///Check if passwords are the same
 	public static function checkpw($pass, $hash) {
 		return !!(crypt($pass, $hash) == $hash);
 	}
 
+	///Return user id
 	public static function id() {
 		return self::$id;
 	}

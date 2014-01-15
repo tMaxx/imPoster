@@ -1,4 +1,4 @@
-<?php ///revCMS /sys/DB.php
+<?php ///r3vCMS /sys/DB.php
 namespace {
 ///DB factory
 function DB($var) {

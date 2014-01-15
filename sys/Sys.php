@@ -1,5 +1,6 @@
-<?php
-namespace CMS {
+<?php ///r3vCMS /sys/
+namespace CMS;
+
 /**
  * Sys - Static system helpers
  */
@@ -64,5 +65,4 @@ class Sys {
 			$str .= $charset[mt_rand(0, $count)];
 		return $str;
 	}
-}
 }

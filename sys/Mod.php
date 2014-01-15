@@ -1,7 +1,9 @@
-<?php
+<?php ///r3vCMS /sys/Mod.php
 namespace CMS;
+
 /**
  * Modloader class
+ * Handler for class loading, service handling
  */
 class Mod {
 	private static $sysclass = array();
