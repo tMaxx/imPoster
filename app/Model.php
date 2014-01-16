@@ -2,10 +2,11 @@
 
 class Model implements CMS\DB\Saveable, CMS\DB\Instanceable {
 	static $TABLE;
+	static $_ignore;
 
 	public function set(array $a) {
 		foreach ($a as $k => $v)
-			if(property_exists($this, $k))
+			if(property_exists($this, $k) && $k[0] != '_')
 				$this->{$k} = $v;
 		return $this;
 	}

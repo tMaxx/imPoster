@@ -27,7 +27,7 @@ if ($form->submitted()) {
 	if ($data['password'] == $data['repeat']) {
 		$reg = CMS\Me::register($data['email'], $data['login'], $data['password']);
 		if ($reg === false)
-			echo 'Taka nazwa użytkownika lub email został już użyty';
+			$form->error('Taka nazwa użytkownika lub email został już użyty', 'email');
 		elseif (!$reg)
 			echo 'Wystąpił błąd podczas rejestracji';
 		else {
@@ -35,7 +35,7 @@ if ($form->submitted()) {
 			$this->redirect('/');
 		}
 	} else
-		echo 'Hasła nie są równe';
+		$form->error('Hasła nie są równe', 'repeat');
 }
 
 $form->r();

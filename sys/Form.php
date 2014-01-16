@@ -93,15 +93,18 @@ class Form {
 		return $attr;
 	}
 
-	public function error($field = NULL) {
-		if ($field === NULL) {
-			
-		}
+	public function error($msg, $field = NULL) {
+		if ($field === NULL)
+			$this->def['error'] = $msg;
+		elseif (isset($this->fields[$field]))
+			$this->fields[$field]['error'] = $msg;
 	}
 
 	///Render form
 	public function r() {
 		echo '<form method="post"', self::attrib($this->def['attributes']), '>';
+		if (isset($this->def['error']))
+			echo '<span class="form-error">', $this->def['error'], '</span>';
 		foreach ($this->fields as $k => $v) {
 			if (($type = $v[0]) == 'raw') {
 				echo $v[1];
@@ -156,6 +159,8 @@ class Form {
 					throw new CMS\Error('Unsupported field type');
 					break;
 			}
+			if (isset($v['error']))
+				echo '<span class="form-error">', $v['error'], '</span>';
 			echo '</span>';
 		}
 		echo '</form>';
