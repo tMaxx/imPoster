@@ -93,6 +93,12 @@ class Form {
 		return $attr;
 	}
 
+	public function error($field = NULL) {
+		if ($field === NULL) {
+			
+		}
+	}
+
 	///Render form
 	public function r() {
 		echo '<form method="post"', self::attrib($this->def['attributes']), '>';
