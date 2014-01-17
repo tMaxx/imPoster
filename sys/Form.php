@@ -117,7 +117,7 @@ class Form {
 			elseif (isset($v['value']))
 				$val = $v['value'];
 
-			if (isset($this->def['placeholders']) && $v[0] != 'submit') {
+			if (!(isset($this->def['placeholders']) && !$this->def['placeholders'] ) && $v[0] != 'submit') {
 				$v['attributes']['placeholder'] = $v['label'];
 				$v['label'] = '';
 			}

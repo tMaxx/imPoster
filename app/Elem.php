@@ -237,10 +237,30 @@ class Elem extends Model {
 		return '/task:'.$this->getID().'/edit';
 	}
 
+	public function getViewLink() {
+		return '/task:'.$this->getID().'/view';
+	}
+
 	public function isList() {
 		if ($this->elem_id === NULL)
 			return false;
+		elseif ($this->elem_id == $this->list_id)
+			return true;
 		return !!(DB('Elem')->select('count(*) as count')->where(array('list_id' => $this->elem_id))->val());
 	}
 
+	public function getListElements() {
+		if (!$this->isList())
+			return array();
+		return DB('Elem')->select()->where(array('list_id' => $this->elem_id))->objs();
+	}
+
+	public static function auth(Elem $item) {
+		if (!$item)
+			throw new Error404('Wpis nie istnieje');
+		if ($item->getUserId() != CMS\Me::id() && !($row = UserFriends::getRow(CMS\Me::id(), $item->getUserId())))
+			throw new Error403('Brak dostępu do wpisu');
+		if (isset($row) && $row['status'] !== true)
+			throw new Error403('Brak dostępu do wpisu');
+	}
 }

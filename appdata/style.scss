@@ -10,7 +10,7 @@ $blue: #3465a4;
 $lblue: lighten($blue, 10%);
 $lgrey: #888a85 + #222;
 $llgrey: lighten($lgrey, 10%);
-$dv: 0.5em;
+$dv: 0.5em; //common divisor
 $em: (1 / 16) + 0em; // unit conversion
 $fontsmono: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
 // Mixins
@@ -251,9 +251,7 @@ a {
 	margin-top: $dv;
 	overflow: auto;
 	line-height: 1.75;
-	max-width: 100%;
-	min-width: 75%;
-	float: left;
+	// float: left;
 
 	p, blockquote {
 		text-align: justify;
@@ -330,21 +328,10 @@ a {
 		border-bottom: none;
 	}
 
-	input.big {
-		width: 35%;
-	}
-	textarea.big {
-		@extend input.big;
-		height: 7.5em;
-	}
-
-	input.wide {
-		width: 60%;
-	}
-
 	input[type=text], input[type=file], input[type=password], input[type=submit],
 		input[type=search], input[type=email], textarea, .button {
-		margin: 1px 0;
+		width: 50%;
+		margin: 2*$dv $dv 0 $dv;
 		padding: 1px 4px;
 		font: inherit;
 		color: $fontcolor;
@@ -357,6 +344,7 @@ a {
 		margin: 1px 3px 0 6px;
 	}
 	input[type=submit], .button {
+		width: auto;
 		$bstyle: 2px solid $lgrey;
 		border-left: $bstyle;
 		border-right: $bstyle;
@@ -367,15 +355,25 @@ a {
 		border-bottom-right-radius: 5px;
 		border-bottom-left-radius: 0;
 		padding: 0.1em 0.3em;
-		margin-top: 0.3em;
 	}
 	.form-label, label {
 		display: block;
 	}
 	label {
-		margin-bottom: 0.5em;
+		margin-bottom: $dv;
 	}
 
+	textarea.big {
+		height: 30*$dv;
+	}
+
+	input.big, .button.big {
+		font-size: 1.3em;
+	}
+
+	input.wide, textarea.wide, .buttton.big {
+		width: 75%;
+	}
 
 	// ==================================================================
 	//
@@ -392,6 +390,9 @@ a {
 			color: $fontimp;
 			margin-top: 0;
 			margin-bottom: 0.3em;
+			a {
+				border: none;
+			}
 		}
 		span.type {
 			font: $fontsmono;
@@ -400,23 +401,25 @@ a {
 			color: $lgrey;
 			font-size: 0.9em;
 		}
-		a {
-			&:before {
-				content: '[';
-			}
-			&:after {
-				content: ']';
-			}
-		}
+		// a {
+		// 	&:before {
+		// 		content: '[';
+		// 	}
+		// 	&:after {
+		// 		content: ']';
+		// 	}
+		// }
 		p:last-of-type {
 			margin-bottom: 0;
 		}
 	}
 }
 
-div.friends-panel {
-	float: right;
-	width: 20%;
+div.right-panel {
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 18%;
 
 	a.panel-item {
 		display: block;
@@ -424,7 +427,7 @@ div.friends-panel {
 	.panel-requests {
 		border-bottom: 1px solid white;
 		padding-bottom: $dv;
-		a {
+		a.option {
 			color: $fontimp;
 			font-style: italic;
 			font-size: 0.8em;

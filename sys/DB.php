@@ -197,7 +197,7 @@ class Base extends \_Locks {
 				} else
 					$r[] = $v;
 			} else {
-				if ($v === NULL && !$setter && !iglue)
+				if ($v === NULL && !$setter && !$iglue)
 					$k .= ' is null';
 				elseif ($parametrize) {
 					if ($iglue)
@@ -537,7 +537,7 @@ class Instance extends Base {
 
 	///Perform saving of instance - insert or update
 	public function save() {
-		if (!$inst->getId())
+		if (!$this->inst->getId())
 			return $this->insert();
 
 		if (method_exists($this->inst, 'preSave'))
@@ -619,6 +619,7 @@ class Table extends Base {
 	protected $fields = array();
 	protected $where = array();
 	protected $orderby = array();
+	protected $end = array();
 
 	function __construct($tab) {
 		$this->table = $tab;

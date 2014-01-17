@@ -67,8 +67,24 @@ class UserFriends extends Model {
 		return $this;
 	}
 
-
+	/**
+	 * Get friends entry from DB
+	 * @param $f user_id
+	 * @param $s user_id
+	 * @return NULL|array
+	 */
 	public static function getRow($f, $s) {
 		return DB('SELECT * FROM UserFriends WHERE (user_one=? AND user_two=?) OR (user_one=? AND user_two=?)')->params('iiii', array($f, $s, $s, $f))->row();
+	}
+
+	/**
+	 * Get information whether two users are confirmed friends
+	 * @param $u1 user_id
+	 * @param $u2 user_id
+	 * @return bool
+	 */
+	public static function areFriends($u1, $u2) {
+		$r = self::getRow($u1, $u2);
+		return !!(isset($r['status']) && $r['status']);
 	}
 }

@@ -1,34 +1,34 @@
 <?php $meid = $this->guard_user();
 $opt = CMS\Vars::get(array('accept', 'reject', 'send'));
 if ($opt) {
-	$fid = CMS\Vars::uri('user');
+	$fid = (int) CMS\Vars::uri('friends');
 	if (DB('User')->select()->where(array('user_id' => $fid))->bool()) {
 		$row = UserFriends::getRow($meid, $fid);
 
 		//send request
 		if (!$row && isset($opt['send']))
-			DB('UserFriends')->insert(array('user_one' => $meid, 'user_two' => $id))->exec();
+			DB('UserFriends')->insert(array('user_one' => $meid, 'user_two' => $fid))->exec();
 		//alter request, if it's been sent to us
 		elseif ($row) {
 			if (isset($opt['reject'])) {
 				if ($row['status'] === null && $row['user_two'] == $meid) //sent to us
-					$status = array('status' => true);
+					$status = array('status' => false);
 				elseif ($row['status'] === true)
 					$status = array('status' => false);
 			} elseif (isset($opt['accept']) && $row['status'] === null && $row['user_one'] == $fid && $row['user_two'] == $meid)
-				$status = array('status' => false);
+				$status = array('status' => true);
 
 			if (isset($status))
 				DB('UserFriends')->update($status)->where(array('user_one' => $row['user_one'], 'user_two' => $row['user_two']))->exec();
 		} else
 			throw new Error400('Invalid friend request');
-		$this->redirect('');
+		$this->redirect('/');
 	}
 }
 
 $this->guard_nonrequest();
 ?>
-<div class="friends-panel">
+<div class="right-panel">
 <?
 $result = DB('SELECT user_id, login FROM User WHERE user_id IN (
 	SELECT user_one FROM UserFriends WHERE user_two = ? AND status IS NULL
@@ -38,8 +38,8 @@ if ($result): ?>
 <h5>Zaproszenia do znajomych:</h5>
 <? foreach ($result as $v): ?>
 	<div class="panel-item"><a href="<?= User::getViewLink($v->get('login')) ?>"><?= $v->get('login') ?></a>
-		<a href="/user/friends:<?= $v->get('user_id') ?>?accept">Akceptuj</a>
-		<a href="/user/friends:<?= $v->get('user_id') ?>?reject">Odrzuć</a>
+		<a class="option" href="/user/friends:<?= $v->get('user_id') ?>?accept">Akceptuj</a>
+		<a class="option" href="/user/friends:<?= $v->get('user_id') ?>?reject">Odrzuć</a>
 	</div>
 <? endforeach; ?>
 </div>

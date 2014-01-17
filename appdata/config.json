@@ -1,3 +1,10 @@
 {//project-specific config. includes DB connection.
-
+	"r3v_config": {
+		"database": {
+			"host": "localhost",
+			"user": "teo-cms",
+			"pass": "booyah",
+			"dbname": "teo"
+		}
+	}
 }

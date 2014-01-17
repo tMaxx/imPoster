@@ -1,4 +1,6 @@
 <?php
+if (CMS\Me::id())
+	$this->redirect('/');
 
 $form = new Form(array(
 	'name' => 'formregister',
