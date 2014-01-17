@@ -66,4 +66,9 @@ class UserFriends extends Model {
 		$this->status = $status;
 		return $this;
 	}
+
+
+	public static function getRow($f, $s) {
+		return DB('SELECT * FROM UserFriends WHERE (user_one=? AND user_two=?) OR (user_one=? AND user_two=?)')->params('iiii', array($f, $s, $s, $f))->row();
+	}
 }

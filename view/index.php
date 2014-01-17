@@ -5,3 +5,4 @@
 <div class="content">
 	<? $this->node('welcome') ?>
 </div>
+<? if (CMS\Me::id()) $this->subnode('/user/friends') ?>

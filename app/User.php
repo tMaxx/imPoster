@@ -81,4 +81,8 @@ class User extends Model {
 		$this->is_active = !!$is_active;
 		return $this;
 	}
+
+	public static function getViewLink($login) {
+		return '/user:'.$login.'/view';
+	}
 }

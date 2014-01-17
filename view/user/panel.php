@@ -1,5 +1,4 @@
-<?
-$this->guard_nonrequest();
+<? $this->guard_nonrequest();
 $options = array('/user' => CMS\Me::id() ? 'Panel' : NULL);
 if (CMS\Me::id()) {
 	$options['/user/logout'] = '-Wyloguj-';

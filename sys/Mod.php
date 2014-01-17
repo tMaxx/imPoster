@@ -43,8 +43,8 @@ class Mod {
 			require_once ROOT.'/app/'.$name.'.php';
 		elseif (isset(self::$class[$name]))
 			require_once ROOT.self::$class[$name];
-		else
-			throw new Error('Class not found: '.$name);
+		/*else
+			throw new Error('Class not found: '.$name);*/
 	}
 
 	/**

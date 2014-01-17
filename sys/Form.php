@@ -117,6 +117,11 @@ class Form {
 			elseif (isset($v['value']))
 				$val = $v['value'];
 
+			if (isset($this->def['placeholders']) && $v[0] != 'submit') {
+				$v['attributes']['placeholder'] = $v['label'];
+				$v['label'] = '';
+			}
+
 			$attr = '';
 			if (isset($v['attributes']))
 				$attr = self::attrib($v['attributes']);
@@ -140,12 +145,12 @@ class Form {
 				case 'search':
 				case 'file';
 				case 'checkbox':
-					echo '<input type="', $type, '" name="', $name,'" ', $attr, ' value="', $val, '" />';
+					echo '<input type="', $type, '" name="', $name,'" ', $attr, ' value="', $val, '">';
 					break;
 				//select
 				case 'select': {
 					///TODO: check following option
-					echo '<select name="', $name, '" ', $attr, " >";
+					echo '<select name="', $name, '" ', $attr, '>';
 					foreach ($v['options'] as $ok => $ov)
 						echo '<option value="', $ok, '"', (($val === $ok) ? ' selected' : ''), '>', $ov, '</option>';
 					echo '</select>';
@@ -168,5 +173,13 @@ class Form {
 
 	public function submitted() {
 		return $this->submitted;
+	}
+
+	public function __get($name) {
+		switch ($name) {
+			case 'submitted':
+				return $this->submitted;
+				break;
+		}
 	}
 }

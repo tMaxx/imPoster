@@ -110,12 +110,6 @@ a {
 
 // Generics, these hold some kind of content
 #menu, .frame, #info, #content {
-	// Border box - Should it be global (*{ ... }) ?
-/* 	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	box-sizing: border-box; */
-
 	overflow: auto;
 	width: 100%;
 }
@@ -257,6 +251,9 @@ a {
 	margin-top: $dv;
 	overflow: auto;
 	line-height: 1.75;
+	max-width: 100%;
+	min-width: 75%;
+	float: left;
 
 	p, blockquote {
 		text-align: justify;
@@ -298,7 +295,7 @@ a {
 		display: block;
 		@include mrg(2,1);
 	}
-	h1, h2, h3 {
+	h1, h2, h3, h4, h5 {
 		color: $fontimp;
 		display: block;
 		font-weight: bold;
@@ -333,11 +330,16 @@ a {
 		border-bottom: none;
 	}
 
-	input.big, textarea.big {
+	input.big {
 		width: 35%;
 	}
 	textarea.big {
+		@extend input.big;
 		height: 7.5em;
+	}
+
+	input.wide {
+		width: 60%;
 	}
 
 	input[type=text], input[type=file], input[type=password], input[type=submit],
@@ -408,6 +410,24 @@ a {
 		}
 		p:last-of-type {
 			margin-bottom: 0;
+		}
+	}
+}
+
+div.friends-panel {
+	float: right;
+	width: 20%;
+
+	a.panel-item {
+		display: block;
+	}
+	.panel-requests {
+		border-bottom: 1px solid white;
+		padding-bottom: $dv;
+		a {
+			color: $fontimp;
+			font-style: italic;
+			font-size: 0.8em;
 		}
 	}
 }
