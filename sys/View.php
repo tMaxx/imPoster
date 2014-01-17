@@ -140,8 +140,9 @@ class ViewGen {
 
 	///Allow viewing only by user
 	function guard_user() {
-		if (!Me::id())
+		if (!($m = Me::id()))
 			throw new \Error403();
+		return $m;
 	}
 
 	///Guard: node is available only as part of another view when doing FULL render
