@@ -1,4 +1,4 @@
-<?php ///revCMS init/index.php
+<?php ///revCMS sys/_init.php
 ///Initialize CMS, add templates, run commands
 
 ///Implements locks for every class method
@@ -36,6 +36,9 @@ function pre_dump() {
 	}
 	echo '</pre>';
 }
+function vdump(){
+	call_user_func_array('pre_dump', func_get_args());
+}
 
 /**
  * Return trimmed dirs in string
@@ -61,14 +64,11 @@ function array_copy($source) {
 	return $arr;
 }
 
-//get config
-include_once 'config.php';
-
 define('NOW_MICRO', (int)(microtime(true) * 10000));
 define('NOW', time());
 define('HOST', $_SERVER['HTTP_HOST']);
 define('AJAX', (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'));
-define('CLI', FALSE); //FIXME
+define('CLI', FALSE); //FIXME //NOPE //MAYBE SOMEDAY
 
 require_once ROOT.'/sys/Errors.php';
 

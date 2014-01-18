@@ -8,4 +8,4 @@ if (!defined('DEBUG')) {
 }
 
 //redirect to init file, nothing else to do here
-require_once ROOT.'/init/index.php';
+require_once ROOT.'/sys/_init.php';

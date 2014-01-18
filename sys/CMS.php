@@ -22,14 +22,6 @@ class CMS extends _Locks {
 			'X-Backend: '.self::CMS_ID.' '.self::CMS_VER,
 		);
 
-		new CMS\Vars();
-
-		global $SQL_CONNECTION;
-
-		//config DB, clear config
-		CMS\DB\Base::go($SQL_CONNECTION);
-		unset($GLOBALS['SQL_CONNECTION']);
-
 		CMS\Me::autoload();
 	}
 

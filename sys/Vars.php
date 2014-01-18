@@ -66,7 +66,7 @@ class Vars extends \_Locks {
 		$in = $args[0];
 		if ($not_array = !is_array($in))
 			$in = (array) $in;
-		$unset = isset($args[1]) ? !!$args[0] : false;
+		$unset = isset($args[1]) ? !!$args[1] : false;
 
 		$r = array();
 		foreach ($in as $k => $v) {
@@ -88,3 +88,5 @@ class Vars extends \_Locks {
 		return $r;
 	}
 }
+
+new Vars();

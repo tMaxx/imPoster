@@ -67,9 +67,11 @@ class Base extends \_Locks {
 	 * Prepare the DB and connect to it
 	 * @param $con connection options
 	 */
-	public static function go($con) {
+	public static function go() {
 		if (self::lock())
 			return;
+
+		$con = \CMS\Conf::db();
 
 		if (!isset($con['host']) || !isset($con['user']) || !isset($con['pass']) || !isset($con['dbname']))
 			throw new Error('Not sufficient connection parameters!');
@@ -157,6 +159,8 @@ class Base extends \_Locks {
 	}
 
 	public static function getErrors() {
+		if (!isset(self::$db->error))
+			return '';
 		$r = self::$db->error;
 		if (!$r && self::$db->error_list)
 			$r = print_r(self::$db->error_list, true);
@@ -747,4 +751,7 @@ class Table extends Base {
 		$this->query = implode(' ', $parts);
 	}
 }
+
+\CMS\DB\Base::go();
+
 } //namespace CMS\DB
