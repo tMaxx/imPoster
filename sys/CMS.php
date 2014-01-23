@@ -97,7 +97,7 @@ class CMS extends _Locks {
 				$type = 'text/css';
 				break;
 			case 'jpeg':
-				$type = 'jpeg';
+				$type = 'image/jpeg';
 				break;
 			case 'gif':
 				$type = 'image/gif';

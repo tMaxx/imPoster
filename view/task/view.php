@@ -7,5 +7,6 @@ Elem::auth($item);
 
 $this->subnode('/task/item', array('item' => $item));
 
-foreach ($item->getListElements() as $o)
-	$this->subnode('/task/item', array('item' => $o));
+if ($list_items = $item->getListElements())
+	foreach ($list_items as $o)
+		$this->subnode('/task/item', array('item' => $o, 'view' => TRUE));

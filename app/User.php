@@ -27,7 +27,6 @@ class User extends Model {
 		return $this;
 	}
 
-
 	/**
 	 * Get login
 	 * @return string

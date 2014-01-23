@@ -157,7 +157,7 @@ class Form {
 					break;
 				}
 				case 'textarea': {
-					echo '<textarea name="', $name, '" ', $attr, '>', nl2br($val), '</textarea>';
+					echo '<textarea name="', $name, '" ', $attr, '>', $val, '</textarea>';
 					break;
 				}
 				default:

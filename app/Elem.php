@@ -219,13 +219,13 @@ class Elem extends Model {
 	}
 
 	public static function getAllTypes() {
-		return array(
+		return [
 			NULL => 'Brak',
 			self::TYPE_WALL => 'Publiczne, widoczne w profilu',
 			self::TYPE_PUBLIC => 'Publiczne',
 			self::TYPE_SHARED => 'Ja i osoby z zaproszeniem',
 			self::TYPE_PRIVATE => 'Tylko ja'
-		);
+		];
 	}
 
 	public static function getTypeStringById($v) {
@@ -241,6 +241,22 @@ class Elem extends Model {
 		return '/task:'.$this->getID().'/view';
 	}
 
+	public function getConvertToListLink() {
+		return '/task:'.$this->getID().'/list?convertTo';
+	}
+
+	public function getAddToListLink($list_id) {
+		return '/task:'.$this->getID().'/list:'.$list_id.'?addTo';
+	}
+
+	public function getAddNewItemToListLink() {
+		return '/task/edit?list='.$this->getID();
+	}
+
+	public function getRemoveFromListLink($list_id) {
+		return '/task:'.$this->getID().'/list:'.$list_id.'?removeFrom';
+	}
+
 	public function isList() {
 		if ($this->elem_id === NULL)
 			return false;
@@ -252,7 +268,7 @@ class Elem extends Model {
 	public function getListElements() {
 		if (!$this->isList())
 			return array();
-		return DB('Elem')->select()->where(array('list_id' => $this->elem_id))->objs();
+		return DB('Elem')->select()->where('list_id = ? AND elem_id != ?')->params('ii', [$this->elem_id, $this->elem_id])->objs();
 	}
 
 	public static function auth(Elem $item) {

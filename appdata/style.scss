@@ -65,7 +65,7 @@ a {
 		color: $lgrey;
 	}
 	.orange {
-		color: #f57900;
+		color: #FFB800;//#f57900;
 	}
 	small.orange {
 		font-size: 0.6em;
@@ -382,10 +382,10 @@ a {
 	// ------------------------------------------------------------------
 	
 
-	div.elem-item.task {
+	div.elem-item.task, div.elem-item.list {
 		margin-top: 2*$dv;
-		// &:
 		h4 {
+			float: left;
 			font-size: 1.25em;
 			color: $fontimp;
 			margin-top: 0;
@@ -398,20 +398,16 @@ a {
 			font: $fontsmono;
 		}
 		.elem-options {
+			float: right;
 			color: $lgrey;
 			font-size: 0.9em;
 		}
-		// a {
-		// 	&:before {
-		// 		content: '[';
-		// 	}
-		// 	&:after {
-		// 		content: ']';
-		// 	}
-		// }
 		p:last-of-type {
 			margin-bottom: 0;
 		}
+	}
+	div.elem-item.list {
+		font-size: 1.1em;
 	}
 }
 

@@ -53,7 +53,6 @@ CREATE TABLE IF NOT EXISTS `Elem` (
 	`type` INT,
 	`ts` INT(11) NOT NULL,
 	`is_read` TINYINT(1) NOT NULL DEFAULT 0,
-	-- `note` VARCHAR(140),
 
 	PRIMARY KEY (`elem_id`),
 	FOREIGN KEY (`list_id`) REFERENCES `Elem`(`elem_id`),
@@ -70,7 +69,10 @@ CREATE TABLE IF NOT EXISTS `Ping` (
 	`ts` INT(11) NOT NULL,
 	`note` VARCHAR(140),
 
-	PRIMARY KEY (`ping_id`)
+	PRIMARY KEY (`ping_id`),
+	FOREIGN KEY (`elem_id`) REFERENCES `Elem`(`elem_id`),
+	FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`),
+	FOREIGN KEY (`user_dest`) REFERENCES `User`(`user_id`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `UserFriends` (

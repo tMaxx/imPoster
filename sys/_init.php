@@ -64,12 +64,6 @@ function array_copy($source) {
 	return $arr;
 }
 
-define('NOW_MICRO', (int)(microtime(true) * 10000));
-define('NOW', time());
-define('HOST', $_SERVER['HTTP_HOST']);
-define('AJAX', (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'));
-define('CLI', FALSE); //FIXME //NOPE //MAYBE SOMEDAY
-
 require_once ROOT.'/sys/Errors.php';
 
 set_exception_handler('Error::h');

@@ -10,11 +10,28 @@ if (!isset($item)) {
 		throw new Error400();
 }
 
+$isList = $item->isList();
+
 if (!isset($truncate))
 	$truncate = false;
+if (!isset($view))
+	$view = false;
 ?>
-<div class="elem-item task">
-	<h4><span class="type id-<?= $item->getType() ?>"><?= $item->isList() ? '≡' : '&middot;' ?></span> <a href="<?= $item->getViewLink(); ?>"><?= $item->getName() ?></a></h4>
-	<div class="elem-options"><span class="type-small"><?= $item->getTypeString() ?></span> <a href="<?= $item->getEditLink() ?>">Edytuj</a></div>
-	<p><?= $truncate ? CMS\Sys::truncate($item->getContent()) : $item->getContent() ?></p>
+<div class="elem-item <?= $isList ? 'list' : 'task' ?>">
+	<h4>
+		<? if ($view): ?>
+			<?= $item->getName() ?>
+		<? else: ?>
+			<span class="type"><?= $isList ? '&equiv;' : '&bull;' ?></span>
+			<a href="<?= $item->getViewLink(); ?>"><?= $item->getName() ?></a>
+		<? endif ?>
+	</h4>
+	<div class="elem-options">
+		<a href="<?= $item->getEditLink() ?>">Edytuj</a>
+		<? if ($isList): ?>
+			<a href="<?= $item->getAddNewItemToListLink() ?>">Dodaj wpis</a>
+		<? endif ?>
+	</div>
+	<div class="clear"></div>
+	<p><?= $truncate ? CMS\Sys::truncate($item->getContent(), 140, TRUE) : preg_replace("/(\r\n){2}/", '</p><p>', $item->getContent()) ?></p>
 </div>

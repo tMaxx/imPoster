@@ -67,6 +67,24 @@ class UserFriends extends Model {
 		return $this;
 	}
 
+	public static function getFriendsPairs($meid = CMS\Me::id()) {
+		return DB('SELECT user_id, login FROM User WHERE user_id IN (
+			SELECT user_one AS id FROM UserFriends WHERE user_two = ? AND user_one != ? AND status = 1
+			UNION
+			SELECT user_two AS id FROM UserFriends WHERE user_one = ? AND user_two != ? AND status = 1
+		)')->params('iiii', array($meid, $meid, $meid, $meid))->pairs();
+	}
+
+	/**
+	 * Get friends entry from DB
+	 * @param $uid user_id
+	 * @return NULL|array
+	 */
+	public static function getRows($uid = CMS\Me::id(), $confirmed = true) {
+		$append = $confirmed ? ' AND status = 1' : '';
+		return DB('SELECT * FROM UserFriends WHERE (user_one=? OR user_two=?)'.$append)->params('ii', [$uid, $uid])->rows();
+	}
+
 	/**
 	 * Get friends entry from DB
 	 * @param $f user_id

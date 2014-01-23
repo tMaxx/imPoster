@@ -51,7 +51,7 @@ interface Instanceable {
  */
 class Base extends \_Locks {
 	//db object
-	private static $db = NULL;
+	protected static $db = NULL;
 	///compiled query
 	protected $query = '';
 	///statement
@@ -297,8 +297,8 @@ class Base extends \_Locks {
 							if (!is_numeric($values[$i]))
 								$values[$i] = (double) $values[$i];
 							break;
-						case 's':
-							$values[$i] = self::$db->escape_string($values[$i]);
+						case 's'://FIXME
+							$values[$i] = addcslashes($values[$i], '%_');
 							break;
 					}
 				$params[] = &$values[$i];
@@ -318,8 +318,11 @@ class Base extends \_Locks {
 				if (!($this->query_result = $this->stmt->execute()))
 					throw new Error('Query execution unsuccessful', $this);
 
-				if ($meta = $this->stmt->result_metadata()) //has result set
+				if ($meta = $this->stmt->result_metadata()) {//has result set
+					if (!$this->stmt->store_result())
+						throw new Error('Statement\'s store_result failed');
 					$this->query_result = new Result($this->stmt, $meta);
+				}
 			} else {
 				if (!$this->query)
 					throw new Error('Query not specified!');
@@ -539,10 +542,24 @@ class Instance extends Base {
 		$this->inst = NULL;
 	}
 
+	///Reset state
+	public function reset() {
+		if (is_object($this->stmt))
+			$this->stmt->close();
+		$this->stmt = NULL;
+		$this->stmt_types = '';
+		$this->stmt_param = array();
+		$this->query = '';
+		$this->query_result = NULL;
+
+	}
+
 	///Perform saving of instance - insert or update
 	public function save() {
 		if (!$this->inst->getId())
 			return $this->insert();
+
+		$this->reset();
 
 		if (method_exists($this->inst, 'preSave'))
 			$this->inst->preSave();
@@ -553,8 +570,8 @@ class Instance extends Base {
 			unset($vals[$v]);
 		$pk_val = (array) $this->inst->getId();
 
-		$pks_list = $this->implode(' AND ', array_combine($pk_key, $pk_val), true);
 		$vals_list = $this->implode(', ', $vals, true, true);
+		$pks_list = $this->implode(' AND ', array_combine($pk_key, $pk_val), true);
 
 		$this->query = 'UPDATE '.$this->inst->getTableName().' SET '.$vals_list.' WHERE '.$pks_list;
 		$this->exec();
@@ -569,6 +586,8 @@ class Instance extends Base {
 		if (method_exists($this->inst, 'preInsert'))
 			$this->inst->preInsert();
 
+		$this->reset();
+
 		$vals = $this->inst->toArray();
 		$pks = (array) $this->inst->getKeyName();
 		foreach ($pks as $v)
@@ -581,6 +600,8 @@ class Instance extends Base {
 		$this->query = 'INSERT INTO '.$this->inst->getTableName().'('.$val_args.') VALUES ('.$val_list.')';
 		$this->exec();
 
+		$this->inst->setID(static::$db->insert_id);
+
 		if (method_exists($this->inst, 'postInsert'))
 			$this->inst->postInsert();
 		return $this;
@@ -590,6 +611,8 @@ class Instance extends Base {
 	public function remove() {
 		if (method_exists($this->inst, 'preRemove'))
 			$this->inst->preRemove();
+
+		$this->reset();
 
 		$pks = (array) $this->inst->getKeyName();
 

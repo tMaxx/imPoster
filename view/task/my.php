@@ -1,7 +1,19 @@
 <?
-$items = DB('Elem')->select()->where(array('user_id' => $user_id))->orderby('ts DESC')->objs();
+$mode = CMS\Vars::uri('my');
+$items = DB('Elem')->select()->where(array('user_id' => $user_id));
+
+switch ($mode) {
+	case 'tasks':
+		$items->where('list_id IS NULL');
+		break;
+	case 'lists':
+		$items->where('elem_id = list_id AND list_id IS NOT NULL');
+		break;
+}
+
+$items = $items->orderby('ts DESC')->objs();
 ?>
-<a href="/task/edit" class="button big wide">Dodaj nowy</a>
+<a href="/task/edit" class="button big wide">Dodaj wpis</a> <a href="/task/edit?list" class="button big wide">Dodaj listę</a>
 <? if (!$items): ?>
 <h2>Brak wpisów do wyświetlenia</h2>
 <? endif;
