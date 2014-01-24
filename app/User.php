@@ -9,6 +9,18 @@ class User extends Model {
 	protected $is_active;
 	protected $is_removed;
 
+	public function toArray() {
+		return [
+			'user_id' => $this->user_id,
+			'email' => $this->email,
+			'login' => $this->login,
+			'password' => $this->password,
+			'ts_seen' => $this->ts_seen,
+			'is_active' => $this->is_active,
+			'is_removed' => $this->is_removed,
+		];
+	}
+
 	/**
 	 * Get email
 	 * @return string
@@ -43,6 +55,14 @@ class User extends Model {
 	public function setLogin($login) {
 		$this->login = $login;
 		return $this;
+	}
+
+	/**
+	 * Get password hash
+	 * @return string
+	 */
+	public function getPassword() {
+		return $this->password;
 	}
 
 	/**

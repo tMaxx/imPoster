@@ -92,7 +92,9 @@ class Me {
 		if (DB('SELECT user_id FROM User WHERE email=? OR login=?')->params('ss', array($email, $login))->row())
 			return false;
 
-		$hash = crypt($password, self::SALT_PRE.Sys::randString(22));
+		$hash = crypt($password, $salt = self::SALT_PRE.Sys::randString(22));
+		if ($hash[0] == '*')
+			throw new \Error500('Error generating hash, salt='.$salt);
 		$q = DB('User')->insert(array(
 			'password' => $hash,
 			'email' => $email,
