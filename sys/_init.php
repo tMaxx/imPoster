@@ -74,4 +74,7 @@ require_once ROOT.'/sys/Mod.php';
 
 spl_autoload_register('CMS\Mod::class_load');
 
+//helpers that should not obscure init script, but still are required
+require_once ROOT.'/sys/_helpers.php';
+
 CMS::go();

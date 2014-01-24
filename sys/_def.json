@@ -15,7 +15,8 @@
 			"CMS\\Vars": "Vars.php",
 			"CMS\\Mail": "Mail.php",
 			"CMS\\MailObject": "Mail.php",
-			"CMS\\Conf": "Conf.php"
+			"CMS\\Conf": "Conf.php",
+			"CMS\\Auth": "Auth.php"
 		}
 	}
 }

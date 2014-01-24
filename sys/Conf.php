@@ -1,4 +1,4 @@
-<?php
+<?php //r3vCMS /sys/Conf.php
 namespace CMS;
 
 /**

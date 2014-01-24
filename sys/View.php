@@ -145,6 +145,11 @@ class ViewGen {
 		return $m;
 	}
 
+	function guard_nonuser($redir = '/') {
+		if (Me::id())
+			$this->redirect($redir);
+	}
+
 	///Guard: node is available only as part of another view when doing FULL render
 	function guard_nonrequest() {
 		if ($this->parent === NULL && !AJAX)
@@ -163,7 +168,7 @@ class View extends \_Locks {
 	///Generated body
 	private static $BODY = '';
 	///Title of page
-	private static $TITLE = 'Codename teo';
+	private static $TITLE = '[teO]';
 	///Additional title parts
 	private static $TITLE_ADD = array();
 
@@ -248,7 +253,7 @@ class View extends \_Locks {
 	public static function titleAdd($str = NULL) {
 		if ($str === NULL) {
 			$r = self::$TITLE_ADD;
-			self::$TITLE_ADD = array();
+			//self::$TITLE_ADD = array();
 			return $r;
 		} else
 			self::$TITLE_ADD[] = $str;		

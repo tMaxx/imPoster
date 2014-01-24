@@ -116,4 +116,9 @@ class Me {
 	public static function id() {
 		return self::$id;
 	}
+
+	///Return authentication status (bool)
+	public static function auth($role) {
+		return Auth::auth($role);
+	}
 }
