@@ -31,7 +31,8 @@ class CMS extends _Locks {
 			return;
 
 		CMS\Session::save();
-		CMS\DB\Base::end();
+		if (class_exists('CMS\\DB\\Base', false))
+			CMS\DB\Base::end();
 		self::flushHeaders();
 	}
 

@@ -1,5 +1,5 @@
 <?php ///r3vCMS /sys/DB.php
-namespace CMS\DB
+namespace CMS\DB;
 
 class Error extends \Error {
 	protected $inst = NULL;
