@@ -393,6 +393,10 @@ a {
 			a {
 				border: none;
 			}
+			&.finished {
+				color: $fontcolor;
+				text-decoration: line-through;
+			}
 		}
 		span.type {
 			font: $fontsmono;
@@ -401,6 +405,9 @@ a {
 			float: right;
 			color: $lgrey;
 			font-size: 0.9em;
+			a {
+				margin-right: $dv;
+			}
 		}
 		p:last-of-type {
 			margin-bottom: 0;

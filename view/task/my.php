@@ -11,7 +11,7 @@ switch ($mode) {
 		break;
 }
 
-$items = $items->orderby('ts DESC')->objs();
+$items = $items->orderby('ts DESC, is_read DESC')->objs();
 ?>
 <a href="/task/edit" class="button big wide">Dodaj wpis</a> <a href="/task/edit?list" class="button big wide">Dodaj listę</a>
 <? if (!$items): ?>
