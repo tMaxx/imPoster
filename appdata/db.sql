@@ -21,8 +21,7 @@ CREATE TABLE IF NOT EXISTS `Session` (
 	`data` VARCHAR(256),
 
 	PRIMARY KEY (`session_id`),
-	FOREIGN KEY (`id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=MEMORY;
 CREATE INDEX iudex_Session_hash ON `Session`(`hash`);
 
 CREATE TABLE IF NOT EXISTS `UserACL` (

@@ -12,7 +12,7 @@ class Ping extends Model {
 	protected $note = NULL;
 
 	/**
-	 * Get User id
+	 * Get user id
 	 * @return int
 	 */
 	public function getUserId() {

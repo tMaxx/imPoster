@@ -16,7 +16,7 @@ class MailObject{
 
 	///Construct
 	public function __construct($email_to, $email_subject, $email_message, array $headers) {
-		$this->mail_to = $mail_to;
+		$this->email_to = $email_to;
 		$this->email_subject = $email_subject;
 		$this->email_message = $email_message;
 		$this->headers = $headers;
@@ -33,7 +33,7 @@ class MailObject{
 		$this->headers[] = 'X-Mailer: '.CMS::CMS_ID.' '.CMS::CMS_VER;
 		$headers = implode ("\r\n", $this->headers);
 		mail($this->email_to, $this->email_subject, $this->email_message, $headers);
-	}	
+	}
 }
 
 /**

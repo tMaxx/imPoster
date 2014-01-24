@@ -283,6 +283,10 @@ class Base extends \_Locks {
 						$values[$i] = NULL;
 						$types[$i] = 'i';
 						break;
+					case 'i':
+					case 'd':
+					case 's':
+						break;
 					default:
 						$types[$i] = 's';
 						break;
@@ -298,7 +302,8 @@ class Base extends \_Locks {
 								$values[$i] = (double) $values[$i];
 							break;
 						case 's'://FIXME
-							$values[$i] = addcslashes($values[$i], '%_');
+							$values[$i] = (string) $values[$i];
+							//$values[$i] = addcslashes($values[$i], '%_');
 							break;
 					}
 				$params[] = &$values[$i];

@@ -34,6 +34,14 @@ if ($form->submitted()) {
 			echo 'Wystąpił błąd podczas rejestracji';
 		else {
 			echo 'OK';
+			$body = "<!DOCTYPE html>
+			<html lang=\"pl\">
+			<head><meta charset=\"UTF-8\" /></head><body>
+			Witaj!<br>Zarejestrowałeś się w serwisie ".HOST." jako {$data['login']}.<br>
+			Możesz już się zalogować używając hasła podanego przy rejestracji.<br><br>~Zespół teo
+			</body></html>";
+			CMS\Mail::create($data['email'], '[theOrganizer] Rejestracja', $body);
+			CMS\Mail::flush();
 			$this->redirect('/');
 		}
 	} else

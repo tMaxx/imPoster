@@ -58,7 +58,7 @@ class Sys {
 		}
 	}
 
-	public static function randString($length, $charset='AĄBCĆDEĘFGHIJKLŁMNŃOÓPQRSŚTUVWXYZŻŹaąbcćdeęfghijklłmnńoópqrsśtuvwxyzżź0123456789') {
+	public static function randString($length, $charset='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789') {
 		$str = '';
 		$count = mb_strlen($charset) - 1;
 		while ($length--)
