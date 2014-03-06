@@ -8,7 +8,7 @@ class _Locks {
 	///Class function - is locked?
 	final protected static function is_locked($n = 2) {
 		$r = isset(self::$LOCKS[($c = get_called_class())][($f = debug_backtrace()[$n]['function'])]);
-		return array($r, $c, $f);
+		return [$r, $c, $f];
 	}
 
 	///Set the lock, but 1st time return false
@@ -50,7 +50,7 @@ function pathdiff($str) {
 }
 
 ///clone array, w. dereferencing
-function array_copy($source) {
+function array_copy(array $source) {
 	$arr = array();
 
 	foreach ($source as $k => $el)
@@ -64,17 +64,40 @@ function array_copy($source) {
 	return $arr;
 }
 
+///pop last el. of array as [key => value]
+function array_popk(array &$arr) {
+	if (!$arr)
+		return [];
+	end($arr);
+	$k = key($arr);
+	$v = array_pop($arr);
+	return [$k => $v];
+}
+
+function ms_from_start() {
+	return round(((microtime(true)*10000) - NOW_MICRO)/10, 2);
+}
+
 require_once ROOT.'/sys/Errors.php';
 
-set_exception_handler('Error::h');
-set_error_handler('Error::h', E_ALL);
-register_shutdown_function('Error::h');
+if (!CLI) {
+	set_exception_handler('Error::h');
+	set_error_handler('Error::h', E_ALL);
+}
 
 require_once ROOT.'/sys/Mod.php';
 
-spl_autoload_register('CMS\Mod::class_load');
+spl_autoload_register('r3v\Mod::load');
+register_shutdown_function('r3v\Mod::unloadAll', 'shutdown');
+\CMS\Mod::loadDef('/sys/_def.json');
 
 //helpers that should not obscure init script, but still are required
-require_once ROOT.'/sys/_helpers.php';
+// require_once ROOT.'/sys/_helpers.php';
+//now autoloaded through autoload-files in _def
 
-CMS::go();
+
+if (!CLI)
+	\r3v\HTTP::addHeaders([
+		'X-Powered-By: monkeys on bikes',
+		'X-Backend: '.r3v_ID,
+	]);

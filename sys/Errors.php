@@ -40,8 +40,7 @@ class Error extends ErrorException {
 	public static function h($eno = NULL, $estr = NULL, $efile = NULL, $eline = NULL, $econtext = NULL) {
 		static $constants;
 		if (!isset($constants)) {
-			$constants = get_defined_constants(1);
-			$constants = $constants['Core'];
+			$constants = get_defined_constants(1)['Core'];
 		}
 
 		$trace = debug_backtrace();
@@ -179,6 +178,6 @@ class Redirect extends ErrorHTTP {
 	}
 }
 }
-namespace CMS {
+namespace r3v {
 class Error extends \Error {}
 }

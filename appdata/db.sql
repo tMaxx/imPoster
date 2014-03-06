@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS `Elem` (
 	`content` TEXT NOT NULL,
 	`type` INT,
 	`ts` INT(11) NOT NULL,
+	`is_draft` TINYINT(1) NOT NULL DEFAULT 0,
 	`is_read` TINYINT(1) NOT NULL DEFAULT 0,
 
 	PRIMARY KEY (`elem_id`),

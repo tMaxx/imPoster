@@ -1,16 +1,16 @@
 <?php //r3vCMS /sys/Conf.php
-namespace CMS;
+namespace r3v;
 
 /**
  * Conf
  * Project configuration handler class
  */
-class Conf /*extends \_Locks*/ {
-	private static $conf = array();
-	private static $db = array();
+class Conf {
+	private static $conf = [];
+	private static $db = [];
 
 	public static function load() {
-		$json = Mod::jsonFromFile('/appdata/config.json');
+		$json = Common::jsonFromFile('/appdata/config.json');
 
 		if (!isset($json['r3v_config']))
 			return;
@@ -36,7 +36,7 @@ class Conf /*extends \_Locks*/ {
 
 		$data = self::$db;
 
-		self::$db = array();
+		self::$db = [];
 		return $data;
 	}
 }

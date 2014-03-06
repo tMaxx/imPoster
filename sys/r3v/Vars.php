@@ -1,5 +1,5 @@
 <?php ///r3vCMS /sys/Vars.php
-namespace CMS;
+namespace r3v;
 
 /**
  * CMS\Vars
@@ -51,12 +51,12 @@ class Vars extends \_Locks {
 	 *       value of if_not_set will be appended to result
 	 *    array("var_name")
 	 *       nothing will be appended to result
-	 * @throws \CMS\Error
+	 * @throws \r3v\Error
 	 * @return array|input
 	 */
 	public static function __callStatic($name, $args) {
 		$name = strtolower($name);
-		if (!property_exists('\\CMS\\Vars', $name))
+		if (!property_exists('\\r3v\\Vars', $name))
 			throw new Error('Property '. $name . ' does not exist');
 
 		if (!$args)

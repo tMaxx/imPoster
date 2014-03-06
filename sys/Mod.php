@@ -1,107 +1,149 @@
 <?php ///r3vCMS /sys/Mod.php
-namespace CMS;
+namespace r3v;
 
 /**
  * Modloader class
  * Handler for class loading, service handling
  */
 class Mod {
-	private static $sysclass = array();
-	private static $class = array();
+	protected static $class = [];
 
-	private static $service = array();
-	private static $view = array();
+	protected static $service = [];
+	protected static $view = [];
 
-	/**
-	 * Returns an array retrieved from json file from path
-	 * @param $path relative to /
-	 * @return false|array
-	 */
-	public static function jsonFromFile($path) {
-		if (($path = file_get_contents(ROOT.$path)) === false)
-			return false;
-		return json_decode($path, true);
-	}
-
-	///Set system files definition
-	public static function go() {
-		$sys = self::jsonFromFile('/sys/_def.json');
-		if (!$sys || !isset($sys['r3v']['class']))
-			throw new Error('System classes definition not found');
-
-		self::$sysclass = $sys['r3v']['class'];
-	}
+	protected static $loaded = [];
+	protected static $mods = [];
 
 	/**
-	 * Class freeloader
-	 * @param $name of class
+	 * Load definition
+	 * @param $path of def
+	 * @param $returnDef instead of bool
+	 * @return bool success|array
 	 */
-	public static function class_load($name) {
-		if (isset(self::$sysclass[$name]))
-			require_once ROOT.'/sys/'.self::$sysclass[$name];
-		elseif (file_exists(ROOT.'/app/'.$name.'.php'))
-			require_once ROOT.'/app/'.$name.'.php';
-		elseif (isset(self::$class[$name]))
-			require_once ROOT.self::$class[$name];
-		/*else
-			throw new Error('Class not found: '.$name);*/
-	}
-
-	/**
-	 * Load definition of a mod
-	 * @param $name of mod
-	 * @return bool status
-	 */
-	public static function loadDef($name) {
-		if (!$name)
+	public static function loadDef($path, $returnDef = false) {
+		if (!$path)
 			return false;
 
-		$name = '/mod/'.CMS::sanitizePath($name).'/';
-		if (!is_dir(ROOT.($name)))
+		$path = str_replace(['..', '~'], '', $path);
+
+		if (!is_file(ROOT.$path))
 			return false;
-		if (!($def = self::jsonFromFile($name.'def.json')))
+		if (($def = file_get_contents(ROOT.$path)) === false)
+			return false;
+		if (!($def = json_decode($def, true)))
 			return false;
 		if (!isset($def['r3v']))
 			return false;
 
 		$def = $def['r3v'];
+		$path = dirname($path) . (isset($def['basepath']) ? $def['basepath'] : '') . '/';
+		unset($def['basepath']);
+		$insert =
+			function($arr, $data, $prefix) {
+				foreach ($data as $name => $def) {
+					if (isset(static::${$arr}[$name]) || !$def)
+						continue;
 
-		if (isset($def['class']))
-			self::registerClasses($def['class'], $name);
-		if (isset($def['service']))
-			self::registerServices($def['service'], $name);
+					if (is_string($def))
+						$def = ['file' => $def];
+					elseif (!is_array($def))
+						throw new Error("Invalid insert for $arr $name: !('' || [])");
+
+					if (isset($def['file'])) {
+						if (!file_exists(ROOT.$prefix.$def['file']))
+							throw new Error("File $prefix$def[file] does not exist for $arr $def");
+						$def['file'] = $prefix.$def['file'];
+					}
+
+					static::${$arr}[$name] = $def;
+				}
+			};
+
 		if (isset($def['view']))
-			self::registerViews($def['view'], $name);
+			$insert('view', $def['view'], $path);
 
-		return true;
+		if (isset($def['service']))
+			$insert('service', $def['service'], $path);
+
+		if ($def['autoload']) {
+			$vals = $def['autoload']; //fixme
+			if (isset($vals['files'])) {
+				if (is_string($vals['files']))
+					$vals['files'] = (array) $vals['files'];
+
+				foreach ($vals['files'] as $run)
+					if (is_file(ROOT.$path.$run))
+						include_once ROOT.$path.$run;
+					else
+						throw new Error('Required autoload run not found for def $path: $path$run');
+			}
+			if (isset($vals['psr-0']))
+				foreach ($vals['psr-0'] as $v)
+					self::$class[] = ROOT.$path.$v;
+		}
+
+		if (isset($def['autorun'])) {
+			foreach ($def['autorun'] as $r)
+				if (is_string($r))
+					call_user_func($r);
+				elseif (is_array($r)) {
+					$fun = array_shift($r);
+					call_user_func_array($fun, $r);
+				}
+		}
+
+		return $returnDef ? $def : TRUE;
 	}
 
 	/**
-	 * Insert data into self::{arr}, w. value prefix
-	 * @param $arr name of array
-	 * @param $data what to insert
-	 * @param $prefix optional prefix
+	 * Load mod by name
+	 * @param $modname
+	 * @return bool success
 	 */
-	protected static function insert($arr, $data, $prefix = '') {
-		foreach ($data as $k => $v) {
-			//no jumping between directories
-			$v = str_replace('..', '', $v);
-			//don't overwrite; don't write if file is not present
-			if (!isset(self::${$arr}[$k]) && CMS::fileExists($v = $prefix.$v))
-				self::${$arr}[$k] = $v;
-		}
+	public static function loadMod($modname) {
+		if ($r = self::loadDef('/mod/'.$modname.'/def.json', true))
+			self::$mods[$modname] = $r;
+		return !!$r;
 	}
 
-	public static function registerClasses(array $in, $src) {
-		self::insert('class', $in, $src);
+	/**
+	 * Class/module freeloader
+	 * @param $name of class
+	 */
+	public static function load($name, $unload = false) {
+		$ns = str_replace('\\', '/', $name);
+		foreach (self::$class as $path)
+			if (file_exists(ROOT.$path.$ns)) {
+				require_once ROOT.$path.$ns;
+				self::$loaded[$name] = $unload ? $unload : true;
+				return true;
+			}
+
+		return false;
 	}
 
-	public static function registerServices(array $in, $src) {
-		self::insert('service', $in, $src);
+	public static function addLoadPath($path) {
+		self::$class[] = ROOT.$path;
 	}
 
-	public static function registerViews(array $in, $src) {
-		self::insert('view', $in, $src);
+	public static function unload($name) {
+		if (!isset(self::$class[$name]))
+			throw new Error("Cannot unload unknown class: $name");
+
+		$name = self::$class[$name];
+
+		if (isset($name['unload']))
+			self::runFuncArray([$name['unload']]);
+
+		if (isset($name['parent']) && !isset(self::$loaded[$name['parent']]))
+			self::unload($name['parent']);
+	}
+
+	public static function unloadAll($x = NULL) {
+		while ($i = array_popk(self::$loaded))
+			self::unload(key($i));
+		if ($x && CLI)
+			echo "ThxBye :3\n";
 	}
 
 	public static function checkServices() {
@@ -122,5 +164,29 @@ class Mod {
 
 		return true;
 	}
+
+	public static function entrypoint() {
+		if (CLI) {
+			echo "We come in interactive mode :D\n", r3v_ID, ' // loaded in ', ms_from_start(), "ms";
+			if (!class_exists('\\Boris\\Boris')) {
+				self::loadMod('boris');
+				echo " // Boris v".\Boris\Boris::VERSION."\n";
+				$boris = new \Boris\Boris('r3v> ');
+				$boris->start();
+			} else
+				echo "\n";
+			return;
+		}
+		if (self::lock())
+			throw Error505();
+
+		ob_start();
+
+		if (!self::checkServices())
+			View::go();
+
+		ob_end_flush();
+
+		self::unloadAll();
+	}
 }
-Mod::go();

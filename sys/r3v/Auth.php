@@ -1,5 +1,5 @@
 <?php //r3vCMS /sys/Auth.php
-namespace CMS;
+namespace r3v;
 
 /**
  * Auth
@@ -66,7 +66,7 @@ class Auth extends \_Locks {
 	public static function auth($role) {
 		if ($role == 'anonymous')
 			return true;
-		$id = Me::id(); 
+		$id = Me::id();
 		if (!$id)
 			return false;
 		elseif ($role == 'user')

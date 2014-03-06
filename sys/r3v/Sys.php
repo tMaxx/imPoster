@@ -1,4 +1,4 @@
-<?php ///r3vCMS /sys/
+<?php ///r3vCMS /sys/Sys.php
 namespace CMS;
 
 /**
@@ -34,7 +34,7 @@ class Sys {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public static function cast($types, $vals) {
 		for ($i = 0, $c = count($vals); $i < $c; $i++) {
@@ -58,7 +58,7 @@ class Sys {
 		}
 	}
 
-	public static function randString($length, $charset='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789') {
+	public static function randString($length, $charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789') {
 		$str = '';
 		$count = mb_strlen($charset) - 1;
 		while ($length--)
@@ -133,4 +133,27 @@ class Sys {
 		}
 		return $html;
 	}
+
+	/**
+	 * Return scandir() without dots
+	 * @param $dir ectory
+	 * @param $addit ional elements to exclude
+	 * @return array
+	 */
+	public static function scandir($dir, $addit=[]) {
+		return array_diff(scandir(ROOT.$dir), array('.', '..')+$addit);
+	}
+
+	/**
+	 * Return path with any dots, slashes and tildes removed
+	 * @param $path
+	 * @return string
+	 */
+	public static function sanitizePath($path) {
+		return str_replace(array('.', '/', '~'), '', $path);
+	}
 }
+
+//FIXME
+class Commons extends Sys {}
+class Common extends Sys {}

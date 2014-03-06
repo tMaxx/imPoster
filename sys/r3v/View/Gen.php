@@ -1,8 +1,9 @@
-<?php ///r3vCMS /sys/View.php
-namespace CMS;
+<?php ///r3vCMS /sys/r3v/View.php
+namespace r3v\View;
+use \r3v\File;
 
 ///Actually just a complete view generator
-class ViewGen {
+class Gen {
 	///Mode
 	protected $find_index = TRUE;
 	///Iterator - num of objects made
@@ -22,15 +23,15 @@ class ViewGen {
 	 * Construct
 	 * @param $cursor current node
 	 * @param $next nodes stack
-	 * @param $parent NULL|ViewGen
+	 * @param $parent NULL|View\Gen
 	 * @param $param CMS params override
 	 * @param $findindex look for index.php in $cursor?
 	 */
 	function __construct($cursor, array $next = array(), $parent = NULL, $findindex = TRUE) {
 		if (((static::$i--)) <= 0)
-			throw new Error('ViewGen: object count limit reached');
+			throw new Error('View\\Gen: object count limit reached');
 		if (!is_bool($findindex))
-			throw new Error('ViewGen: $findindex is not bool');
+			throw new Error('View\\Gen: $findindex is not bool');
 
 		//set this thing
 		$this->cursor = $cursor;
@@ -54,7 +55,7 @@ class ViewGen {
 
 	///Is $this->cursor valid?
 	protected function checkPath() {
-		return CMS::dirExists($c = '/view/'.$this->cursor) || CMS::fileExists($c.'.php');
+		return File::dirExists($c = '/view/'.$this->cursor) || File::fileExists($c.'.php');
 	}
 
 	///Is $this->next empty?
@@ -68,7 +69,7 @@ class ViewGen {
 	 * @param $vars what to pass
 	 */
 	function subnode($path, array $vars = array()) {
-		return (new ViewGen($path, array(), $this))->node(NULL, $vars);
+		return (new View\Gen($path, array(), $this))->node(NULL, $vars);
 	}
 
 	/**
@@ -95,7 +96,7 @@ class ViewGen {
 		do {
 			//check current dir, then proceed
 			if (CMS::dirExists($dir = '/view'.$this->cursor)) {
-				if($this->find_index && CMS::fileExists($file = $dir.'/index.php')) {
+				if($this->find_index && File::fileExists($file = $dir.'/index.php')) {
 					//index.php
 					$this->log('index.php', TRUE);
 					$this->inc($file);
@@ -108,7 +109,7 @@ class ViewGen {
 					continue;
 				} else
 					return;
-			} elseif (CMS::fileExists($file = $dir.'.php')) {
+			} elseif (File::fileExists($file = $dir.'.php')) {
 				//cursor is a file
 				$this->log($file, FALSE);
 				$this->inc($file);
@@ -154,113 +155,5 @@ class ViewGen {
 	function guard_nonrequest() {
 		if ($this->parent === NULL && !AJAX)
 			throw new \Error400('Direct node render disallowed');
-	}
-}
-
-/**
- * View/HTML class
- */
-class View extends \_Locks {
-	///Main template used
-	const TEMPLATE = '/appdata/index.php';
-	///Everything that wil be added in <head>here</head>
-	private static $HTMLhead = array();
-	///Generated body
-	private static $BODY = '';
-	///Title of page
-	private static $TITLE = '[teO]';
-	///Additional title parts
-	private static $TITLE_ADD = array();
-
-	/**
-	 * Try to retrieve and render view, handle errors
-	 * @param $path path from CMS
-	 */
-	public static function go() {
-		if (self::lock())
-			return;
-
-		CMS::setContentType('html');
-
-		$path = Vars::URI(array('r3v/path', 'r3v/nodes'));
-
-		if (AJAX) {
-			$next = array();
-			$path = $path['r3v/path'];
-		} else {
-			$next = $path['r3v/nodes'];
-			$path = '';
-		}
-
-		ob_start();
-
-		try {
-			(new ViewGen($path, $next))->node();
-		} catch (\ErrorHTTP $e) {
-			ob_end_clean();
-			ob_start();
-			echo '<div class="clear"></div><div class="errorhttp center">', $e->getFancyMessage();
-			if (DEBUG)
-				echo '<br><br><div style="font-size:0.9em;text-align:left;margin:0 auto;width:70%;">', Error::prettyTrace($e->getTrace()), '</div>';
-			echo '</div>';
-		}
-
-		self::$BODY = ob_get_clean();
-
-		CMS::flushHeaders();
-		if (AJAX)
-			self::body();
-		elseif (!(CMS::safeIncludeOnce(self::TEMPLATE)))
-			throw new Error('View: No template found');
-	}
-
-	///Render footer
-	public static function footer() {
-		echo '<span id="exec-time">', round(((microtime(true)*10000) - NOW_MICRO)/10, 2), 'ms</span>';
-	}
-
-	/**
-	 * Add new header to be set later
-	 * @param $html
-	 */
-	public static function addToHead($html) {
-		if (!is_array($header))
-			$header = array($header);
-
-		foreach ($header as $v) {
-			if (!is_string($v))
-				throw new Error('Parameter is not a string!');
-			self::$HTMLhead[] = $v;
-		}
-	}
-
-	///Render contents of $HTMLhead
-	public static function head() {
-		foreach (self::$HTMLhead as $v)
-			echo $v;
-	}
-
-	///Return site title, based on whatever needed
-	public static function title() {
-		return self::$TITLE . ' '. implode(self::$TITLE_ADD);
-	}
-
-	/**
-	 * Add a string to title or flush the buffer
-	 * @param $str
-	 * @return if $str=NULL: array
-	 */
-	public static function titleAdd($str = NULL) {
-		if ($str === NULL) {
-			$r = self::$TITLE_ADD;
-			//self::$TITLE_ADD = array();
-			return $r;
-		} else
-			self::$TITLE_ADD[] = $str;		
-	}
-
-	///Echo rendered body
-	public static function body() {
-		echo self::$BODY;
 	}
 }

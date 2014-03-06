@@ -1,5 +1,5 @@
 <?php ///r3vCMS /sys/Form.php
-
+namespace r3v;
 /**
  * HTML <form> handling class
  * Simplyfy all stuff ;)
@@ -25,8 +25,8 @@ class Form {
 	 */
 	function __construct($def) {
 		if (!is_array($def))
-			throw new CMS\Error("Form definition must be an array");
-			
+			throw new Error("Form definition must be an array");
+
 		$this->name = $def['name'];
 		$this->fields = $def['fields'];
 		unset($def['name'], $def['fields']);
@@ -40,7 +40,7 @@ class Form {
 		foreach ($field_keys as $k => $v)
 			$field_keys[$k] = $prefix.$v;
 
-		$field_keys = CMS\Vars::POST($field_keys, true);
+		$field_keys = Vars::POST($field_keys, true);
 		if ($field_keys) {
 			$prefix = strlen($prefix);
 			foreach ($field_keys as $k => $v)
@@ -161,7 +161,7 @@ class Form {
 					break;
 				}
 				default:
-					throw new CMS\Error('Unsupported field type');
+					throw new Error('Unsupported field type');
 					break;
 			}
 			if (isset($v['error']))

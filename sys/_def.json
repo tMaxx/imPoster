@@ -1,22 +1,47 @@
 {
 	"r3v": {
+		"autoload": {
+			"files": ["/_helpers.php"],
+			"psr-0": ["/"]
+		},
 		"class": {
-			"CMS": "CMS.php",
+			"CMS": {
+				"parent": "CMS\\CMS"
+			},
 			"CMS\\CMS": "CMS.php",
 			"Form": "Form.php",
-			"CMS\\Session": "Session.php",
+			"CMS\\Session": {
+				"file": "Session.php",
+				"unload": "\\CMS\\Session::save"
+			},
 			"CMS\\View": "View.php",
-			"CMS\\DB\\Base": "DB.php",
-			"CMS\\DB\\Instanceable": "DB.php",
+			"CMS\\DB\\Instanceable": {
+				"parent": "CMS\\DB\\Base"
+			},
+			"CMS\\DB\\Base": {
+				"file": "DB.php",
+				"unload": "\\CMS\\DB\\Base::end"
+			},
+			"CMS\\User": {
+				"parent": "CMS\\Me"
+			},
 			"CMS\\Me": "Me.php",
-			"Me": "Me.php",
-			"CMS\\User": "Me.php",
+			"CMS\\Common": "Sys.php",
 			"CMS\\Sys": "Sys.php",
 			"CMS\\Vars": "Vars.php",
-			"CMS\\Mail": "Mail.php",
-			"CMS\\MailObject": "Mail.php",
+			"CMS\\MailObject": {
+				"parent": "CMS\\Mail"
+			},
+			"CMS\\Mail": {
+				"file": "Mail.php",
+				"unload": "\\CMS\\Mail::flush"
+			},
 			"CMS\\Conf": "Conf.php",
-			"CMS\\Auth": "Auth.php"
+			"CMS\\Auth": "Auth.php",
+			"CMS\\HTTP": {
+				"file": "HTTP.php",
+				"unload": "\\CMS\\HTTP::flush"
+			}
 		}
 	}
 }

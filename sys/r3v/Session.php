@@ -1,5 +1,5 @@
 <?php ///r3vCMS /sys/Session.php
-namespace CMS;
+namespace r3v;
 
 /**
  * Session management class
