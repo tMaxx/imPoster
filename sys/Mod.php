@@ -79,18 +79,11 @@ class Mod {
 			}
 			if (isset($vals['psr-0']))
 				foreach ($vals['psr-0'] as $v)
-					self::$class[] = ROOT.$path.$v;
+					self::$class[] = $path.$v;
 		}
 
-		if (isset($def['autorun'])) {
-			foreach ($def['autorun'] as $r)
-				if (is_string($r))
-					call_user_func($r);
-				elseif (is_array($r)) {
-					$fun = array_shift($r);
-					call_user_func_array($fun, $r);
-				}
-		}
+		if (isset($def['autorun']))
+			self::runFuncArray($arr);
 
 		return $returnDef ? $def : TRUE;
 	}
@@ -106,6 +99,17 @@ class Mod {
 		return !!$r;
 	}
 
+	public static function runFuncArray($arr) {
+		foreach ((array)$arr as $r)
+			if (is_string($r) && is_callable($r))
+				call_user_func($r);
+			elseif (is_array($r)) {
+				$fun = array_shift($r);
+				if (is_callable($fun))
+					call_user_func_array($fun, $r);
+			}
+	}
+
 	/**
 	 * Class/module freeloader
 	 * @param $name of class
@@ -113,8 +117,8 @@ class Mod {
 	public static function load($name, $unload = false) {
 		$ns = str_replace('\\', '/', $name);
 		foreach (self::$class as $path)
-			if (file_exists(ROOT.$path.$ns)) {
-				require_once ROOT.$path.$ns;
+			if (file_exists(ROOT.$path.$ns.'.php')) {
+				require_once ROOT.$path.$ns.'.php';
 				self::$loaded[$name] = $unload ? $unload : true;
 				return true;
 			}
@@ -122,21 +126,11 @@ class Mod {
 		return false;
 	}
 
-	public static function addLoadPath($path) {
-		self::$class[] = ROOT.$path;
-	}
-
 	public static function unload($name) {
-		if (!isset(self::$class[$name]))
-			throw new Error("Cannot unload unknown class: $name");
+		if (!isset(self::$loaded[$name]) || is_bool(self::$loaded[$name]))
+			return;
 
-		$name = self::$class[$name];
-
-		if (isset($name['unload']))
-			self::runFuncArray([$name['unload']]);
-
-		if (isset($name['parent']) && !isset(self::$loaded[$name['parent']]))
-			self::unload($name['parent']);
+		self::runFuncArray([self::$loaded[$name]]);
 	}
 
 	public static function unloadAll($x = NULL) {

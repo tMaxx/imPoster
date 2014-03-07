@@ -36,4 +36,4 @@ if (!defined('DEBUG')) {
 //redirect to init file
 require_once ROOT.'/sys/_init.php';
 
-CMS\Mod::entrypoint();
+\r3v\Mod::entrypoint();

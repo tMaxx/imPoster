@@ -89,7 +89,7 @@ require_once ROOT.'/sys/Mod.php';
 
 spl_autoload_register('r3v\Mod::load');
 register_shutdown_function('r3v\Mod::unloadAll', 'shutdown');
-\CMS\Mod::loadDef('/sys/_def.json');
+\r3v\Mod::loadDef('/sys/_def.json');
 
 //helpers that should not obscure init script, but still are required
 // require_once ROOT.'/sys/_helpers.php';

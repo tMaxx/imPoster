@@ -1,5 +1,6 @@
 <?php ///r3vCMS /sys/Form.php
 namespace r3v;
+
 /**
  * HTML <form> handling class
  * Simplyfy all stuff ;)

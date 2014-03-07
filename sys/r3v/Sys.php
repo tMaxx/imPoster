@@ -1,5 +1,5 @@
 <?php ///r3vCMS /sys/Sys.php
-namespace CMS;
+namespace r3v;
 
 /**
  * Sys - Static system helpers
