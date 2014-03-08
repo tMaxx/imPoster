@@ -4,7 +4,7 @@ rev engine // r3vCMS
 A work in progress project.
 
 **r3vCMS: brief changelog**
- - 0.6: Rewritten autoloader (basic compatibility with composer) and initialization, added CLI through joddie/boris
+ - 0.6: Rewritten autoloader (basic compatibility with composer) and initialization, added CLI through [joddie/boris](https://github.com/joddie/boris/)
  - 0.5: Improved DB support, included basic authentication and session management (no snapshot available)
  - 0.4: Full MySQL database support, added session manager, lots of cleanups
  - 0.3: View render rewrite, tone down the code a bit
