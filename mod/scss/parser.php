@@ -1,9 +1,9 @@
 <?
-$var = CMS\Vars::uri(array('scss' => NULL));
+$var = r3v\Vars::uri(array('scss' => NULL));
 if (!$var['scss'])
 	echo "/* Unknown var: $var[scss] */";
 else {
-	$_GET['p'] = CMS::sanitizePath($var['scss']).'.scss';
+	$_GET['p'] = r3v\File::sanitizePath($var['scss']).'.scss';
 	$compiler = new scssc();
 	$compiler->setFormatter('scss_formatter_compressed');
 

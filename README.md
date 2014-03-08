@@ -1,14 +1,11 @@
-theOrganizer
-============
+rev engine // r3vCMS
+====================
 
-Quite a organizer. A work in progress project.
+A work in progress project.
 
-Consists of two parts:
- - revCMS: R3Volution Content Management System (third attempt to do it properly)
- - teo: ThEOrganizer application (in god we trust)
-
-
-**revCMS: brief changelog**
+**r3vCMS: brief changelog**
+ - 0.6: Rewritten autoloader (basic compatibility with composer) and initialization, added CLI through 
+ - 0.5: Improved DB support, included basic authentication and session management (no snapshot available)
  - 0.4: Full MySQL database support, added session manager, lots of cleanups
  - 0.3: View render rewrite, tone down the code a bit
  - 0.2: initial db support, initial View class & render

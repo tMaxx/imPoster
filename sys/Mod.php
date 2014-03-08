@@ -37,7 +37,7 @@ class Mod {
 
 		$def = $def['r3v'];
 		$path = dirname($path) . (isset($def['basepath']) ? $def['basepath'] : '') . '/';
-		unset($def['basepath']);
+
 		$insert =
 			function($arr, $data, $prefix) {
 				foreach ($data as $name => $def) {
@@ -100,40 +100,55 @@ class Mod {
 	}
 
 	public static function runFuncArray($arr) {
-		foreach ((array)$arr as $r)
-			if (is_string($r) && is_callable($r))
-				call_user_func($r);
-			elseif (is_array($r)) {
-				$fun = array_shift($r);
-				if (is_callable($fun))
-					call_user_func_array($fun, $r);
-			}
+		foreach ((array)$arr as $a) {
+			$a = (array) $a;
+			$f = array_shift($a);
+			if (is_callable($f))
+				call_user_func_array($f, $a);
+		}
 	}
 
 	/**
-	 * Class/module freeloader
+	 * Class freeloader
 	 * @param $name of class
 	 */
-	public static function load($name, $unload = false) {
+	public static function load($name) {
 		$ns = str_replace('\\', '/', $name);
 		foreach (self::$class as $path)
 			if (file_exists(ROOT.$path.$ns.'.php')) {
 				require_once ROOT.$path.$ns.'.php';
-				self::$loaded[$name] = $unload ? $unload : true;
+				self::$loaded[$name] = [];
 				return true;
 			}
 
 		return false;
 	}
 
-	public static function unload($name) {
-		if (!isset(self::$loaded[$name]) || is_bool(self::$loaded[$name]))
-			return;
-
-		self::runFuncArray([self::$loaded[$name]]);
+	/**
+	 * Add unloaders for class
+	 * @param $class name
+	 * @param $unl oading fun
+	 */
+	public static function registerUnload($class, $unl) {
+		self::$loaded[$name][] = $unl;
 	}
 
-	public static function unloadAll($x = NULL) {
+	/**
+	 * Run unloaders (functions stack) for class
+	 * @param $class name
+	 */
+	public static function unload($class) {
+		if (!isset(self::$loaded[$class]) || is_bool(self::$loaded[$class]))
+			return;
+
+		self::runFuncArray([self::$loaded[$class]]);
+	}
+
+	/**
+	 * Unload all known classes (those that have
+	 * registered unloader function stack)
+	 */
+	public static function unloadAll() {
 		while ($i = array_popk(self::$loaded))
 			self::unload(key($i));
 		if ($x && CLI)
@@ -164,7 +179,7 @@ class Mod {
 			echo "We come in interactive mode :D\n", r3v_ID, ' // loaded in ', ms_from_start(), "ms";
 			if (!class_exists('\\Boris\\Boris')) {
 				self::loadMod('boris');
-				echo " // Boris v".\Boris\Boris::VERSION."\n";
+				echo " // Boris REPL v".\Boris\Boris::VERSION."\n";
 				$boris = new \Boris\Boris('r3v> ');
 				$boris->start();
 			} else

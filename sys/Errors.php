@@ -73,15 +73,16 @@ class Error extends ErrorException {
 			$result[] = (method_exists($eno, 'getExtMessage') ? $eno->getExtMessage() : $eno->getMessage()).' at '.pathdiff($eno->getFile()).':'.$eno->getLine();
 
 			$trace = $eno->getTrace();
-		} else {
+		}/* else {
 			if (!isset($e_last))
 				CMS::end();
 			return;
-		}
+		}*/
 
 		if ((isset($eno) && !($eno instanceof ErrorHTTP)) || isset($e_last)) {
 			http_response_code(500);
-			CMS::end();
+			Mod::unloadAll();
+			die;
 		}
 
 		if ($trace){
