@@ -1,11 +1,11 @@
 <? $meid = $this->guard_user();
-if ($id = CMS\Vars::uri('user')):
+if ($id = r3v\Vars::uri('user')):
 	$obj = DB('User')->select('user_id, login')->where('login = ?')->param('s', $id)->obj();
 else: ?>
 <h2>Profil użytkownika</h2>
-Email: <b><?= str_replace(array('@', '.'), array(' at ', ' dot '), CMS\Me::$me->get('email')) ?></b>
+Email: <b><?= str_replace(array('@', '.'), array(' at ', ' dot '), r3v\User::$me->get('email')) ?></b>
 <br>
-Login: <b><?= CMS\Me::$me->get('login') ?></b>
+Login: <b><?= r3v\User::$me->get('login') ?></b>
 <? endif;
 if (isset($obj)): ?>
 <h2>Użytkownik <?= $obj->getLogin() ?></h2>

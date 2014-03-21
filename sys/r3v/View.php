@@ -29,7 +29,7 @@ class View extends \_Locks {
 		$path = Vars::URI(array('r3v/path', 'r3v/nodes'));
 
 		if (AJAX) {
-			$next = array();
+			$next = [];
 			$path = $path['r3v/path'];
 		} else {
 			$next = $path['r3v/nodes'];
@@ -51,10 +51,10 @@ class View extends \_Locks {
 
 		self::$BODY = ob_get_clean();
 
-		HTTP::flushHeaders();
+		HTTP::flush();
 		if (AJAX)
 			self::body();
-		elseif (!(File::safeIncludeOnce(self::TEMPLATE)))
+		elseif (!(File::inc1(self::TEMPLATE)))
 			throw new Error('View: No template found');
 	}
 

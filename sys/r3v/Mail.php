@@ -24,3 +24,5 @@ class Mail {
 		self::$cache = array();
 	}
 }
+
+Mod::registerUnload(['\\r3v\\Mail::flush']);

@@ -119,3 +119,5 @@ class Session extends \_Locks {
 		$db->exec();
 	}
 }
+
+Mod::registerUnload(['\\r3v\\Session::save']);

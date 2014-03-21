@@ -1,6 +1,0 @@
-User(user_id, email, login, password, ts_seen, is_active, is_removed);
-UserSession(user_id, ts, hash, addit);
-UserACL(user_id, role);
-List(list_id, user_id, id_user_to, ts, type, name, note);
-Elem(elem_id, list_id, ts, content, is_read, note);
-Ping(ping_id, user_id, list_id, elem_id, content, ts, ts_next, note);

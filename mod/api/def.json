@@ -1,10 +1,8 @@
 {
-	"r3v": {
-		"class": {
+	"class": {
 
-		},
-		"service": {
-			"api": "service.php"
-		}
+	},
+	"service": {
+		"api": "service.php"
 	}
 }

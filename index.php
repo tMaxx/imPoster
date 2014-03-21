@@ -22,9 +22,11 @@ if (PHP_SAPI == 'cli') {
 	define('CLI', TRUE);
 	define('HOST', 'interactive');
 	cli_set_process_title('r3vCMS');
+	define('SERVICE', FALSE);
 } else {
 	define('CLI', FALSE);
 	define('HOST', $_SERVER['HTTP_HOST']);
+	define('SERVICE', strncmp($_GET['__req__'], 'r3v:', 4) == 0);
 }
 if (!defined('DEBUG')) {
 	if (strtolower(getenv('r3vDEBUG')) == 'true')
@@ -32,6 +34,8 @@ if (!defined('DEBUG')) {
 	else
 		define('DEBUG', FALSE);
 }
+if (DEBUG)
+	error_reporting(E_ALL);
 
 //redirect to init file
 require_once ROOT.'/sys/_init.php';

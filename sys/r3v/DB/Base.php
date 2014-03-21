@@ -403,5 +403,5 @@ class Base extends \_Locks {
 	}
 }
 
-
 \r3v\DB\Base::go();
+\r3v\Mod::registerUnload(['\\r3v\\DB\\Base::end']);

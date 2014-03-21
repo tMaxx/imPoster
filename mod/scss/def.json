@@ -1,11 +1,8 @@
 {
-	"r3v": {
-		"class": {
-			"scssc": "scss.inc.php",
-			"scss_server": "scss.inc.php"
-		},
-		"service": {
-			"scss": "parser.php"
-		}
+	"autoload": {
+		"files": ["scss.inc.php"]
+	},
+	"service": {
+		"scss": "parser.php"
 	}
 }

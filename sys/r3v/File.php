@@ -10,21 +10,23 @@ class File {
 	 * @param $file path to file, relative to /
 	 * @return bool true on success
 	 */
-	public static function safeInclude($file) {
-		if ($r = self::fileExists($file))
-			include ROOT.$file;
-		return $r;
+	public static function inc($______file) {
+		if (!self::fileExists($______file))
+			return false;
+		include ROOT.$______file;
+		return true;
 	}
 
 	/**
 	 * Includes file in param
-	 * @param $file path to file, relative to /
+	 * @param $______file path to file, relative to /
 	 * @return bool true on success
 	 */
-	public static function safeIncludeOnce($file) {
-		if ($r = self::fileExists($file))
-			include_once ROOT.$file;
-		return $r;
+	public static function inc1($______file) {
+		if (!self::fileExists($______file))
+			return false;
+		include_once ROOT.$______file;
+		return true;
 	}
 
 	/**
@@ -66,11 +68,11 @@ class File {
 	/**
 	 * Return scandir() without dots
 	 * @param $dir ectory
-	 * @param $addit ional elements to exclude
+	 * @param $exclude additional elements
 	 * @return array
 	 */
-	public static function scandir($dir, $addit = []) {
-		return array_diff(scandir(ROOT.$dir), (array('.', '..') + $addit));
+	public static function scandir($dir, $exclude = []) {
+		return array_diff(scandir(ROOT.$dir), (['.', '..'] + $exclude));
 	}
 
 	/**
@@ -79,7 +81,7 @@ class File {
 	 * @return string
 	 */
 	public static function sanitizePath($path) {
-		return str_replace(array('.', '/', '~'), '', $path);
+		return str_replace(['.', '/', '~'], '', $path);
 	}
 
 	/**
@@ -91,5 +93,16 @@ class File {
 		if (($path = file_get_contents(ROOT.$path)) === false)
 			return false;
 		return json_decode($path, true);
+	}
+
+	/**
+	 * Get contents of file w. base path
+	 * @param $path to file
+	 * @return false|string
+	 */
+	public function contents($path) {
+		if (!self::fileExists($path))
+			return false;
+		return file_get_contents(ROOT.$path);
 	}
 }

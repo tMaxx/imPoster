@@ -29,9 +29,9 @@ class Gen {
 	 */
 	function __construct($cursor, array $next = array(), $parent = NULL, $findindex = TRUE) {
 		if (((static::$i--)) <= 0)
-			throw new Error('View\\Gen: object count limit reached');
+			throw new \Error('View\\Gen: object count limit reached');
 		if (!is_bool($findindex))
-			throw new Error('View\\Gen: $findindex is not bool');
+			throw new \Error('View\\Gen: $findindex is not bool');
 
 		//set this thing
 		$this->cursor = $cursor;
@@ -69,7 +69,7 @@ class Gen {
 	 * @param $vars what to pass
 	 */
 	function subnode($path, array $vars = array()) {
-		return (new View\Gen($path, array(), $this))->node(NULL, $vars);
+		return (new Gen($path, array(), $this))->node(NULL, $vars);
 	}
 
 	/**
@@ -95,7 +95,7 @@ class Gen {
 
 		do {
 			//check current dir, then proceed
-			if (CMS::dirExists($dir = '/view'.$this->cursor)) {
+			if (File::dirExists($dir = '/view'.$this->cursor)) {
 				if($this->find_index && File::fileExists($file = $dir.'/index.php')) {
 					//index.php
 					$this->log('index.php', TRUE);

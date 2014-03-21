@@ -1,10 +1,10 @@
-<?php ///r3vCMS /sys/Me.php
+<?php ///r3vCMS \r3v\User
 namespace r3v;
 
 /**
  * User class handler
  */
-class Me {
+class User {
 	const SALT_PRE = '$2y$07$';
 	public static $me = NULL;
 	private static $id = NULL;
@@ -44,7 +44,7 @@ class Me {
 		else
 			return null;
 
-		return $res->obj('r3v\\Me\\Obj');
+		return $res->obj('r3v\\User\\Obj');
 	}
 
 	public static function logout() {

@@ -1,9 +1,8 @@
-<?php ///r3vCMS /sys/Vars.php
+<?php ///r3vCMS \r3v\Vars
 namespace r3v;
 
 /**
- * CMS\Vars
- * Environment variable handling class
+ * Vars - variables handling class
  */
 class Vars extends \_Locks {
 	protected static $get = array();
@@ -18,8 +17,9 @@ class Vars extends \_Locks {
 			return;
 
 		//revamp request to something more readable
-		$ipath = (array) explode('/', $_GET['__req__']);
+		$ipath = isset($_GET['__req__']) ? ((array) explode('/', $_GET['__req__'])) : [];
 		unset($_GET['__req__']);
+
 		$rpath = '/';
 		self::$uri['r3v/nodes'] = array();
 		foreach ($ipath as $k => $v) {
@@ -45,8 +45,7 @@ class Vars extends \_Locks {
 	 * Get defined vars from class variable
 	 * @param $name of the variable, case-insensitive
 	 * @param $args arguments
-	 * Formats:
-	 * If specified var_name can't be found in self::${$name} then...:
+	 * @example If specified var_name can't be found in self::${$name} then...:
 	 *    array("var_name" => if_not_set,)
 	 *       value of if_not_set will be appended to result
 	 *    array("var_name")
@@ -56,8 +55,8 @@ class Vars extends \_Locks {
 	 */
 	public static function __callStatic($name, $args) {
 		$name = strtolower($name);
-		if (!property_exists('\\r3v\\Vars', $name))
-			throw new Error('Property '. $name . ' does not exist');
+		if (!property_exists(self::class, $name))
+			throw new Error("Property $name does not exist");
 
 		if (!$args)
 			return array_copy(self::${$name});

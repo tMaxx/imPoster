@@ -1,5 +1,5 @@
-<?php ///r3vCMS /sys/Me.php
-namespace r3v\Me;
+<?php ///r3vCMS \r3v\User\Obj
+namespace r3v\User;
 
 /**
  * User - user object

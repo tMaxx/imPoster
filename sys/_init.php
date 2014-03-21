@@ -85,16 +85,11 @@ if (!CLI) {
 	set_error_handler('Error::h', E_ALL);
 }
 
-require_once ROOT.'/sys/Mod.php';
+require_once ROOT.'/sys/r3v/Mod.php';
 
-spl_autoload_register('r3v\Mod::load');
-register_shutdown_function('r3v\Mod::unloadAll', 'shutdown');
+spl_autoload_register('\\r3v\\Mod::load');
+register_shutdown_function('\\r3v\\Mod::unloadAll', 'shutdown');
 \r3v\Mod::loadDef('/sys/_def.json');
-
-//helpers that should not obscure init script, but still are required
-// require_once ROOT.'/sys/_helpers.php';
-//now autoloaded through autoload-files in _def
-
 
 if (!CLI)
 	\r3v\HTTP::addHeaders([

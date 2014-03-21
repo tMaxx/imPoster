@@ -1,47 +1,6 @@
 {
-	"r3v": {
-		"autoload": {
-			"files": ["/_helpers.php"],
-			"psr-0": ["/"]
-		},
-		"class": {
-			"CMS": {
-				"parent": "CMS\\CMS"
-			},
-			"CMS\\CMS": "CMS.php",
-			"Form": "Form.php",
-			"CMS\\Session": {
-				"file": "Session.php",
-				"unload": "\\CMS\\Session::save"
-			},
-			"CMS\\View": "View.php",
-			"CMS\\DB\\Instanceable": {
-				"parent": "CMS\\DB\\Base"
-			},
-			"CMS\\DB\\Base": {
-				"file": "DB.php",
-				"unload": "\\CMS\\DB\\Base::end"
-			},
-			"CMS\\User": {
-				"parent": "CMS\\Me"
-			},
-			"CMS\\Me": "Me.php",
-			"CMS\\Common": "Sys.php",
-			"CMS\\Sys": "Sys.php",
-			"CMS\\Vars": "Vars.php",
-			"CMS\\MailObject": {
-				"parent": "CMS\\Mail"
-			},
-			"CMS\\Mail": {
-				"file": "Mail.php",
-				"unload": "\\CMS\\Mail::flush"
-			},
-			"CMS\\Conf": "Conf.php",
-			"CMS\\Auth": "Auth.php",
-			"CMS\\HTTP": {
-				"file": "HTTP.php",
-				"unload": "\\CMS\\HTTP::flush"
-			}
-		}
+	"autoload": {
+		"files": ["/_helpers.php"],
+		"psr-0": ["/"]
 	}
 }

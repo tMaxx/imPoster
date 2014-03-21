@@ -1,12 +1,10 @@
 {
-	"r3v": {
-		"autoload": {
-			"files": ["/repo/lib/autoload.php"],
-			"psr-0": ["/repo/lib/"]
-		},
-		"class": {
-			"\\Boris\\Boris": "repo/bin/boris"
-		},
-		"run": "/repo/bin/boris"
-	}
+	"autoload": {
+		"files": ["/repo/lib/autoload.php"],
+		"psr-0": ["/repo/lib/"]
+	},
+	"class": {
+		"\\Boris\\Boris": "repo/bin/boris"
+	},
+	"run": "/repo/bin/boris"
 }

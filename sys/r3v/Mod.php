@@ -1,4 +1,4 @@
-<?php ///r3vCMS /sys/Mod.php
+<?php ///r3vCMS \Mod
 namespace r3v;
 
 /**
@@ -32,10 +32,9 @@ class Mod {
 			return false;
 		if (!($def = json_decode($def, true)))
 			return false;
-		if (!isset($def['r3v']))
+		if (!is_array($def))
 			return false;
 
-		$def = $def['r3v'];
 		$path = dirname($path) . (isset($def['basepath']) ? $def['basepath'] : '') . '/';
 
 		$insert =
@@ -65,20 +64,20 @@ class Mod {
 		if (isset($def['service']))
 			$insert('service', $def['service'], $path);
 
-		if ($def['autoload']) {
-			$vals = $def['autoload']; //fixme
-			if (isset($vals['files'])) {
-				if (is_string($vals['files']))
-					$vals['files'] = (array) $vals['files'];
+		if (isset($def['autoload'])) {
+			$al_def = $def['autoload']; //fixme
+			if (isset($al_def['files'])) {
+				if (is_string($al_def['files']))
+					$al_def['files'] = (array) $al_def['files'];
 
-				foreach ($vals['files'] as $run)
+				foreach ($al_def['files'] as $run)
 					if (is_file(ROOT.$path.$run))
 						include_once ROOT.$path.$run;
 					else
-						throw new Error('Required autoload run not found for def $path: $path$run');
+						throw new Error("Required autoload file not found for def $path: $path$run");
 			}
-			if (isset($vals['psr-0']))
-				foreach ($vals['psr-0'] as $v)
+			if (isset($al_def['psr-0']))
+				foreach ($al_def['psr-0'] as $v)
 					self::$class[] = $path.$v;
 		}
 
@@ -130,7 +129,7 @@ class Mod {
 	 * @param $unl oading fun
 	 */
 	public static function registerUnload($class, $unl) {
-		self::$loaded[$name][] = $unl;
+		self::$loaded[$class][] = $unl;
 	}
 
 	/**
@@ -148,54 +147,52 @@ class Mod {
 	 * Unload all known classes (those that have
 	 * registered unloader function stack)
 	 */
-	public static function unloadAll() {
-		while ($i = array_popk(self::$loaded))
-			self::unload(key($i));
-		if ($x && CLI)
-			echo "ThxBye :3\n";
+	public static function unloadAll($x = NULL) {
+		while ($i = array_pop(self::$loaded))
+			if (!is_bool($i))
+				self::runFuncArray($i);
+
+		if ($x && CLI) {
+			echo \Boris\ColoredInspector::$TERM_COLORS['white'],
+				"K, ThxBye :3\n",
+				\Boris\ColoredInspector::$TERM_COLORS['none'];
+		}
 	}
 
-	public static function checkServices() {
-		$path = Vars::uri('r3v/path');
-		if (substr($path, 0, 5) != '/r3v/')
-			return false;
-		$dirs = CMS::scandir('/mod/');
-		foreach ($dirs as $d)
-			self::loadDef($d);
-
-		$path = substr($path, 5);
-		if (!isset(self::$service[$path]))
-			return false;
-
-		ob_start();
-		CMS::safeIncludeOnce(self::$service[$path]);
-		ob_end_flush();
-
-		return true;
-	}
-
+	/**
+	 * Start r3v engine :D
+	 */
 	public static function entrypoint() {
 		if (CLI) {
-			echo "We come in interactive mode :D\n", r3v_ID, ' // loaded in ', ms_from_start(), "ms";
+			$clrcolor = "\033[0m";
 			if (!class_exists('\\Boris\\Boris')) {
 				self::loadMod('boris');
-				echo " // Boris REPL v".\Boris\Boris::VERSION."\n";
+				echo \Boris\ColoredInspector::$TERM_COLORS['white'],
+					"Hi :D // ",
+					r3v_ID,
+					' // loaded in ', ms_from_start(), "ms",
+					" // Boris REPL v", \Boris\Boris::VERSION, $clrcolor, "\n";
 				$boris = new \Boris\Boris('r3v> ');
 				$boris->start();
 			} else
 				echo "\n";
 			return;
 		}
-		if (self::lock())
-			throw Error505();
 
 		ob_start();
 
-		if (!self::checkServices())
-			View::go();
+		if (SERVICE) {
+			foreach (File::scandir('/mod/') as $d)
+				self::loadMod($d);
+
+			$path = Vars::uri('r3v');
+			if (!$path || !isset(self::$service[$path]))
+				throw new \Error404("Service '$path' not found");
+
+			File::inc(self::$service[$path]);
+		} else
+			View::go(); //start app in html mode
 
 		ob_end_flush();
-
-		self::unloadAll();
 	}
 }

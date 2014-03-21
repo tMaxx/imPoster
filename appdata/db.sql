@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `Session` (
 	`signature` VARCHAR(70),
 	`data` VARCHAR(256),
 
-	PRIMARY KEY (`session_id`),
+	PRIMARY KEY (`session_id`)
 ) ENGINE=MEMORY;
 CREATE INDEX iudex_Session_hash ON `Session`(`hash`);
 

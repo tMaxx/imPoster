@@ -1,4 +1,4 @@
-<?php ///r3vCMS /sys/HTTP.php
+<?php ///r3vCMS \r3v\HTTP
 namespace r3v;
 
 ///HTTP support class
@@ -7,10 +7,10 @@ class HTTP {
 	private static $headers = array();
 
 	/**
-	 * Append new header to set
+	 * Append new headers to set
 	 * @param $header
 	 */
-	public static function addHeader($header) {
+	public static function addHeaders($header) {
 		if (!is_array($header))
 			$header = [$header];
 
@@ -68,3 +68,5 @@ class HTTP {
 		throw new Redirect($path);
 	}
 }
+
+Mod::registerUnload('HTTP', ['\\r3v\\HTTP::flush']);

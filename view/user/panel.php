@@ -1,8 +1,8 @@
 <? $this->guard_nonrequest();
-$options = array('/user' => CMS\Me::id() ? 'Panel' : NULL);
-if (CMS\Me::id()) {
+$options = array('/user' => r3v\User::id() ? 'Panel' : NULL);
+if (r3v\User::id()) {
 	$options['/user/logout'] = '-Wyloguj-';
-	echo 'Witaj, '.CMS\Me::$me->get('login').' . ';
+	echo 'Witaj, '.r3v\User::$me->get('login').' . ';
 } else {
 	$options['/user/register'] = '&Rejestracja&';
 	$options['/user/login'] = '+Zaloguj+';
