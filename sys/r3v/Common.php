@@ -152,4 +152,8 @@ class Common {
 	public static function sanitizePath($path) {
 		return str_replace(array('..', '/', '~'), '', $path);
 	}
+
+	public static function jsonFromFile($p) {
+		return Mod::readJsonFromFile($p);
+	}
 }

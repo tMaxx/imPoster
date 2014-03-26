@@ -25,7 +25,7 @@ class Mod {
 	 * @param $path
 	 * @return false on failure, array otherwise
 	 */
-	protected static function readJsonFromFile($path) {
+	public static function readJsonFromFile($path) {
 		if (!is_file(ROOT.$path))
 			return false;
 		if (($def = file_get_contents(ROOT.$path)) === false)
@@ -53,7 +53,7 @@ class Mod {
 	}
 
 	/** Return modules assigned to paths */
-	public static function getRouteAssignees() {
+	public static function getRoutePaths() {
 		return self::$route;
 	}
 
@@ -200,15 +200,22 @@ class Mod {
 			//ignored fields: origin, description
 
 			//if explicit_load==true then we just don't do anything, leave as it is
-			if (empty($def['explicit_load'])) {
+			if (empty($def['explicit_load']))
 				self::loadMod($name);
-			}
-			//add route scopes
-			if (isset($def['route_scope'])) {
-				if (!isset($def['route_dir']))
-					$def['route_dir'] = '/';
 
-				self::$route[$def['route_scope']] = '/mod/'.$name.$def['route_dir'];
+			//add route scopes
+			if (!empty($def['route'])) {
+				$r = $def['route'];
+				if (!isset($r['dir']))
+					$r['dir'] = '/';
+
+				if (!isset($r['force_path']))
+					$r['force_path'] = false;
+
+				self::$route[$r['scope']] = [
+					'dir' => '/mod/'.$name.$r['dir'],
+					'force_path' => (isset($r['force_path']) ? $r['force_path'] : false)
+				];
 			}
 		}
 		unset($def);

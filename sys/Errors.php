@@ -12,6 +12,43 @@ class Error extends ErrorException {
 		return str_replace(ROOT, '', $str);
 	}
 
+	public static function friendlyErrorType($type) {
+		switch($type)
+		{
+			case E_ERROR: // 1 //
+				return 'E_ERROR';
+			case E_WARNING: // 2 //
+				return 'E_WARNING';
+			case E_PARSE: // 4 //
+				return 'E_PARSE';
+			case E_NOTICE: // 8 //
+				return 'E_NOTICE';
+			case E_CORE_ERROR: // 16 //
+				return 'E_CORE_ERROR';
+			case E_CORE_WARNING: // 32 //
+				return 'E_CORE_WARNING';
+			case E_CORE_ERROR: // 64 //
+				return 'E_COMPILE_ERROR';
+			case E_CORE_WARNING: // 128 //
+				return 'E_COMPILE_WARNING';
+			case E_USER_ERROR: // 256 //
+				return 'E_USER_ERROR';
+			case E_USER_WARNING: // 512 //
+				return 'E_USER_WARNING';
+			case E_USER_NOTICE: // 1024 //
+				return 'E_USER_NOTICE';
+			case E_STRICT: // 2048 //
+				return 'E_STRICT';
+			case E_RECOVERABLE_ERROR: // 4096 //
+				return 'E_RECOVERABLE_ERROR';
+			case E_DEPRECATED: // 8192 //
+				return 'E_DEPRECATED';
+			case E_USER_DEPRECATED: // 16384 //
+				return 'E_USER_DEPRECATED';
+		}
+		return "";
+	}
+
 	/**
 	 * Prettify trace
 	 * @param $trace
@@ -49,10 +86,6 @@ class Error extends ErrorException {
 	 * @return varies
 	 */
 	public static function h($eno = NULL, $estr = NULL, $efile = NULL, $eline = NULL, $econtext = NULL) {
-		static $constants;
-		if (!isset($constants))
-			$constants = get_defined_constants(1)['Core'];
-
 		$trace = debug_backtrace();
 		$result = array('<br><br>');
 
@@ -62,38 +95,32 @@ class Error extends ErrorException {
 			if (isset($e_last['type']))
 				$eno = $e_last['type'];
 
-			foreach ($constants as $key => $value)
-				if (substr($key, 0, 2) == 'E_' && $eno == $value) {
-					$eName = $key;
-					break;
-				}
+			if ($eName = self::friendlyErrorType($eno))
+					array_shift($trace);
 
 			if (isset($e_last['message'])) {
-				$eName = '<b>FATAL</b>: '.$eName;
+				$eName = '<b>FATAL</b> '.$eName;
 				$efile = $e_last['file'];
 				$eline = $e_last['line'];
 				$estr = nl2br(self::pathdiff($e_last['message']));
 			}
 
-			$result[] = '<big><b>Error</b></big>: '.$eName.': '.$estr;
-			$result[] = '<br>'.self::pathdiff($efile).':'.$eline;
+			$result[] = '<big><b>Error</b></big>  ['.$eName.']  '.$estr;
+			$result[] = '<br><i>@</i>'.self::pathdiff($efile).':'.$eline;
 		} elseif (isset($eno)) { //exception handler
-			$result[] = '<big><b>'.get_class($eno).'</b></big>: ';
+			$result[] = '<big><b>'.get_class($eno).'</b></big>  ';
 
 			$result[] = (method_exists($eno, 'getExtMessage') ? $eno->getExtMessage() : $eno->getMessage());
-			$result[] = '<br>'.self::pathdiff($eno->getFile()).':'.$eno->getLine();
+			$result[] = '<br><i>@</i>'.self::pathdiff($eno->getFile()).':'.$eno->getLine();
 
 			$trace = $eno->getTrace();
 		}
 
-		if ((isset($eno) && !($eno instanceof ErrorHTTP)) || isset($e_last)) {
+		if ((isset($eno) && !($eno instanceof ErrorHTTP)) || isset($e_last))
 			http_response_code(500);
-		}
 
-		if ($trace){
-			$result[] = '<br>';
-			$result[] = Error::prettyTrace($trace);
-		}
+		if ($trace)
+			$result[] = '<br>'.Error::prettyTrace($trace);
 
 		echo implode($result);
 		return true;

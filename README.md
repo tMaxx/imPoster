@@ -4,6 +4,7 @@ rev engine // r3vCMS
 A work in progress project.
 
 ### Changelog
+ - 0.6alpha3: Working static file handler (for now), fix Error a bit, routing, cleanups, optimalizations
  - 0.6aplha2: Moved various things into modules, revamp autoloader (_again..._) and modloader, got CLI working (_again..._), trying to launch route scopes, extend Conf (stub for now)
  - 0.6alpha1: Rewritten autoloader (basic compatibility with composer) and initialization, added CLI through [joddie/boris](https://github.com/joddie/boris/)
  - 0.5alpha2: Improved DB support, included basic authentication and session management (_no snapshot available_)
@@ -17,6 +18,9 @@ A work in progress project.
  - _Maybe_ extend templates
  - Invent a way to store db passwords in config so that it could be pushed into repo
  - Errors module: (trash,) rewrite
+ - Explicit view generation: try to fix cross-referencing modules, then fail miserably
+ - Finish static view generator
+ - Some more types for static file server
 
 ### Licensing
 Code in this repository is subject to Creative Commons licence (CC BY-NC-SA).

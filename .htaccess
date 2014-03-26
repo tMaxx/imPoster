@@ -20,7 +20,9 @@ SetEnv r3vDEBUG "TRUE"
 
 RewriteEngine on
 RewriteBase /
-RewriteRule ^(.*)$ index.php?__req__=$1 [L,QSA]
+RewriteCond %{REQUEST_URI} !=/favicon.ico
+RewriteRule ^ index.php [L]
+#RewriteRule ^(.*)$ index.php?__req__=$1 [L,QSA]
 
 ErrorDocument 404 /error:404
 ErrorDocument 400 /error:400

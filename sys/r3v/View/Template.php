@@ -1,5 +1,6 @@
 <?php ///r3vCMS \r3v\View\Template
 namespace r3v\View;
+use \r3v\File;
 
 /**
  * Template creating
@@ -12,7 +13,7 @@ class Template {
 
 	function __construct($source, $type = 'file') {
 		$this->type = $type;
-		$this->source = $source;
+		$this->src = $source;
 	}
 
 	/** Set replace patterns **/
@@ -25,28 +26,27 @@ class Template {
 		if ($this->type == 'file') {
 			$cont = File::contents($this->src);
 			if ($cont === false)
-				throw new Error("File not found: {$this->src}");
+				throw new \Error("File not found: {$this->src}");
 		} elseif ($this->type == 'raw')
 			$cont = $this->src;
 		else
-			throw new Error("Unknown type: {$this->type}");
+			throw new \Error("Unknown type: {$this->type}");
 
-
-		$ls = [];
-		$rs = [];
+		$left = [];
+		$right = [];
 
 		foreach ($this->replace as $k => $v) {
-			$ls[] = '<%'.$k.'%>';
-			$rs[] = $v;
+			$left[] = '<%'.$k.'%>';
+			$right[] = $v;
 		}
 
-		str_replace($ls, $rs, $cont);
+		$cont = str_replace($left, $right, $cont);
 
 		return $cont;
 	}
 
 	/** Parse and echo template **/
-	public function echo() {
+	public function echoo() {
 		echo $this->get();
 	}
 

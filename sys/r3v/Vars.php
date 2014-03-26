@@ -17,8 +17,7 @@ class Vars extends \_Locks {
 			return;
 
 		//revamp request to something more readable
-		$ipath = isset($_GET['__req__']) ? ((array) explode('/', $_GET['__req__'])) : [];
-		unset($_GET['__req__']);
+		$ipath = (array) explode('/', REQUEST_URI);
 
 		$rpath = '/';
 		self::$uri['r3v/nodes'] = array();
@@ -62,10 +61,17 @@ class Vars extends \_Locks {
 			return array_copy(self::${$name});
 
 		$a = self::${$name};
-		$in = $args[0];
-		if ($not_array = !is_array($in))
-			$in = (array) $in;
 		$unset = isset($args[1]) ? !!$args[1] : false;
+		$in = $args[0];
+		if ($not_array = !is_array($in)) {
+			if (isset($a[$in])) {
+				$in = $a[$in];
+				if ($unset)
+					unset($a[$in]);
+				return $in;
+			}
+			return null;
+		}
 
 		$r = array();
 		foreach ($in as $k => $v) {
@@ -79,11 +85,6 @@ class Vars extends \_Locks {
 				$r[$k] = $in[$k];
 		}
 
-		if ($not_array) {
-			if ($r)
-				return $r[$in[0]];
-			return NULL;
-		}
 		return $r;
 	}
 }

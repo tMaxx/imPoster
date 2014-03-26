@@ -12,11 +12,6 @@ class Conf {
 	public static function load() {
 		$json = Common::jsonFromFile('/config.json');
 
-		if (!isset($json['r3v_config']))
-			return;
-
-		$json = $json['r3v_config'];
-
 		if (isset($json['database']))
 			self::$db = $json['database'];
 		unset($json['database']);
@@ -26,8 +21,7 @@ class Conf {
 
 	/**
 	 * Get key from project config
-	 * @param $key
-	 * 	/ - separator for nested array keys
+	 * @param $key where '/' is a separator for nested array keys
 	 * @param &$warn
 	 */
 	public static function get($key, &$warn = null) {
@@ -37,8 +31,11 @@ class Conf {
 		$key = explode('/', $key);
 		$current = self::$conf;
 		while (($e = array_shift($key)) !== null) {
-			if (!isset($current[$e]))
-				;
+			if (!isset($current[$e])) {
+				$warn = true;
+				throw new Error("Invalid key request: $e");
+			}
+			$current = $current[$e];
 		}
 
 		return $current;
@@ -47,10 +44,13 @@ class Conf {
 	///Get database connection config
 	public static function db() {
 		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
-		if ($trace[1]['class'] != 'CMS\\DB\\Base' || $trace[1]['function'] != 'go')
+		if ($trace[1]['class'] != 'r3v\\DB\\Base' || $trace[1]['function'] != 'go')
 			return false;
 
-		$data = self::$db;
+		if (self::$db['is_dev_hostname_check'] == gethostname()) //dev
+			$data = self::$db['dev'];
+		else
+			$data = self::$db['stable'];
 
 		self::$db = [];
 		return $data;

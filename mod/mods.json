@@ -31,17 +31,25 @@
 			"files": ["/scss.inc.php"]
 		}
 	},
-	"r3v/api": {
-		"is_composer": false,
-		"route_scope": "/api/"
-	},
-	"r3v/main": {
-		"is_composer": false,
-		"route_scope": "/"
-	},
 	"r3v/static": {
 		"is_composer": false,
 		"explicit_load": true,
-		"route_scope": "/static/"
+		"route": {
+			"scope": "/static/",
+			"force_path": "/"
+		}
+	},
+	"r3v/main": {
+		"is_composer": false,
+		"route": {
+			"dir": "/route/",
+			"scope": "/"
+		}
+	},
+	"r3v/api": {
+		"is_composer": false,
+		"route": {
+			"scope": "/api/"
+		}
 	}
 }

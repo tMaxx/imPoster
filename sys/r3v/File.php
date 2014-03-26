@@ -100,7 +100,7 @@ class File {
 	 * @param $path to file
 	 * @return false|string
 	 */
-	public function contents($path) {
+	public static function contents($path) {
 		if (!self::fileExists($path))
 			return false;
 		return file_get_contents(ROOT.$path);

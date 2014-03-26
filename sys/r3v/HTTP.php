@@ -31,8 +31,11 @@ class HTTP {
 	 */
 	public static function setContentType($type) {
 		switch (strtolower($type)) {
+			case 'js':
+				$type = 'javascript';
 			case 'pdf':
 			case 'json':
+			case 'javascript':
 				$type = 'application/'.$type;
 				break;
 			case 'text':
