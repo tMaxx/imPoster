@@ -22,9 +22,9 @@ RewriteEngine on
 RewriteBase /
 RewriteRule ^(.*)$ index.php?__req__=$1 [L,QSA]
 
-ErrorDocument 404 error/404
-ErrorDocument 400 error/400
-ErrorDocument 401 error/401
-ErrorDocument 403 error/403
-ErrorDocument 503 error/503
-ErrorDocument 500 error/500
+ErrorDocument 404 /error:404
+ErrorDocument 400 /error:400
+ErrorDocument 401 /error:401
+ErrorDocument 403 /error:403
+ErrorDocument 503 /error:503
+ErrorDocument 500 /error:500
