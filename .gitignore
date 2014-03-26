@@ -1,3 +1,4 @@
 /init/config.php
 teosync
 tags
+*.sublime-*

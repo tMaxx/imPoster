@@ -38,7 +38,7 @@ class Vars extends \_Locks {
 		self::$post = $_POST;
 		self::$server = $_SERVER;
 		self::$cookie = $_COOKIE;
-		unset($_GET, $_POST, $_REQUEST, $_SERVER, $_COOKIE);
+		//unset($_GET, $_POST, $_REQUEST, $_SERVER, $_COOKIE);
 	}
 
 	/**

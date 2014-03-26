@@ -10,7 +10,7 @@ class Conf {
 	private static $db = [];
 
 	public static function load() {
-		$json = Common::jsonFromFile('/appdata/config.json');
+		$json = Common::jsonFromFile('/config.json');
 
 		if (!isset($json['r3v_config']))
 			return;
@@ -24,8 +24,24 @@ class Conf {
 		self::$conf = $json;
 	}
 
-	public static function get($key) {
-		throw new Error501();
+	/**
+	 * Get key from project config
+	 * @param $key
+	 * 	/ - separator for nested array keys
+	 * @param &$warn
+	 */
+	public static function get($key, &$warn = null) {
+		if (!is_string($key))
+			throw new Error('Invalid key: not a string');
+
+		$key = explode('/', $key);
+		$current = self::$conf;
+		while (($e = array_shift($key)) !== null) {
+			if (!isset($current[$e]))
+				;
+		}
+
+		return $current;
 	}
 
 	///Get database connection config

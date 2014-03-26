@@ -5,7 +5,7 @@ mb_internal_encoding('UTF-8');
 mb_regex_encoding('UTF-8');
 
 //CMS version
-define('r3v_VERSION', '0.6alpha1');
+define('r3v_VERSION', '0.6alpha6');
 //CMS identificator
 define('r3v_ID', 'revCMS [elementary] v'.r3v_VERSION);
 
@@ -18,6 +18,7 @@ define('ROOT', __DIR__);
 
 //properties
 define('AJAX', (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'));
+define('PROCESS_ID', posix_getpid());
 if (PHP_SAPI == 'cli') {
 	define('CLI', TRUE);
 	define('HOST', 'interactive');

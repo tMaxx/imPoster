@@ -3,7 +3,7 @@ namespace r3v\View;
 use \r3v\File;
 
 ///Actually just a complete view generator
-class Gen {
+class Recursive {
 	///Mode
 	protected $find_index = TRUE;
 	///Iterator - num of objects made
@@ -23,15 +23,15 @@ class Gen {
 	 * Construct
 	 * @param $cursor current node
 	 * @param $next nodes stack
-	 * @param $parent NULL|View\Gen
+	 * @param $parent NULL|View\Recursive
 	 * @param $param CMS params override
 	 * @param $findindex look for index.php in $cursor?
 	 */
 	function __construct($cursor, array $next = array(), $parent = NULL, $findindex = TRUE) {
 		if (((static::$i--)) <= 0)
-			throw new \Error('View\\Gen: object count limit reached');
+			throw new \Error('View\\Recursive: object count limit reached');
 		if (!is_bool($findindex))
-			throw new \Error('View\\Gen: $findindex is not bool');
+			throw new \Error('View\\Recursive: $findindex is not bool');
 
 		//set this thing
 		$this->cursor = $cursor;
@@ -69,7 +69,7 @@ class Gen {
 	 * @param $vars what to pass
 	 */
 	function subnode($path, array $vars = array()) {
-		return (new Gen($path, array(), $this))->node(NULL, $vars);
+		return (new Recursive($path, array(), $this))->node(NULL, $vars);
 	}
 
 	/**

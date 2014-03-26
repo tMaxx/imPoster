@@ -1,10 +1,10 @@
-<?php ///r3vCMS /sys/Sys.php
+<?php ///r3vCMS \r3v\Common
 namespace r3v;
 
 /**
- * Sys - Static system helpers
+ * Common - Static system helpers
  */
-class Sys {
+class Common {
 	/**
 	 * Return string with cosequentive newlines/spaces limited to 2
 	 * and with trimmed whitespaces at beginning and end of string
@@ -150,10 +150,6 @@ class Sys {
 	 * @return string
 	 */
 	public static function sanitizePath($path) {
-		return str_replace(array('.', '/', '~'), '', $path);
+		return str_replace(array('..', '/', '~'), '', $path);
 	}
 }
-
-//FIXME
-class Commons extends Sys {}
-class Common extends Sys {}

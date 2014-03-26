@@ -7,7 +7,7 @@ namespace r3v;
 class File {
 	/**
 	 * Includes file in param
-	 * @param $file path to file, relative to /
+	 * @param $______file path to file, relative to /
 	 * @return bool true on success
 	 */
 	public static function inc($______file) {

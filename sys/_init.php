@@ -40,15 +40,6 @@ function vdump(){
 	call_user_func_array('pre_dump', func_get_args());
 }
 
-/**
- * Return trimmed dirs in string
- * @param $str
- * @return trimmed ROOT
- */
-function pathdiff($str) {
-	return str_replace(ROOT, '', $str);
-}
-
 ///clone array, w. dereferencing
 function array_copy(array $source) {
 	$arr = array();
@@ -80,19 +71,37 @@ function ms_from_start() {
 
 require_once ROOT.'/sys/Errors.php';
 
-if (!CLI) {
+if (!CLI) { //Boris has its own handler
 	set_exception_handler('Error::h');
 	set_error_handler('Error::h', E_ALL);
 }
 
 require_once ROOT.'/sys/r3v/Mod.php';
 
-spl_autoload_register('\\r3v\\Mod::load');
+spl_autoload_register('\\r3v\\Mod::loadClass');
 register_shutdown_function('\\r3v\\Mod::unloadAll', 'shutdown');
-\r3v\Mod::loadDef('/sys/_def.json');
+\r3v\Mod::sysinit(); //load sys definition
+// \r3v\Mod::parseDef('/sys/_def.json');
 
 if (!CLI)
 	\r3v\HTTP::addHeaders([
-		'X-Powered-By: monkeys on bikes',
+		'X-Powered-By: lots of self-esteem',
 		'X-Backend: '.r3v_ID,
 	]);
+
+
+/////////////////////////////////////////////////////////////////////
+// Class-specific functions
+/////////////////////////////////////////////////////////////////////
+
+///DB factory
+function DB($var) {
+	if (is_object($var) && ($var instanceof r3v\DB\Saveable))
+		return new r3v\DB\Instance($var);
+	elseif (is_string($var)) {
+		if (substr_count($var, ' ') == 0)
+			return new r3v\DB\Table($var);
+		return new r3v\DB\Base($var);
+	} else
+		throw new r3v\DB\Error('Unsupported $var type');
+}

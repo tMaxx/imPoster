@@ -2,18 +2,29 @@
 namespace {
 ///Error class
 class Error extends ErrorException {
+
+	/**
+	 * Return trimmed dirs in string
+	 * @param $str
+	 * @return trimmed ROOT
+	 */
+	public static function pathdiff($str) {
+		return str_replace(ROOT, '', $str);
+	}
+
 	/**
 	 * Prettify trace
 	 * @param $trace
+	 * @param $separator string
 	 * @return string
 	 */
-	public static function prettyTrace($trace) {
-		$result = array();
+	public static function prettyTrace($trace, $separator = '<br>') {
+		$result = [];
 		foreach ($trace as $i => $v) {
 			$result[] = $i.'# ';
 
 			if (isset($v['file']) && $v['file'])
-				$result[] = pathdiff($v['file']).':'.$v['line'].' - ';
+				$result[] = self::pathdiff($v['file']).':'.$v['line'].' - ';
 			else
 				$result[] = '[internal call] ';
 
@@ -23,11 +34,11 @@ class Error extends ErrorException {
 			$result[] = $v['function'];
 
 			if (isset($v['args']) && $v['args'])
-				$result[] = htmlspecialchars(pathdiff(json_encode($v['args'], JSON_UNESCAPED_SLASHES|JSON_NUMERIC_CHECK)), ENT_COMPAT|ENT_HTML5);
+				$result[] = htmlspecialchars(self::pathdiff(json_encode($v['args'], JSON_UNESCAPED_SLASHES|JSON_NUMERIC_CHECK)), ENT_COMPAT|ENT_HTML5);
 			else
 				$result[] = '()';
 
-			$result[] = '<br>';
+			$result[] = $separator;
 		}
 		return implode($result);
 	}
@@ -54,7 +65,6 @@ class Error extends ErrorException {
 			foreach ($constants as $key => $value)
 				if (substr($key, 0, 2) == 'E_' && $eno == $value) {
 					$eName = $key;
-					// array_shift($trace);
 					break;
 				}
 
@@ -62,16 +72,16 @@ class Error extends ErrorException {
 				$eName = '<b>FATAL</b>: '.$eName;
 				$efile = $e_last['file'];
 				$eline = $e_last['line'];
-				$estr = nl2br(pathdiff($e_last['message']));
+				$estr = nl2br(self::pathdiff($e_last['message']));
 			}
 
 			$result[] = '<big><b>Error</b></big>: '.$eName.': '.$estr;
-			$result[] = '<br>'.pathdiff($efile).':'.$eline;
+			$result[] = '<br>'.self::pathdiff($efile).':'.$eline;
 		} elseif (isset($eno)) { //exception handler
 			$result[] = '<big><b>'.get_class($eno).'</b></big>: ';
 
 			$result[] = (method_exists($eno, 'getExtMessage') ? $eno->getExtMessage() : $eno->getMessage());
-			$result[] = '<br>'.pathdiff($eno->getFile()).':'.$eno->getLine();
+			$result[] = '<br>'.self::pathdiff($eno->getFile()).':'.$eno->getLine();
 
 			$trace = $eno->getTrace();
 		}
@@ -93,8 +103,8 @@ class Error extends ErrorException {
 class ErrorCMS extends Error {}
 
 class ErrorHTTP extends Error {
-	private $httpcode;
-	private $inmessage;
+	public $httpcode;
+	public $inmessage;
 	public function __construct($msg = NULL, $code = NULL, $add = NULL) {
 		$this->httpcode = $code;
 		$this->inmessage = $msg;
@@ -109,10 +119,6 @@ class ErrorHTTP extends Error {
 
 	public function getHttpCode() {
 		return $this->httpcode;
-	}
-
-	public function getFancyMessage() {
-		return '<h1 class="white">HTTP '.$this->httpcode.'</h1>'.$this->inmessage.'';
 	}
 }
 

@@ -3,101 +3,46 @@ namespace r3v;
 
 /**
  * Modloader class
- * Handler for class loading, service handling
+ * Everything connected with loading and definitions
  */
 class Mod {
+	///All mods definition
+	protected static $mods_def = [];
+	protected static $mods_loaded = [];
+
+	///Class loading paths
 	protected static $class = [];
 
-	protected static $service = [];
-	protected static $view = [];
+	///Translate req_path->location
+	protected static $route = [];
 
+	///Loaded classes, w. optional autoloaders
 	protected static $loaded = [];
-	protected static $mods = [];
+
 
 	/**
-	 * Load definition
-	 * @param $path of def
-	 * @param $returnDef instead of bool
-	 * @return bool success|array
+	 * Read json file from path
+	 * @param $path
+	 * @return false on failure, array otherwise
 	 */
-	public static function loadDef($path, $returnDef = false) {
-		if (!$path)
-			return false;
-
-		$path = str_replace(['..', '~'], '', $path);
-
+	protected static function readJsonFromFile($path) {
 		if (!is_file(ROOT.$path))
 			return false;
 		if (($def = file_get_contents(ROOT.$path)) === false)
 			return false;
-		if (!($def = json_decode($def, true)))
-			return false;
-		if (!is_array($def))
-			return false;
+		if (!is_array($def = json_decode($def, true)))
+			return null;
 
-		$path = dirname($path) . (isset($def['basepath']) ? $def['basepath'] : '') . '/';
-
-		$insert =
-			function($arr, $data, $prefix) {
-				foreach ($data as $name => $def) {
-					if (isset(static::${$arr}[$name]) || !$def)
-						continue;
-
-					if (is_string($def))
-						$def = ['file' => $def];
-					elseif (!is_array($def))
-						throw new Error("Invalid insert for $arr $name: !('' || [])");
-
-					if (isset($def['file'])) {
-						if (!file_exists(ROOT.$prefix.$def['file']))
-							throw new Error("File $prefix$def[file] does not exist for $arr $def");
-						$def['file'] = $prefix.$def['file'];
-					}
-
-					static::${$arr}[$name] = $def;
-				}
-			};
-
-		if (isset($def['view']))
-			$insert('view', $def['view'], $path);
-
-		if (isset($def['service']))
-			$insert('service', $def['service'], $path);
-
-		if (isset($def['autoload'])) {
-			$al_def = $def['autoload']; //fixme
-			if (isset($al_def['files'])) {
-				if (is_string($al_def['files']))
-					$al_def['files'] = (array) $al_def['files'];
-
-				foreach ($al_def['files'] as $run)
-					if (is_file(ROOT.$path.$run))
-						include_once ROOT.$path.$run;
-					else
-						throw new Error("Required autoload file not found for def $path: $path$run");
-			}
-			if (isset($al_def['psr-0']))
-				foreach ($al_def['psr-0'] as $v)
-					self::$class[] = $path.$v;
-		}
-
-		if (isset($def['autorun']))
-			self::runFuncArray($arr);
-
-		return $returnDef ? $def : TRUE;
+		return $def;
 	}
 
 	/**
-	 * Load mod by name
-	 * @param $modname
-	 * @return bool success
+	 * Run functions from array of arrays
+	 * @param $arr ay of arrays
+	 * @example parameter:
+	 * [ ['function_to_run'], [[some_object, 'method'], 'arg1', 'argX'] ]
+	 * First index in subarray *must* be callable or it will be ignored!
 	 */
-	public static function loadMod($modname) {
-		if ($r = self::loadDef('/mod/'.$modname.'/def.json', true))
-			self::$mods[$modname] = $r;
-		return !!$r;
-	}
-
 	public static function runFuncArray($arr) {
 		foreach ((array)$arr as $a) {
 			$a = (array) $a;
@@ -107,12 +52,84 @@ class Mod {
 		}
 	}
 
+	/** Return modules assigned to paths */
+	public static function getRouteAssignees() {
+		return self::$route;
+	}
+
+	/**
+	 * Parse autoloader section
+	 * @param $al autoloader
+	 * @param $path, base
+	 */
+	protected static function parseAutoloader(array $al, $path) {
+		if (isset($al['files'])) {
+			foreach ((array) $al['files'] as $run)
+				if (is_file(ROOT.$path.$run))
+					include_once ROOT.$path.$run;
+				else
+					throw new Error("Required autoload file not found for def $path: $path$run");
+		}
+
+		if (isset($al['psr-0']))
+			foreach ($al['psr-0'] as $k => $v) {
+				$v .= '/';
+
+				if (isset(self::$class[$k]))
+					self::$class[] = $path.$v; //append
+				else
+					self::$class[$k] = $path.$v; //set
+			}
+
+		if (isset($al['include_path']))
+			set_include_path(get_include_path().PATH_SEPARATOR.ROOT.$path.$al['include_path']);
+
+		if (isset($al['classmap']))
+			; //SOMEDAY
+			//WE'RE GONNA RISE UP ON THAT WIND
+			//YOU KNOOOOW
+			//SOMEDAY
+			//WE'RE GONNA DANCE WITH THOSE LIONS
+	}
+
+	/**
+	 * Load (register autoloaders) mod by name
+	 * self::$mods_def MUST BE ALREADY FILLED!
+	 * @throws Error
+	 * @param $modname
+	 * @return bool success
+	 */
+	public static function loadMod($modname) {
+		if (!empty(self::$mods_loaded[$modname]))
+			return true; //already loaded
+		self::$mods_loaded[$modname] = true;
+
+		$def = self::$mods_def[$modname];
+		$basepath = '/mod/'.$modname.'/';
+		$jsonpath = $basepath.($def['is_composer'] ? 'composer' : 'def').'.json';
+
+		if (($selfdef = self::readJsonFromFile($jsonpath)) === false)
+			throw new Error("Could not load mod self-definition: $modname");
+
+		if (isset($def['require']))
+			foreach ((array) $def['require'] as $v)
+				self::loadMod($v);
+
+		//merge config from mods.json with composer/def
+		$al = isset($def['autoload']) ? $def['autoload'] : [];
+		$al = isset($selfdef['autoload']) ? array_replace_recursive($selfdef['autoload'], $al) : [];
+		if ($al)
+			self::parseAutoloader($al, $basepath);
+
+		return true;
+	}
+
 	/**
 	 * Class freeloader
 	 * @param $name of class
 	 */
-	public static function load($name) {
-		$ns = str_replace('\\', '/', $name);
+	public static function loadClass($name) {
+		$ns = str_replace(['\\','_'], DIRECTORY_SEPARATOR, $name);
 		foreach (self::$class as $path)
 			if (file_exists(ROOT.$path.$ns.'.php')) {
 				require_once ROOT.$path.$ns.'.php';
@@ -126,21 +143,26 @@ class Mod {
 	/**
 	 * Add unloaders for class
 	 * @param $class name
-	 * @param $unl oading fun
+	 * @param $unl oading function
 	 */
-	public static function registerUnload($class, $unl) {
-		self::$loaded[$class][] = $unl;
+	public static function registerUnload($class, $unl = NULL) {
+		if (!isset($unl)) //only unload
+			self::$loaded[][] = $class;
+		else
+			self::$loaded[$class][] = $unl;
 	}
 
 	/**
 	 * Run unloaders (functions stack) for class
 	 * @param $class name
+	 * @return bool success
 	 */
 	public static function unload($class) {
-		if (!isset(self::$loaded[$class]) || is_bool(self::$loaded[$class]))
-			return;
+		if (empty(self::$loaded[$class]))
+			return false;
 
 		self::runFuncArray([self::$loaded[$class]]);
+		return true;
 	}
 
 	/**
@@ -148,30 +170,60 @@ class Mod {
 	 * registered unloader function stack)
 	 */
 	public static function unloadAll($x = NULL) {
-		while ($i = array_pop(self::$loaded))
-			if (!is_bool($i))
+		if (PROCESS_ID != posix_getpid())
+			return;
+
+		while (($i = array_pop(self::$loaded)) !== null)
+			if (!is_bool($i) && $i)
 				self::runFuncArray($i);
 
-		if ($x && CLI) {
-			echo \Boris\ColoredInspector::$TERM_COLORS['white'],
+		if ($x && CLI)
+			echo Colors::light_yellow,
 				"K, ThxBye :3\n",
-				\Boris\ColoredInspector::$TERM_COLORS['none'];
-		}
+				Colors::reset;
 	}
 
-	/**
-	 * Start r3v engine :D
-	 */
+	/** Add /sys/ autoloader **/
+	public static function sysinit() {
+		if (isset(self::$class['r3v\\']))
+			return;
+		self::$class['r3v\\'] = '/sys/';
+	}
+
+	/** Start r3v engine (:D) and load some definitions (^_^) */
 	public static function entrypoint() {
+		if ((self::$mods_def = self::readJsonFromFile('/mod/mods.json')) === false)
+			throw new Error('Unable to load mods definition!');
+		unset(self::$mods_def['__example']);
+
+		foreach (self::$mods_def as $name => &$def) {
+			//ignored fields: origin, description
+
+			//if explicit_load==true then we just don't do anything, leave as it is
+			if (empty($def['explicit_load'])) {
+				self::loadMod($name);
+			}
+			//add route scopes
+			if (isset($def['route_scope'])) {
+				if (!isset($def['route_dir']))
+					$def['route_dir'] = '/';
+
+				self::$route[$def['route_scope']] = '/mod/'.$name.$def['route_dir'];
+			}
+		}
+		unset($def);
+
+		//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+
 		if (CLI) {
-			$clrcolor = "\033[0m";
 			if (!class_exists('\\Boris\\Boris')) {
 				self::loadMod('boris');
-				echo \Boris\ColoredInspector::$TERM_COLORS['white'],
+				echo Colors::white,
 					"Hi :D // ",
 					r3v_ID,
 					' // loaded in ', ms_from_start(), "ms",
-					" // Boris REPL v", \Boris\Boris::VERSION, $clrcolor, "\n";
+					" // Boris REPL v", \Boris\Boris::VERSION,
+					Colors::reset, "\n";
 				$boris = new \Boris\Boris('r3v> ');
 				$boris->start();
 			} else
@@ -179,20 +231,6 @@ class Mod {
 			return;
 		}
 
-		ob_start();
-
-		if (SERVICE) {
-			foreach (File::scandir('/mod/') as $d)
-				self::loadMod($d);
-
-			$path = Vars::uri('r3v');
-			if (!$path || !isset(self::$service[$path]))
-				throw new \Error404("Service '$path' not found");
-
-			File::inc(self::$service[$path]);
-		} else
-			View::go(); //start app in html mode
-
-		ob_end_flush();
+		View::go(); //start app in html/http mode
 	}
 }

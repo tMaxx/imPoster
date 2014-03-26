@@ -1,6 +1,0 @@
-{
-	"autoload": {
-		"files": ["/_helpers.php"],
-		"psr-0": ["/"]
-	}
-}

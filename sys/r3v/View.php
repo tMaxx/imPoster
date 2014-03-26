@@ -36,21 +36,37 @@ class View extends \_Locks {
 			$path = '';
 		}
 
+		/*if (SERVICE) { //FIXME: integrate into View
+			foreach (File::scandir('/mod/') as $d)
+				self::loadMod($d);
+
+			$path = Vars::uri('r3v');
+			if (!($path && isset(self::$service[$path])))
+				throw new \Error404("Service '$path' not found");
+
+			File::inc(self::$service[$path]['file']);
+		} else*/
+
 		ob_start();
 
 		try {
-			(new View\Gen($path, $next))->node();
+			//(new View\Recursive($path, $next))->node();
 		} catch (\ErrorHTTP $e) {
 			ob_end_clean();
 			ob_start();
-			echo '<div class="clear"></div><div class="errorhttp center">', $e->getFancyMessage();
+			echo '<div class="clear">',
+					'</div><div class="errorhttp center">',
+				'<h1 class="white">HTTP ', $e->httpcode, '</h1>',
+				$e->inmessage;
 			if (DEBUG)
-				echo '<br><br><div style="font-size:0.9em;text-align:left;margin:0 auto;width:70%;">', Error::prettyTrace($e->getTrace()), '</div>';
+				echo '<div class="trace">', Error::prettyTrace($e->getTrace()), '</div>';
 			echo '</div>';
 		}
 
 		self::$BODY = ob_get_clean();
 
+
+		//TODO: Template handling
 		HTTP::flush();
 		if (AJAX)
 			self::body();

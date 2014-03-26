@@ -15,10 +15,12 @@ class Template {
 		$this->source = $source;
 	}
 
+	/** Set replace patterns **/
 	public function replace(array $in) {
 		$this->replace = $in;
 	}
 
+	/** Parse template and return result */
 	public function get() {
 		if ($this->type == 'file') {
 			$cont = File::contents($this->src);
@@ -43,6 +45,7 @@ class Template {
 		return $cont;
 	}
 
+	/** Parse and echo template **/
 	public function echo() {
 		echo $this->get();
 	}
