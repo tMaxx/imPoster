@@ -7,8 +7,8 @@ namespace r3v;
 class View extends \_Locks {
 	/** Everything that wil be added in <head>here</head> */
 	private static $HTML_head = array();
-	/** Additional title parts */
-	private static $HTML_title = array();
+	/** Additional title part */
+	private static $HTML_title = '';
 
 	/** Route paths config */
 	protected static $config = [];
