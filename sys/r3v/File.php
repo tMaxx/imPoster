@@ -81,7 +81,7 @@ class File {
 	 * @return string
 	 */
 	public static function sanitizePath($path) {
-		return str_replace(['.', '/', '~'], '', $path);
+		return str_replace(['..', '/', '~'], '', $path);
 	}
 
 	/**

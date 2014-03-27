@@ -19,6 +19,7 @@ class Template {
 	/** Set replace patterns **/
 	public function replace(array $in) {
 		$this->replace = $in;
+		return $this;
 	}
 
 	/** Parse template and return result */

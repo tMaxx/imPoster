@@ -6,17 +6,17 @@ namespace r3v;
  * Everything connected with loading and definitions
  */
 class Mod {
-	///All mods definition
+	/** All mods definition */
 	protected static $mods_def = [];
 	protected static $mods_loaded = [];
 
-	///Class loading paths
+	/** Class loading paths */
 	protected static $class = [];
 
-	///Translate req_path->location
+	/** Translate req_path->location */
 	protected static $route = [];
 
-	///Loaded classes, w. optional autoloaders
+	/** Loaded classes, w. optional autoloaders */
 	protected static $loaded = [];
 
 
@@ -198,6 +198,7 @@ class Mod {
 
 		foreach (self::$mods_def as $name => &$def) {
 			//ignored fields: origin, description
+			unset($def['origin'], $def['description']);
 
 			//if explicit_load==true then we just don't do anything, leave as it is
 			if (empty($def['explicit_load']))
@@ -206,15 +207,13 @@ class Mod {
 			//add route scopes
 			if (!empty($def['route'])) {
 				$r = $def['route'];
-				if (!isset($r['dir']))
-					$r['dir'] = '/';
-
-				if (!isset($r['force_path']))
-					$r['force_path'] = false;
+				$basepath = '/mod/'.$name;
 
 				self::$route[$r['scope']] = [
-					'dir' => '/mod/'.$name.$r['dir'],
-					'force_path' => (isset($r['force_path']) ? $r['force_path'] : false)
+					'dir'        => $basepath.(isset($r['dir']) ? $r['dir'] : '/'),
+					'template'   => (isset($r['template'])      ? $basepath.$r['template'] : false),
+					'force_path' => (isset($r['force_path'])    ? $r['force_path'] : false),
+					'error_page' => (isset($r['error_page'])    ? $r['error_page'] : false),
 				];
 			}
 		}
@@ -226,10 +225,9 @@ class Mod {
 			if (!class_exists('\\Boris\\Boris')) {
 				self::loadMod('boris');
 				echo Colors::white,
-					"Hi :D // ",
-					r3v_ID,
-					' // loaded in ', ms_from_start(), "ms",
-					" // Boris REPL v", \Boris\Boris::VERSION,
+					'Hi :D // ', r3v_ID,
+					' // loaded in ', ms_from_start(), 'ms',
+					' // Boris REPL v', \Boris\Boris::VERSION,
 					Colors::reset, "\n";
 				$boris = new \Boris\Boris('r3v> ');
 				$boris->start();

@@ -1,6 +1,0 @@
-teteteette
-
-<?
-return [
-	'/../index.thtml'
-];

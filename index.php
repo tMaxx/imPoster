@@ -5,7 +5,7 @@ mb_internal_encoding('UTF-8');
 mb_regex_encoding('UTF-8');
 
 //CMS version
-define('r3v_VERSION', '0.6alpha3');
+define('r3v_VERSION', '0.6alpha4');
 //CMS identificator
 define('r3v_ID', 'revCMS [elementary] v'.r3v_VERSION);
 

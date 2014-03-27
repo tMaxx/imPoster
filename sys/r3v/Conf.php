@@ -47,7 +47,7 @@ class Conf {
 		if ($trace[1]['class'] != 'r3v\\DB\\Base' || $trace[1]['function'] != 'go')
 			return false;
 
-		if (self::$db['is_dev_hostname_check'] == gethostname()) //dev
+		if (self::$db['dev_hostname'] == gethostname()) //dev
 			$data = self::$db['dev'];
 		else
 			$data = self::$db['stable'];

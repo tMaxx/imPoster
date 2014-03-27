@@ -4,7 +4,7 @@ use \r3v\File;
 
 /**
  * Explicit view loader - mostly static stuff
- *
+ * MVC For The Win!
  */
 class Explicit {
 	protected $vars = [];
@@ -12,10 +12,9 @@ class Explicit {
 	protected $node = '';
 
 	protected function inc() {
-		foreach ($this->vars as $k => $v)
+		foreach (func_get_arg(0) as $k => $v)
 			${$k} = $v;
-		$this->vars = array();
-		return (include ROOT.$this->node);
+		return (include ROOT.func_get_arg(1));
 	}
 
 	public function __construct($basepath, $node, $vars = []) {
@@ -25,37 +24,34 @@ class Explicit {
 	}
 
 	public function go() {
-		$p = $this->basepath.'/'.$this->node;
+		$route = $this->basepath.'control/'.$this->node;
 
-		if (File::fileExists($p.'.php'))
-			$this->node = $p.'.php';
-		elseif (File::fileExists($p.'/index.php'))
-			$this->node = $p.'/index.php';
+		if (File::fileExists($route.'.php'))
+			$route .= ($extension = '.php');
+		elseif (File::fileExists($route.'/index.php'))
+			$route .= ($extension = '/index.php');
 		else
-			throw new \Error404("Node \"{$p}\" not found");
+			throw new \Error404("Node \"{$this->node}\" not found");
 
-		//file exists, we know now everything needed.
-		$ret = $this->inc();
+		$ret = $this->inc($this->vars, $route);
+		$this->vars = [];
+		unset($route);
 
 		if (is_array($ret)) {
-			// $template = new View\Template($this->basepath.$ret[0]);
+			if (!isset($ret[0]) || is_string($ret[0])) {
+				$view = $this->basepath.'view/'.(isset($ret[0]) ? $ret[0].'.php' : $this->node.$extension);
+				if (!$view)
+					return;
 
-			return $this->basepath.$ret[0];
+				$this->inc($ret, $view);
+
+			} elseif (isset($ret[0]) && is_int($ret[0])) {
+				$view = '\\Error'.$view;
+				if (isset($ret[1]))
+					throw (new $view($ret[1]));
+				throw (new $view());
+			}
 		}
-
-		//TODO: redirects, features and 'things'
-		//Also: templates
-	}
-
-	public function render() {
-		// code...
+		$this->vars = [];
 	}
 }
-
-/*
-
-dostajesz na start ścieżkę startową
-	"idź, i tam wyrenderuj"
-no to renderujesz node, które dostałeś.
-*/
-

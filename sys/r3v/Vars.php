@@ -61,7 +61,7 @@ class Vars extends \_Locks {
 			return array_copy(self::${$name});
 
 		$a = self::${$name};
-		$unset = isset($args[1]) ? !!$args[1] : false;
+		$unset = isset($args[1]) ? $args[1] === true : false;
 		$in = $args[0];
 		if ($not_array = !is_array($in)) {
 			if (isset($a[$in])) {

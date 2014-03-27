@@ -11,10 +11,7 @@ class HTTP {
 	 * @param $header
 	 */
 	public static function addHeaders($header) {
-		if (!is_array($header))
-			$header = [$header];
-
-		foreach ($header as $k => $v) {
+		foreach ((array)$header as $k => $v) {
 			if (!is_string($v))
 				throw new Exception('Parameter is not a string!');
 			if (is_numeric($k))
