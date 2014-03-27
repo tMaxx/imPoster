@@ -4,7 +4,7 @@ namespace r3v;
 /**
  * View/HTML class
  */
-class View extends \_Locks {
+class View /*extends \_Locks*/ {
 	/** Everything that wil be added in <head>here</head> */
 	private static $HTML_head = array();
 	/** Additional title part */
@@ -18,9 +18,10 @@ class View extends \_Locks {
 	 * @param $path path from CMS
 	 */
 	public static function go() {
-		if (self::lock())
+		if (self::$config)
 			return;
 
+		HTTP::setContentType('html');
 		self::$config = Conf::get('site');
 		$node = Vars::uri('r3v/nodes');
 		$routes = Mod::getRoutePaths();
@@ -47,7 +48,7 @@ class View extends \_Locks {
 		} catch (\ErrorHTTP $e) {
 			ob_clean();
 
-			self::$HTML_title = ['Oopsie no', $e->httpcode];
+			self::$HTML_title = 'Oopsie no'.$e->httpcode;
 			self::$HTML_head = [];
 
 			if ($selected['error_page'])
@@ -65,7 +66,6 @@ class View extends \_Locks {
 			}
 		}
 
-		HTTP::setContentType('html');
 		HTTP::flush();
 		if (AJAX || $no_template)
 			ob_end_flush();
