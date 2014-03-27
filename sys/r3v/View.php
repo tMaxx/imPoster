@@ -100,6 +100,6 @@ class View extends \_Locks {
 
 	/** Return title, imploded */
 	protected static function title() {
-		return self::$config['title'].(!self::$HTML_title ?: ' | '.self::$HTML_title);
+		return self::$config['title'].(self::$HTML_title ? ' | '.self::$HTML_title : '');
 	}
 }
