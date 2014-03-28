@@ -1,11 +1,11 @@
-<?php //r3v engine /sys/Auth.php
+<?php //r3v engine \r3v\Role
 namespace r3v;
 
 /**
  * Auth
  * Autorization class
  */
-class Auth extends \_Locks {
+class Role {
 	/**
 	 * Holds a simple map of every action in system, half-processed
 	 * This one has additional things:
@@ -19,7 +19,7 @@ class Auth extends \_Locks {
 	protected $user = array();
 
 	public static function init() {
-		if (self::lock())
+		if (self::$map)
 			return;
 		$rows = DB('SELECT * FROM ACLRoles')->rows();
 		foreach ($rows as $r) {
@@ -79,4 +79,4 @@ class Auth extends \_Locks {
 			return false;
 	}
 }
-Auth::init();
+Role::init();

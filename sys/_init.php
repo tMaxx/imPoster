@@ -1,31 +1,6 @@
 <?php ///r3v engine sys/_init.php
 ///Initialize CMS, add templates, run commands
 
-///Implements locks for every class method
-class _Locks {
-	protected static $LOCKS = array();
-
-	///Class function - is locked?
-	final protected static function is_locked($n = 2) {
-		$r = isset(self::$LOCKS[($c = get_called_class())][($f = debug_backtrace()[$n]['function'])]);
-		return [$r, $c, $f];
-	}
-
-	///Set the lock, but 1st time return false
-	final protected static function lock() {
-		list($r, $c, $f) = self::is_locked();
-		return $r ? TRUE : (!(self::$LOCKS[$c][$f] = TRUE));
-	}
-
-	///Unset the lock, but 1st time return false
-	final protected static function unlock() {
-		list($r, $c, $f) = self::is_locked();
-		if ($r)
-			self::$LOCKS[$c][$f] = NULL;
-		return !$r;
-	}
-}
-
 ///dumper
 function pre_dump() {
 	$vars = func_get_args();

@@ -1,10 +1,10 @@
-<?php ///r3v engine \r3v\User\Obj
-namespace r3v\User;
+<?php ///r3v engine \r3v\Auth\UserObj
+namespace r3v\Auth;
 
 /**
  * User - user object
  */
-class Obj implements DB\Instanceable {
+class UserObj implements DB\Instanceable {
 	protected $user_id;
 	protected $email;
 	protected $login;

@@ -1,10 +1,10 @@
-<?php ///r3v engine /sys/DB/.php
+<?php ///r3v engine \r3v\DB\Base
 namespace r3v\DB;
 
 /**
  * Base - Database support class
  */
-class Base extends \_Locks {
+class Base {
 	//db object
 	protected static $db = NULL;
 	///compiled query
@@ -25,7 +25,7 @@ class Base extends \_Locks {
 	public static function go() {
 		if (!class_exists('\\mysqli', false))
 			return;
-		if (self::lock())
+		if (self::$db)
 			return;
 
 		$con = \r3v\Conf::db();
@@ -44,9 +44,6 @@ class Base extends \_Locks {
 
 	///End execution, close everything
 	public static function end() {
-		if (self::lock())
-			return;
-
 		if (isset(self::$db)) {
 			self::$db->close();
 			self::$db = NULL;
@@ -258,9 +255,8 @@ class Base extends \_Locks {
 							if (!is_numeric($values[$i]))
 								$values[$i] = (double) $values[$i];
 							break;
-						case 's'://FIXME
+						case 's':
 							$values[$i] = (string) $values[$i];
-							//$values[$i] = addcslashes($values[$i], '%_');
 							break;
 					}
 				$params[] = &$values[$i];
@@ -336,14 +332,14 @@ class Base extends \_Locks {
 	}
 
 	public function obj($type = NULL) {
-		if (!$type && $this instanceof Table) //FIXME
+		if (!$type && $this instanceof Table)
 			$type = $this->table;
 
 		return (($r = $this->row()) ? new $type($r) : $r);
 	}
 
 	public function objs($type = NULL) {
-		if (!$type && $this instanceof Table) //FIXME
+		if (!$type && $this instanceof Table)
 			$type = $this->table;
 
 		$r = $this->rows();

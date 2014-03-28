@@ -1,5 +1,5 @@
 <?php ///r3v engine \r3v\User
-namespace r3v;
+namespace r3v\Auth;
 
 /**
  * User class handler
@@ -44,7 +44,7 @@ class User {
 		else
 			return null;
 
-		return $res->obj('r3v\\User\\Obj');
+		return $res->obj('r3v\\Auth\\UserObj');
 	}
 
 	public static function logout() {
@@ -88,6 +88,6 @@ class User {
 
 	///Return authentication status (bool)
 	public static function auth($role) {
-		return Auth::auth($role);
+		return Role::auth($role);
 	}
 }

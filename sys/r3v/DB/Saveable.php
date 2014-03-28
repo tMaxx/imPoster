@@ -1,4 +1,4 @@
-<?php ///r3v engine /sys/DB/.php
+<?php ///r3v engine \r3v\DB\Saveable
 namespace r3v\DB;
 
 ///Make a class saveable via DB\Instance

@@ -4,7 +4,7 @@ namespace r3v;
 /**
  * Vars - variables handling class
  */
-class Vars extends \_Locks {
+class Vars {
 	protected static $get = array();
 	protected static $post = array();
 	protected static $cookie = array();
@@ -13,9 +13,6 @@ class Vars extends \_Locks {
 
 	///"Hack" to initialize class
 	public function __construct() {
-		if (self::lock())
-			return;
-
 		//revamp request to something more readable
 		$ipath = (array) explode('/', REQUEST_URI);
 

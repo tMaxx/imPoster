@@ -1,4 +1,4 @@
-<?php ///r3v engine /sys/DB/.php
+<?php ///r3v engine \r3v\DB\Error
 namespace r3v\DB;
 
 class Error extends \Error {

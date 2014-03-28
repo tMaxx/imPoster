@@ -1,10 +1,10 @@
 <?php ///r3v engine /sys/Session.php
-namespace r3v;
+namespace r3v\Auth;
 
 /**
  * Session management class
  */
-class Session extends \_Locks {
+class Session {
 	const SESSION_PERIOD = 2592000;//30days*24hours*60minutes*60seconds
 	protected static $ts = NULL;
 	protected static $id = NULL;
@@ -21,7 +21,7 @@ class Session extends \_Locks {
 
 	///Return user session hash
 	protected static function hash() {
-		return hash('sha256', strrev('r3v'.self::$id.':'.self::$addit.'()'.self::$ts.'//'.self::$signature.'CMS'));
+		return hash('sha256', strrev('r3v'.self::$id.':'.self::$addit.'()'.self::$ts.'//'.self::$signature.'engine'));
 	}
 
 	///Recalculate signature, hash, update ts and cookie
@@ -46,8 +46,12 @@ class Session extends \_Locks {
 
 	///Load session from DB, if any
 	public static function load() {
-		if (self::lock())
+		static $lock = false;
+		if ($lock)
 			return self::valid();
+		else
+			$lock = true;
+
 		$cookie = Vars::cookie('session');
 		if (!$cookie)
 			return false;
