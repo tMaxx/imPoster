@@ -1,4 +1,4 @@
-<?php ///r3vCMS \Mod
+<?php ///r3v engine \Mod
 namespace r3v;
 
 /**
@@ -191,7 +191,9 @@ class Mod {
 	}
 
 	/** Start r3v engine (:D) and load some definitions (^_^) */
-	public static function entrypoint() {
+	public static function go() {
+		if (self::$mods_def)
+			return;
 		if ((self::$mods_def = self::readJsonFromFile('/mod/mods.json')) === false)
 			throw new Error('Unable to load mods definition!');
 		unset(self::$mods_def['__example']);

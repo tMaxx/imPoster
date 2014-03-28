@@ -1,4 +1,4 @@
-<?php //r3vCMS /sys/Auth.php
+<?php //r3v engine /sys/Auth.php
 namespace r3v;
 
 /**

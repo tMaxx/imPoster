@@ -1,4 +1,4 @@
-<?php ///r3vCMS /sys/r3v/File.php
+<?php ///r3v engine /sys/r3v/File.php
 namespace r3v;
 
 /**
@@ -54,15 +54,6 @@ class File {
 	 */
 	public static function dirExists($dir) {
 		return is_dir(ROOT.$dir);
-	}
-
-	/**
-	 * Check if class file exists
-	 * @param $name class name
-	 * @return bool
-	 */
-	public static function appClassExists($name) {
-		return self::fileExists('/app/'.$name.'.php');
 	}
 
 	/**

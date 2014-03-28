@@ -1,13 +1,14 @@
-/* r3v engine [neon] css (c) 2014 Maxx *
- * colors based on Tango palette   /\  *
- * Licensed under CC BY-NC-SA     /\/\ *
- * * * * * * * * * * * * * * * * * * * *
+/* r3v engine SCSS (c) 2014 Maxx *
+ * colors based on Tango palette *
+ * Licensed under CC BY-NC-SA    *
+ * * * * * * * * * * * * * * * * *
 */
 // Variables
 $fontcolor: #D5D9D1;
 $fontimp: #FFFFFF;
 $bgcolor: #161C1E;
 $blue: #3465a4;
+$grey: darken($fontcolor, 10%);
 $lblue: lighten($blue, 10%);
 $lgrey: #888a85 + #222;
 $llgrey: lighten($lgrey, 10%);
@@ -49,7 +50,7 @@ a {
 // Main frame
 #main {
 	margin: 10px auto 0;
-	width: 60%;
+	width: 70%;
 	min-width: 320px;
 }
 
@@ -247,6 +248,16 @@ a {
 	}
 }
 
+.errorhttp {
+	.trace {
+		color: $grey;
+		font-size: 0.9em;
+		text-align: left;
+		margin: 15px auto 0;
+		width: 80%;
+	}
+}
+
 // Content
 #content, .content {
 	margin-top: $dv;
@@ -374,15 +385,6 @@ a {
 
 	input.wide, textarea.wide, .buttton.big {
 		width: 75%;
-	}
-
-	.errorhttp {
-		.trace {
-			font-size: 0.9em;
-			text-align: left;
-			margin: 35px auto 0;
-			width: 70%;
-		}
 	}
 
 	// ==================================================================

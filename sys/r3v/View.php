@@ -1,27 +1,27 @@
-<?php ///r3vCMS /sys/r3v/View.php
+<?php ///r3v engine /sys/r3v/View.php
 namespace r3v;
 
 /**
  * View/HTML class
  */
-class View /*extends \_Locks*/ {
+class View {
 	/** Everything that wil be added in <head>here</head> */
-	private static $HTML_head = array();
+	protected static $HTML_head = [];
 	/** Additional title part */
-	private static $HTML_title = '';
+	protected static $HTML_title = '';
+
+	/** HTTP headers */
+	protected static $HTTP_headers = [];
 
 	/** Route paths config */
 	protected static $config = [];
 
-	/**
-	 * Try to retrieve and render view, handle errors
-	 * @param $path path from CMS
-	 */
+	/** Render view, handle thrown HTTP errors */
 	public static function go() {
 		if (self::$config)
 			return;
 
-		HTTP::setContentType('html');
+		self::setContentType('html');
 		self::$config = Conf::get('site');
 		$node = Vars::uri('r3v/nodes');
 		$routes = Mod::getRoutePaths();
@@ -66,16 +66,13 @@ class View /*extends \_Locks*/ {
 			}
 		}
 
-		HTTP::flush();
+		self::HTTPflush();
 		if (AJAX || $no_template)
 			ob_end_flush();
-		else
-			(new View\Template($selected['template']))->replace([
-				'BODY' => ob_get_clean(),
-				'HEAD' => implode(self::$HTML_head),
-				'TITLE' => self::title(),
-				'EXECTIME' => ms_from_start()
-			])->echoo();
+		else {
+			$BODY = ob_get_clean();
+			include ROOT.$selected['template'];
+		}
 	}
 
 	/**
@@ -94,7 +91,7 @@ class View /*extends \_Locks*/ {
 	 * Add a string to title
 	 * @param $str
 	 */
-	public static function titleAdd($str = NULL) {
+	public static function addToTitle($str) {
 		self::$HTML_title .= (string) $str;
 	}
 
@@ -102,4 +99,77 @@ class View /*extends \_Locks*/ {
 	protected static function title() {
 		return self::$config['title'].(self::$HTML_title ? ' | '.self::$HTML_title : '');
 	}
+
+	/**
+	 * Add HTTP header for later flushing
+	 * @param $header
+	 */
+	public static function addHTTPHeaders($header) {
+		foreach ((array)$header as $k => $v) {
+			if (!is_string($v))
+				throw new Exception('Parameter is not a string!');
+			if (is_numeric($k))
+				self::$HTTP_headers[] = $v;
+			else
+				self::$HTTP_headers[$k] = $v;
+		}
+	}
+
+	/**
+	 * Set content-type header
+	 * @param $type
+	 * @return bool success
+	 */
+	public static function setContentType($type) {
+		switch (strtolower($type)) {
+			case 'js':
+				$type = 'javascript';
+			case 'pdf':
+			case 'json':
+			case 'javascript':
+				$type = 'application/'.$type;
+				break;
+			case 'text':
+				$type = 'text/plain';
+				break;
+			case 'plain':
+			case 'html':
+			case 'css':
+				$type = 'text/'.$type;
+				break;
+			case 'jpeg':
+			case 'gif':
+			case 'png':
+				$type = 'image/'.$type;
+				break;
+			default:
+				return false;
+				break;
+		}
+		self::$HTTP_headers['content-type'] = 'Content-Type: '.$type.'; charset=utf-8';
+		return true;
+	}
+
+	///Flush headers
+	public static function HTTPflush() {
+		foreach (self::$HTTP_headers as &$v) {
+			header($v);
+			unset($v);
+		}
+	}
+
+	/** Redirect to given $path */
+	public static function redirect($path) {
+		self::addHTTPHeaders('Location: '.$path);
+		self::HTTPflush();
+		die;
+	}
 }
+
+if (!CLI)
+	View::addHTTPHeaders([
+		'X-Powered-By: lots of self-esteem',
+		'X-Backend: '.r3v_ID,
+	]);
+
+Mod::registerUnload('r3v\\View', ['\\r3v\\View::HTTPflush']);

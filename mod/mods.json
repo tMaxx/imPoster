@@ -49,7 +49,7 @@
 		"route": {
 			"dir": "/",
 			"scope": "",
-			"template": "/index.html",
+			"template": "/index.template.php",
 			"error_page": "/error"
 		}
 	},

@@ -1,4 +1,4 @@
-<?php ///r3vCMS \r3v\Colors
+<?php ///r3v engine \r3v\Colors
 namespace r3v;
 
 /**

@@ -1,4 +1,4 @@
-<?php ///revCMS \Error.php
+<?php ///r3v engine \Error.php
 namespace {
 ///Error class
 class Error extends ErrorException {
@@ -13,8 +13,7 @@ class Error extends ErrorException {
 	}
 
 	public static function friendlyErrorType($type) {
-		switch($type)
-		{
+		switch($type) {
 			case E_ERROR: // 1 //
 				return 'E_ERROR';
 			case E_WARNING: // 2 //
@@ -195,15 +194,6 @@ class Error503 extends ErrorHTTP {
 	public function __construct($m = NULL) {
 		if (!$m) $m = 'Site Overlo[ar]d';
 		parent::__construct($m, 503);
-	}
-}
-
-class Redirect extends ErrorHTTP {
-	public function __construct($target = NULL) {
-		if (!$target || !is_string($target))
-			throw new ErrorCMS('Wrong redirect specified');
-		HTTP::addHeader('Location: '.$target);
-		die(); //die nicely
 	}
 }
 }

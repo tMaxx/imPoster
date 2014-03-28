@@ -10,7 +10,7 @@ switch (true) {
 		if (!r3v\File::fileExists($servepath.$_GET['p']))
 			break;
 
-		r3v\HTTP::setContentType('css');
+		$this->setContentType('css');
 		$compiler = new scssc();
 		$compiler->setFormatter('scss_formatter_compressed');
 
@@ -25,7 +25,7 @@ switch (true) {
 				$servepath . r3v\File::sanitizePath($vars['js']) . '.js'
 			)))
 			break;
-		r3v\HTTP::setContentType('js');
+		$this->setContentType('js');
 		echo $cnt;
 		return;
 	}

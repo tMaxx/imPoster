@@ -1,4 +1,4 @@
-<?php ///r3vCMS \r3v\View\Explicit
+<?php ///r3v engine \r3v\View\Explicit
 namespace r3v\View;
 use \r3v\File;
 
@@ -31,7 +31,7 @@ class Explicit {
 		elseif (File::fileExists($route.'/index.php'))
 			$route .= ($extension = '/index.php');
 		else
-			throw new \Error404("Node \"{$this->node}\" not found");
+			throw new \Error404("Controller \"{$this->node}\" was not found");
 
 		$ret = $this->inc($this->vars, $route);
 		$this->vars = [];
@@ -43,6 +43,9 @@ class Explicit {
 				if (!$view)
 					return;
 
+				if (!File::fileExists($view))
+					throw new \Error404("View \"{$view}\" was not found");
+
 				$this->inc($ret, $view);
 
 			} elseif (isset($ret[0]) && is_int($ret[0])) {
@@ -53,5 +56,15 @@ class Explicit {
 			}
 		}
 		$this->vars = [];
+	}
+
+	/** @see r3v\View::setContentType */
+	public function setContentType($v) {
+		\r3v\View::setContentType($v);
+	}
+
+	/** @see r3v\View::redirect */
+	public function redirect($v) {
+		\r3v\View::redirect($v);
 	}
 }

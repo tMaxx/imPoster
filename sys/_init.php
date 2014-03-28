@@ -1,4 +1,4 @@
-<?php ///revCMS sys/_init.php
+<?php ///r3v engine sys/_init.php
 ///Initialize CMS, add templates, run commands
 
 ///Implements locks for every class method
@@ -81,14 +81,6 @@ require_once ROOT.'/sys/r3v/Mod.php';
 spl_autoload_register('\\r3v\\Mod::loadClass');
 register_shutdown_function('\\r3v\\Mod::unloadAll', 'shutdown');
 \r3v\Mod::sysinit(); //load sys definition
-// \r3v\Mod::parseDef('/sys/_def.json');
-
-if (!CLI)
-	\r3v\HTTP::addHeaders([
-		'X-Powered-By: lots of self-esteem',
-		'X-Backend: '.r3v_ID,
-	]);
-
 
 /////////////////////////////////////////////////////////////////////
 // Class-specific functions
