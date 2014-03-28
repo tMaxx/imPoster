@@ -1,10 +1,10 @@
-<?php ///r3v engine /sys/Mail.php
+<?php ///r3v engine \r3v\Mail\Obj
 namespace r3v\Mail;
 
 /**
  * Mailer: Object
  */
-class Object {
+class Obj {
 	///Receiver mails
 	public $email_to;
 	///Mail subject

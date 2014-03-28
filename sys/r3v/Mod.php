@@ -1,4 +1,4 @@
-<?php ///r3v engine \Mod
+<?php ///r3v engine \r3v\Mod
 namespace r3v;
 
 /**

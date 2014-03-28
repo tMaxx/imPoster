@@ -1,4 +1,4 @@
-<?php //r3v engine /sys/Conf.php
+<?php //r3v engine \r3v\Conf
 namespace r3v;
 
 /**
