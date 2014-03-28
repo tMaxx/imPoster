@@ -15,10 +15,10 @@ A work in progress project.
  - 0.1: Request path support, classes, errors, file management
 
 ### TODO
- - ~~Throw~~ Fix old authentication ~~to dumpster and write a new one~~
+ - ~~Throw~~*Fix_* old authentication ~~to dumpster and write a new one~~
  - ~~_Maybe_ extend templates~~
  - Invent a way to store db passwords in config so that it could be pushed into repo
- - Errors module: ~~(trash,)~~ rewrite
+ - Errors module: ~~(trash,) rewrite~~ fix it, optimize, tone down
  - Explicit view generation: try to fix cross-referencing modules, then fail miserably
  - ~~Finish static view generator~~
  - Some more types for static file server (like images, plaintext)
