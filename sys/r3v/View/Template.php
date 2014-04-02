@@ -24,6 +24,11 @@ class Template {
 
 	/** Parse template and return result */
 	public function get() {
+		if ($this->type == 'abs') {
+			$this->type = Error::pathdiff($this->type);
+			$this->type = 'file';
+		}
+
 		if ($this->type == 'file') {
 			$cont = File::contents($this->src);
 			if ($cont === false)
@@ -37,7 +42,7 @@ class Template {
 		$right = [];
 
 		foreach ($this->replace as $k => $v) {
-			$left[] = '<%'.$k.'%>';
+			$left[] = '{{'.$k.'}}';
 			$right[] = $v;
 		}
 

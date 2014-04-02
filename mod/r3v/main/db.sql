@@ -75,13 +75,13 @@ CREATE TABLE IF NOT EXISTS `Ping` (
 	FOREIGN KEY (`user_dest`) REFERENCES `User`(`user_id`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS `UserFriends` (
-	`user_one` INT UNSIGNED NOT NULL,
-	`user_two` INT UNSIGNED NOT NULL,
-	`status` TINYINT(1) NULL DEFAULT NULL,
+-- CREATE TABLE IF NOT EXISTS `UserFriends` (
+-- 	`user_one` INT UNSIGNED NOT NULL,
+-- 	`user_two` INT UNSIGNED NOT NULL,
+-- 	`status` TINYINT(1) NULL DEFAULT NULL,
 
-	FOREIGN KEY (`user_one`) REFERENCES `User`(`user_id`),
-	FOREIGN KEY (`user_two`) REFERENCES `User`(`user_id`)
-) ENGINE=InnoDB;
-CREATE INDEX iudex_UserFriends_user_one ON `UserFriends`(`user_one`);
-CREATE INDEX iudex_UserFriends_user_two ON `UserFriends`(`user_two`);
+-- 	FOREIGN KEY (`user_one`) REFERENCES `User`(`user_id`),
+-- 	FOREIGN KEY (`user_two`) REFERENCES `User`(`user_id`)
+-- ) ENGINE=InnoDB;
+-- CREATE INDEX iudex_UserFriends_user_one ON `UserFriends`(`user_one`);
+-- CREATE INDEX iudex_UserFriends_user_two ON `UserFriends`(`user_two`);

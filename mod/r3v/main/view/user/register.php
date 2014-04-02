@@ -1,5 +1,5 @@
 <?php
-if ($reg = CMS\Vars::get('confirm')) {
+if ($reg = r3v\Vars::get('confirm')) {
 	$reg = explode(':', $reg, 2);
 	$el = DB('User')->select()->where(['user_id' => $reg[0], 'is_active' => false, 'is_removed' => false])->obj();
 	if (!$el)
@@ -13,7 +13,7 @@ if ($reg = CMS\Vars::get('confirm')) {
 		throw new Error400('Zły ciąg aktywacyjny');
 }
 
-if (CMS\Me::id())
+if (r3v\Auth\User::id())
 	$this->redirect('/');
 
 $form = new Form(array(
@@ -40,7 +40,9 @@ $form = new Form(array(
 if ($form->submitted()) {
 	$data = $form->get();
 
-	if ($data['password'] == $data['repeat']) {
+	if ($data['password'] != $data['repeat'])
+		$form->error('Hasła nie są równe', 'repeat');
+	else {
 		$reg = CMS\Me::register($data['email'], $data['login'], $data['password']);
 		if ($reg === false)
 			$form->error('Taka nazwa użytkownika lub email został już użyty', 'email');
@@ -50,20 +52,20 @@ if ($form->submitted()) {
 			$hash = $reg.':'.substr(hash('sha256', $reg.$data['email'].$data['login']), 0, 10);
 			$hash = 'http://'.HOST.'/user/register?confirm='.$hash;
 			echo 'OK';
-			$body = "<!DOCTYPE html>
-			<html lang=\"pl\">
-			<head><meta charset=\"UTF-8\" /></head><body>
-			Witaj!<br><br>Zarejestrowałeś/aś się w serwisie ".HOST." jako {$data['login']}.<br>
-			Aby się zalogować potwierdź aktywację swojego konta kierując się pod link:<br>
-			<a href=\"{$hash}\">{$hash}</a><br>
-			Po aktywacji możesz się zalogować używając hasła podanego przy rejestracji.<br><br>~Zespół teo
-			</body></html>";
-			CMS\Mail::create($data['email'], '[theOrganizer] Rejestracja', $body);
+
+			$tmp = new r3v\Template(__DIR__.'/register_mail.html', 'abs');
+			$tmp->replace([
+				'HOST' => HOST,
+				'LOGIN' => $data['login'],
+				'CONFIRM' => $hash
+			]);
+
+			CMS\Mail::create($data['email'], '[theOrganizer] Rejestracja', $tmp->get());
 			CMS\Mail::flush();
+
 			$this->redirect('/');
 		}
-	} else
-		$form->error('Hasła nie są równe', 'repeat');
+	}
 }
 
 $form->r();

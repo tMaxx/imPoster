@@ -34,6 +34,7 @@ class Vars {
 		self::$post = $_POST;
 		self::$server = $_SERVER;
 		self::$cookie = $_COOKIE;
+		//TODO: really should unset everything?
 		//unset($_GET, $_POST, $_REQUEST, $_SERVER, $_COOKIE);
 	}
 
@@ -51,7 +52,7 @@ class Vars {
 	 */
 	public static function __callStatic($name, $args) {
 		$name = strtolower($name);
-		if (!property_exists(self::class, $name))
+		if (!property_exists(__CLASS__, $name))
 			throw new Error("Property $name does not exist");
 
 		if (!$args)
@@ -60,7 +61,7 @@ class Vars {
 		$a = self::${$name};
 		$unset = isset($args[1]) ? $args[1] === true : false;
 		$in = $args[0];
-		if ($not_array = !is_array($in)) {
+		if (!is_array($in)) {
 			if (isset($a[$in])) {
 				$in = $a[$in];
 				if ($unset)

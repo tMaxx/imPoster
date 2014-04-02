@@ -16,13 +16,6 @@
 		"is_composer": true,
 		"explicit_load": true
 	},
-	"google-api": {
-		"origin": "git@github.com:google/google-api-php-client.git",
-		"is_composer": true,
-		"autoload": {
-			"include_path": "/src/"
-		}
-	},
 	"scssphp": {
 		"origin": "git@github.com:leafo/scssphp.git",
 		"is_composer": true,
@@ -30,11 +23,6 @@
 		"autoload": {
 			"files": ["/scss.inc.php"]
 		}
-	},
-	"raintpl3": {
-		"origin": "git@github.com:rainphp/raintpl3.git",
-		"is_composer": true,
-		"explicit_load": true
 	},
 	"r3v/static": {
 		"is_composer": false,

@@ -46,10 +46,10 @@ function ms_from_start() {
 
 require_once ROOT.'/sys/Errors.php';
 
-if (!CLI) { //Boris has its own handler
-	set_exception_handler('Error::h');
-	set_error_handler('Error::h', E_ALL);
-}
+// if (!CLI) { //Boris has its own handler
+	set_exception_handler('\\Error::h');
+	set_error_handler('\\Error::h', E_ALL);
+// } //but we may not care
 
 require_once ROOT.'/sys/r3v/Mod.php';
 

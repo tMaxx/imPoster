@@ -48,12 +48,13 @@ class View {
 		} catch (\ErrorHTTP $e) {
 			ob_clean();
 
-			self::$HTML_title = 'Oopsie no'.$e->httpcode;
+			self::$HTML_title = '';
 			self::$HTML_head = [];
 
 			if ($selected['error_page'])
 				(new View\Explicit($selected['dir'], $selected['error_page'], ['__error' => $e]))->go();
 			else {
+				self::$HTML_title = 'Oopsie no'.$e->httpcode;
 				if ($no_template)
 					echo '<html><head><title>', self::title(), '</title></head><body>';
 				echo '<div><h1>HTTP ', $e->httpcode, '</h1>', $e->inmessage;

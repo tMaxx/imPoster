@@ -14,36 +14,21 @@ class Error extends ErrorException {
 
 	public static function friendlyErrorType($type) {
 		switch($type) {
-			case E_ERROR: // 1 //
-				return 'E_ERROR';
-			case E_WARNING: // 2 //
-				return 'E_WARNING';
-			case E_PARSE: // 4 //
-				return 'E_PARSE';
-			case E_NOTICE: // 8 //
-				return 'E_NOTICE';
-			case E_CORE_ERROR: // 16 //
-				return 'E_CORE_ERROR';
-			case E_CORE_WARNING: // 32 //
-				return 'E_CORE_WARNING';
-			case E_CORE_ERROR: // 64 //
-				return 'E_COMPILE_ERROR';
-			case E_CORE_WARNING: // 128 //
-				return 'E_COMPILE_WARNING';
-			case E_USER_ERROR: // 256 //
-				return 'E_USER_ERROR';
-			case E_USER_WARNING: // 512 //
-				return 'E_USER_WARNING';
-			case E_USER_NOTICE: // 1024 //
-				return 'E_USER_NOTICE';
-			case E_STRICT: // 2048 //
-				return 'E_STRICT';
-			case E_RECOVERABLE_ERROR: // 4096 //
-				return 'E_RECOVERABLE_ERROR';
-			case E_DEPRECATED: // 8192 //
-				return 'E_DEPRECATED';
-			case E_USER_DEPRECATED: // 16384 //
-				return 'E_USER_DEPRECATED';
+			case E_ERROR:					return 'E_ERROR';
+			case E_WARNING:				return 'E_WARNING';
+			case E_PARSE:					return 'E_PARSE';
+			case E_NOTICE:					return 'E_NOTICE';
+			case E_CORE_ERROR:			return 'E_CORE_ERROR';
+			case E_CORE_WARNING:			return 'E_CORE_WARNING';
+			case E_CORE_ERROR:			return 'E_COMPILE_ERROR';
+			case E_CORE_WARNING:			return 'E_COMPILE_WARNING';
+			case E_USER_ERROR:			return 'E_USER_ERROR';
+			case E_USER_WARNING:			return 'E_USER_WARNING';
+			case E_USER_NOTICE:			return 'E_USER_NOTICE';
+			case E_STRICT:					return 'E_STRICT';
+			case E_RECOVERABLE_ERROR:	return 'E_RECOVERABLE_ERROR';
+			case E_DEPRECATED:			return 'E_DEPRECATED';
+			case E_USER_DEPRECATED:		return 'E_USER_DEPRECATED';
 		}
 		return "";
 	}
@@ -51,10 +36,11 @@ class Error extends ErrorException {
 	/**
 	 * Prettify trace
 	 * @param $trace
+	 * @param $args include arguments?
 	 * @param $separator string
 	 * @return string
 	 */
-	public static function prettyTrace($trace, $separator = '<br>') {
+	public static function prettyTrace($trace, $args = false, $separator = NEWLINE) {
 		$result = [];
 		foreach ($trace as $i => $v) {
 			$result[] = $i.'# ';
@@ -69,7 +55,7 @@ class Error extends ErrorException {
 
 			$result[] = $v['function'];
 
-			if (isset($v['args']) && $v['args'])
+			if ($args && isset($v['args']) && $v['args'])
 				$result[] = htmlspecialchars(self::pathdiff(json_encode($v['args'], JSON_UNESCAPED_SLASHES|JSON_NUMERIC_CHECK)), ENT_COMPAT|ENT_HTML5);
 			else
 				$result[] = '()';
@@ -86,7 +72,7 @@ class Error extends ErrorException {
 	 */
 	public static function h($eno = NULL, $estr = NULL, $efile = NULL, $eline = NULL, $econtext = NULL) {
 		$trace = debug_backtrace();
-		$result = array('<br><br>');
+		$result = [NEWLINE];
 
 		if ((isset($eno, $estr, $efile)) || (!isset($eno) && (($e_last = error_get_last()) !== NULL))) { //error
 			$eName = '?';
@@ -105,12 +91,12 @@ class Error extends ErrorException {
 			}
 
 			$result[] = '<big><b>Error</b></big>  ['.$eName.']  '.$estr;
-			$result[] = '<br><i>@</i>'.self::pathdiff($efile).':'.$eline;
+			$result[] = NEWLINE.'<i>-></i> '.self::pathdiff($efile).':'.$eline;
 		} elseif (isset($eno)) { //exception handler
 			$result[] = '<big><b>'.get_class($eno).'</b></big>  ';
 
 			$result[] = (method_exists($eno, 'getExtMessage') ? $eno->getExtMessage() : $eno->getMessage());
-			$result[] = '<br><i>@</i>'.self::pathdiff($eno->getFile()).':'.$eno->getLine();
+			$result[] = NEWLINE.'<i>-></i> '.self::pathdiff($eno->getFile()).':'.$eno->getLine();
 
 			$trace = $eno->getTrace();
 		}
@@ -119,9 +105,13 @@ class Error extends ErrorException {
 			http_response_code(500);
 
 		if ($trace)
-			$result[] = '<br>'.Error::prettyTrace($trace);
+			$result[] = NEWLINE.Error::prettyTrace($trace);
+		$result = implode($result);
 
-		echo implode($result);
+		if (CLI)
+			$result = strip_tags($result);
+
+		echo $result;
 		return true;
 	}
 }
@@ -171,8 +161,8 @@ class Error400 extends ErrorHTTP {
 
 class Error418 extends ErrorHTTP {
 	public function __construct($m = NULL) {
-		if (!$m) $m = "I\'m a teapot :D<br />(Some funny error occured, please return to <a href=\"/\">index</a> page)";
-		parent::__construct($m, 400);
+		if (!$m) $m = "I'm a teapot :D".NEWLINE."(Some funny error occured, please return to <a href=\"/\">index</a> page)";
+		parent::__construct($m, 418);
 	}
 }
 
@@ -186,7 +176,7 @@ class Error500 extends ErrorHTTP {
 class Error501 extends ErrorHTTP {
 	public function __construct($m = NULL) {
 		if (!$m) $m = 'Not (Yet...) Implemented';
-		parent::__construct($m, 500);
+		parent::__construct($m, 501);
 	}
 }
 

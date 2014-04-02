@@ -7,14 +7,27 @@ namespace r3v;
  */
 class Conf {
 	private static $conf = [];
-	private static $db = [];
+	private static $db = null;
+	protected static $env_type = null;
 
+	/** Load project config */
 	public static function load() {
-		$json = Common::jsonFromFile('/config.json');
+		$type = glob(ROOT.'/r3v_env.*');
+		if (!isset($type[0]))
+			throw new Error('Project environment not set!');
 
-		if (isset($json['database']))
+		self::$env_type = substr($type[0], strlen(ROOT)+9);
+
+		$json = Mod::readJsonFromFile('/config.json');
+		if (isset($json['__default']))
+			$json = array_merge($json['__default'], $json[self::$env_type]);
+		else
+			$json = $json[self::$env_type];
+
+		if (isset($json['database'])) {
 			self::$db = $json['database'];
-		unset($json['database']);
+			unset($json['database']);
+		}
 
 		self::$conf = $json;
 	}
@@ -22,9 +35,10 @@ class Conf {
 	/**
 	 * Get key from project config
 	 * @param $key where '/' is a separator for nested array keys
-	 * @param &$warn
+	 * @param $dnt Do Not Throw (return null)
+	 * @return key/null
 	 */
-	public static function get($key, &$warn = null) {
+	public static function get($key, $dnt = false) {
 		if (!is_string($key))
 			throw new Error('Invalid key: not a string');
 
@@ -32,7 +46,8 @@ class Conf {
 		$current = self::$conf;
 		while (($e = array_shift($key)) !== null) {
 			if (!isset($current[$e])) {
-				$warn = true;
+				if ($dnt)
+					return null;
 				throw new Error("Invalid key request: $e");
 			}
 			$current = $current[$e];
@@ -41,19 +56,21 @@ class Conf {
 		return $current;
 	}
 
-	///Get database connection config
+	/** Get database connection config */
 	public static function db() {
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
-		if ($trace[1]['class'] != 'r3v\\DB\\Base' || $trace[1]['function'] != 'go')
-			return false;
-
-		if (self::$db['dev_hostname'] == gethostname()) //dev
-			$data = self::$db['dev'];
-		else
-			$data = self::$db['stable'];
-
-		self::$db = [];
+		if (!self::$db)
+			throw new Error('No DB config available');
+		$data = self::$db;
+		self::$db = null;
 		return $data;
+	}
+
+	/**
+	 * Get environment type
+	 * @return string
+	 */
+	public static function envType() {
+		return self::$env_type;
 	}
 }
 

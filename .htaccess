@@ -1,4 +1,4 @@
-# revCMS /.htaccess
+# rev engine /.htaccess
 
 <Files .htaccess>
 order allow,deny

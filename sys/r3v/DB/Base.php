@@ -30,10 +30,17 @@ class Base {
 
 		$con = \r3v\Conf::db();
 
-		if (!isset($con['host']) || !isset($con['user']) || !isset($con['pass']) || !isset($con['dbname']))
-			throw new Error('Not sufficient connection parameters!');
+		$defaults = [
+			'host' => ini_get("mysqli.default_host"),
+			'username' => ini_get("mysqli.default_user"),
+			'passwd' => ini_get("mysqli.default_pw"),
+			'dbname' => "",
+			'port' => ini_get("mysqli.default_port"),
+			'socket' => ini_get("mysqli.default_socket")
+		];
+		$con = array_merge($defaults, $con);
 
-		self::$db = new \mysqli($con['host'], $con['user'], $con['pass'], $con['dbname']);
+		self::$db = new \mysqli($con['host'], $con['user'], $con['pass'], $con['dbname'], $con['port'], $con['socket']);
 
 		if (self::$db->connect_error)
 			throw new Error('Connecting error: '.self::$db->connect_errno);
@@ -283,10 +290,11 @@ class Base {
 				}
 			} else {
 				if (!$this->query)
-					throw new Error('Query not specified!');
+					throw new Error('Query is empty!');
 				$this->stmt = NULL;
 				if (($this->query_result = self::$db->query($this->query)) === FALSE)
-					throw new Error('Query execution unsuccessful: "'.$this->query.'"');
+					throw new Error('Error when executing query: "'.
+						(strlen($this->query) > 200 ? mb_substr($this->query, 0, 200).'(...)' : $this->query).'"');
 			}
 			$this->retrieveState();
 		}

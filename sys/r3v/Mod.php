@@ -170,7 +170,7 @@ class Mod {
 	 * registered unloader function stack)
 	 */
 	public static function unloadAll($x = NULL) {
-		if (PROCESS_ID != posix_getpid())
+		if (PROCESS_ID && PROCESS_ID != posix_getpid())
 			return;
 
 		while (($i = array_pop(self::$loaded)) !== null)

@@ -1,0 +1,22 @@
+{
+	//environment version indicator
+	//"__default" will be merged with any
+	"environment": {
+		"database": {
+			//all of these are optional (as in mysql_connect())
+			"host": "",
+			"username": "",
+			"passwd": "",
+			"dbname": "",
+			"port": "",
+			"socket": "",
+		},
+		"site": {
+			//site title, prepended
+			"title": "",
+			//array of required mods, will be loaded at view init
+			"mods_required": []
+		}
+		// ...and after that, anything that floats your boat.
+	}
+}
