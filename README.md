@@ -4,7 +4,8 @@ r3v engine
 A work in progress project.
 
 ### Changelog
- - **0.6aplha5/6**: Introduced MVC, some performance optimalizations, class organization, various other fixes
+ - 0.6alpha7: Config fixes, micro-refactor of View, Google auth stub
+ - 0.6alpha5/6: Introduced MVC, some performance optimalizations, class organization, various other fixes
  - 0.6alpha3/4: Working static file handler (for now), fix Error a bit, routing, cleanups, optimalizations
  - 0.6aplha2: Moved various things into modules, revamp autoloader (_again..._) and modloader, got CLI working (_again..._), trying to launch route scopes, extend Conf (stub for now)
  - 0.6alpha1: Rewritten autoloader (basic compatibility with composer) and initialization, added CLI through [joddie/boris](https://github.com/joddie/boris/)
@@ -15,14 +16,14 @@ A work in progress project.
  - 0.1: Request path support, classes, errors, file management
 
 ### TODO
- - ~~Throw~~*Fix* old authentication ~~to dumpster and write a new one~~
- - ~~_Maybe_ extend templates~~
- - Invent a way to store db passwords in config so that it could be pushed into repo
  - Errors module: ~~(trash,) rewrite~~ fix it, optimize, tone down
  - Explicit view generation: try to fix cross-referencing modules, then fail miserably
- - ~~Finish static view generator~~
  - Some more types for static file server (like images, plaintext)
- - Cache module
+ - Cache module (_much, much later_)
+ - Static files: time of life
+ - Move google auth to separate class
+ - Simplify DB - maybe move to PDO?
+ - Fix 'safe exit' functionality in Mod
 
 
 ### Licensing

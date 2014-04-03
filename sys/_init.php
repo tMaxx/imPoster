@@ -1,18 +1,22 @@
 <?php ///r3v engine sys/_init.php
 ///Initialize CMS, add templates, run commands
 
-///dumper
-function pre_dump() {
-	$vars = func_get_args();
-	echo '<pre>';
-	foreach ($vars as $v) {
-		var_dump($v);
-		echo '<br />';
-	}
-	echo '</pre>';
-}
+///dumper, uglier than ever
 function vdump(){
-	call_user_func_array('pre_dump', func_get_args());
+	$vars = func_get_args();
+	if (!CLI)
+		echo '<pre>';
+	elseif (class_exists('\\r3v\\Console', false))
+		$insp = r3v\Console::inst('inspector');
+	foreach ($vars as $v) {
+		if (CLI)
+			echo $insp->inspect($v);
+		else
+			var_dump($v);
+		echo NEWLINE;
+	}
+	if (!CLI)
+		echo '</pre>';
 }
 
 ///clone array, w. dereferencing
@@ -31,6 +35,7 @@ function array_copy(array $source) {
 }
 
 ///pop last el. of array as [key => value]
+///probably duplicate
 function array_popk(array &$arr) {
 	if (!$arr)
 		return [];
@@ -44,18 +49,25 @@ function ms_from_start() {
 	return round(((microtime(true)*10000) - NOW_MICRO)/10, 2);
 }
 
-require_once ROOT.'/sys/Errors.php';
+require_once ROOT.'/sys/r3v/Errors.php';
 
-// if (!CLI) { //Boris has its own handler
-	set_exception_handler('\\Error::h');
-	set_error_handler('\\Error::h', E_ALL);
-// } //but we may not care
+set_exception_handler('\\r3v\\Error::h');
+set_error_handler('\\r3v\\Error::h', E_ALL);
 
 require_once ROOT.'/sys/r3v/Mod.php';
 
 spl_autoload_register('\\r3v\\Mod::loadClass');
 register_shutdown_function('\\r3v\\Mod::unloadAll', 'shutdown');
 \r3v\Mod::sysinit(); //load sys definition
+
+//set DEBUG constant, Conf will come in handy anyway
+\r3v\Mod::loadClass('\\r3v\\Conf');
+
+if (DEBUG) {
+	error_reporting(E_ALL);
+	ini_set('log_errors', '1');
+	ini_set('display_errors', '1');
+}
 
 /////////////////////////////////////////////////////////////////////
 // Class-specific functions

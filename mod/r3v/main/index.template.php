@@ -16,6 +16,6 @@
 	<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 	<script src="/static/js:script"></script>
 	<script src="/static/js:ga"></script>
-<div id="footer">{"env":"<?= r3v\Conf::envType() ?>", "exec_ms":<?= ms_from_start() ?>, ["&amp;copy;", 2014]}</div>
+<div id="footer">["<?= r3v\Conf::envType() ?>", <?= ms_from_start() ?>, {"&amp;copy;": 2014}]</div>
 </body>
 </html>

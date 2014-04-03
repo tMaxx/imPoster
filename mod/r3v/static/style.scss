@@ -106,7 +106,7 @@ a {
 	font-size: 0.9em;
 	font-family: $fontsmono;
 	color: $lgrey;
-	position: absolute;
+	position: fixed;
 	bottom: $dv/2;
 	right: $dv;
 }
@@ -266,7 +266,8 @@ a {
 // Content
 #content, .content {
 	margin-top: $dv;
-	overflow: auto;
+	word-wrap: normal;
+	overflow-wrap: break-word;
 	line-height: 1.75;
 	// float: left;
 

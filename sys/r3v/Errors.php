@@ -1,7 +1,7 @@
-<?php ///r3v engine \Error.php
-namespace {
+<?php ///r3v engine \r3v\Error
+namespace r3v;
 ///Error class
-class Error extends ErrorException {
+class Error extends \ErrorException {
 
 	/**
 	 * Return trimmed dirs in string
@@ -116,8 +116,6 @@ class Error extends ErrorException {
 	}
 }
 
-class ErrorCMS extends Error {}
-
 class ErrorHTTP extends Error {
 	public $httpcode;
 	public $inmessage;
@@ -185,8 +183,4 @@ class Error503 extends ErrorHTTP {
 		if (!$m) $m = 'Site Overlo[ar]d';
 		parent::__construct($m, 503);
 	}
-}
-}
-namespace r3v {
-class Error extends \Error {}
 }

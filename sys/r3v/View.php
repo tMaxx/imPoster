@@ -45,7 +45,7 @@ class View {
 				['__view_child' => (isset($cont) ? $cont : false)]
 			))->go();
 
-		} catch (\ErrorHTTP $e) {
+		} catch (ErrorHTTP $e) {
 			ob_clean();
 
 			self::$HTML_title = '';
@@ -161,7 +161,9 @@ class View {
 
 	/** Redirect to given $path */
 	public static function redirect($path) {
-		self::addHTTPHeaders('Location: '.$path);
+		if ($path[0] == '/') //abs. path on server, not http(s)
+			$path = HOST.$path;
+		self::addHTTPHeaders('Location: '.filter_var($path, FILTER_SANITIZE_URL));
 		self::HTTPflush();
 		die;
 	}

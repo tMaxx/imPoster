@@ -16,6 +16,16 @@
 		"is_composer": true,
 		"explicit_load": true
 	},
+	"google-api": {
+		"is_composer": true,
+		"explicit_load": true,
+		"autoload": {
+			"include_path": "/src/",
+			"psr-0": {
+				"": "src/"
+			}
+		}
+	},
 	"scssphp": {
 		"origin": "git@github.com:leafo/scssphp.git",
 		"is_composer": true,

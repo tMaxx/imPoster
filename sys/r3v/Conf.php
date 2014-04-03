@@ -20,9 +20,12 @@ class Conf {
 
 		$json = Mod::readJsonFromFile('/config.json');
 		if (isset($json['__default']))
-			$json = array_merge($json['__default'], $json[self::$env_type]);
+			$json = array_replace_recursive($json['__default'], $json[self::$env_type]);
 		else
 			$json = $json[self::$env_type];
+
+		if (!defined('DEBUG'))
+			define('DEBUG', !!$json['debug']);
 
 		if (isset($json['database'])) {
 			self::$db = $json['database'];

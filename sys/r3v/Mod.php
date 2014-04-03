@@ -178,9 +178,9 @@ class Mod {
 				self::runFuncArray($i);
 
 		if ($x && CLI)
-			echo Colors::light_yellow,
+			echo Console::light_yellow,
 				"K, ThxBye :3\n",
-				Colors::reset;
+				Console::reset;
 	}
 
 	/** Add /sys/ autoloader **/
@@ -224,17 +224,7 @@ class Mod {
 		//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 
 		if (CLI) {
-			if (!class_exists('\\Boris\\Boris')) {
-				self::loadMod('boris');
-				echo Colors::white,
-					'Hi :D // ', r3v_ID,
-					' // loaded in ', ms_from_start(), 'ms',
-					' // Boris REPL v', \Boris\Boris::VERSION,
-					Colors::reset, "\n";
-				$boris = new \Boris\Boris('r3v> ');
-				$boris->start();
-			} else
-				echo "\n";
+			Console::start();
 			return;
 		}
 

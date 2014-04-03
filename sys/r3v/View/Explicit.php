@@ -31,7 +31,7 @@ class Explicit {
 		elseif (File::fileExists($route.'/index.php'))
 			$route .= ($extension = '/index.php');
 		else
-			throw new \Error404("Controller \"{$this->node}\" was not found");
+			throw new \r3v\Error404("Controller \"{$this->node}\" was not found");
 
 		$ret = $this->inc($this->vars, $route);
 		$this->vars = [];
@@ -44,12 +44,12 @@ class Explicit {
 					return;
 
 				if (!File::fileExists($view))
-					throw new \Error404("View \"{$view}\" was not found");
+					throw new \r3v\Error404("View \"{$view}\" was not found");
 
 				$this->inc($ret, $view);
 
 			} elseif (isset($ret[0]) && is_int($ret[0])) {
-				$view = '\\Error'.$view;
+				$view = '\\r3v\\Error'.$view;
 				if (isset($ret[1]))
 					throw (new $view($ret[1]));
 				throw (new $view());

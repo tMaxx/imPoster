@@ -1,6 +1,6 @@
 <?php //r3v engine \r3v\Role
 namespace r3v;
-
+trigger_user_error("Depracated.", E_USER_DEPRECATED);
 /**
  * Auth
  * Autorization class

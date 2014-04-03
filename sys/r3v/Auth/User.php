@@ -63,7 +63,7 @@ class User {
 
 		$hash = crypt($password, $salt = self::SALT_PRE.Sys::randString(22));
 		if ($hash[0] == '*')
-			throw new \Error500('Error generating hash, salt='.$salt);
+			throw new \Error500("Error generating hash with salt: $salt");
 		$q = DB('User')->insert(array(
 			'password' => $hash,
 			'email' => $email,

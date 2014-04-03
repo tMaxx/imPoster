@@ -1,5 +1,6 @@
 <?php ///r3v engine /sys/Session.php
 namespace r3v\Auth;
+use r3v\Vars;
 
 /**
  * Session management class
@@ -9,42 +10,31 @@ class Session {
 	protected static $ts = NULL;
 	protected static $id = NULL;
 	protected static $hash = NULL;
-	protected static $signature = NULL;
-	protected static $data = [];
-	protected static $addit = '';
+	public static $data = [];
 
-	///Return client signature based on UA & IP
-	protected static function signature() {
-		$str = strtoupper(Vars::server('HTTP_USER_AGENT')).':'.self::$ts.'P'.Vars::server('REMOTE_ADDR').HOST;
-		return hash('sha256', self::$ts.'merryKissMyAss'.strrev($str));
-	}
-
-	///Return user session hash
+	/** Return user session hash */
 	protected static function hash() {
-		return hash('sha256', strrev('r3v'.self::$id.':'.self::$addit.'()'.self::$ts.'//'.self::$signature.'engine'));
+		return hash('sha256', self::$id.((string)self::$ts).$_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR'].HOST);
 	}
 
-	///Recalculate signature, hash, update ts and cookie
+	/** Recalculate signature, hash, update ts and cookie */
 	public static function recalc() {
 		self::$ts = NOW_MICRO;
-		self::$signature = self::signature();
 		self::$hash = self::hash();
 		setcookie('session', self::$hash, NOW+self::SESSION_PERIOD, '/');
 	}
 
-	///Is current session valid?
+	/** Is current session valid? */
 	public static function valid() {
-		if ((!self::$hash) || (!self::$signature) ||
-			(self::$hash != self::hash()) ||
-			(((NOW_MICRO - self::$ts)/10000) > self::SESSION_PERIOD) ||
-			(self::$signature != self::signature())) {
+		if ((!self::$hash) || (self::$hash != self::hash()) ||
+			(((int)((NOW_MICRO - self::$ts) / 10000.0)) > self::SESSION_PERIOD)) {
 			self::destroy();
 			return false;
 		}
 		return true;
 	}
 
-	///Load session from DB, if any
+	/** Load session from DB, if any */
 	public static function load() {
 		static $lock = false;
 		if ($lock)
@@ -59,21 +49,19 @@ class Session {
 		if(!$data)
 			return false;
 		self::$ts = $data['ts'];
-		self::$id = $data['id'];
+		self::$id = $data['user_id'];
 		self::$hash = $data['hash'];
-		self::$signature = $data['signature'];
-		self::$data = @json_decode($data['data'], true);
+		self::$data = @json_decode($data['data'], true) ?: [];
 		return self::valid();
 	}
 
-	///Set id, data, generate new hashes
-	public static function create($id, array $v = array()) {
+	/** Set id, data, generate new hashes */
+	public static function create($id = null) {
 		self::$id = $id;
-		self::$data = $v;
 		self::recalc();
 	}
 
-	///Delete session from DB, 'unset' variables
+	/** Delete session from DB, 'unset' variables */
 	public static function destroy() {
 		if (self::$hash) {
 			DB('Session')->delete()->where(array('hash' => self::$hash))->exec();
@@ -82,38 +70,23 @@ class Session {
 		self::$ts = NULL;
 		self::$id = NULL;
 		self::$hash = NULL;
-		self::$signature = NULL;
 		self::$data = [];
 	}
 
+	/** Get id stored in session */
 	public static function getId() {
 		return self::$id;
 	}
 
-	public static function addit($a) {
-		self::$addit = $a;
-	}
-
-	public static function get($key, $ifndef = NULL) {
-		if (isset(self::$data[$key]))
-			return self::$data[$key];
-		return $ifndef;
-	}
-
-	public static function set($key, $value) {
-		self::$data[$key] = $value;
-	}
-
-	///Save session into DB
+	/** Save session into DB */
 	public static function save() {
-		if (!self::$hash || !self::$id)
+		if (!self::$hash)
 			return;
 		$db = DB('Session');
 		$arr = [
 			'ts' => self::$ts,
-			'id' => self::$id,
-			'signature' => self::$signature,
-			'data' => json_encode(self::$data)
+			'user_id' => self::$id,
+			'data' => (@json_encode(self::$data) ?: '{}')
 		];
 		$hsh = ['hash' => self::$hash];
 		if (self::$ts == NOW_MICRO)
@@ -122,6 +95,18 @@ class Session {
 			$db->update($arr)->where($hsh);
 		$db->exec();
 	}
+
+	public static function dump() {
+		if (DEBUG)
+		return [
+			'ts' => self::$ts,
+			'user_id' => self::$id,
+			'hash' => self::$hash,
+			'new_hash' => self::hash(),
+			'hash_match' => (self::$hash == self::hash()),
+			'data' => self::$data,
+		];
+	}
 }
 
-Mod::registerUnload(['\\r3v\\Session::save']);
+\r3v\Mod::registerUnload(['\\r3v\\Auth\\Session::save']);

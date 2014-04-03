@@ -38,7 +38,7 @@ class Base {
 			'port' => ini_get("mysqli.default_port"),
 			'socket' => ini_get("mysqli.default_socket")
 		];
-		$con = array_merge($defaults, $con);
+		$con = array_replace($defaults, $con);
 
 		self::$db = new \mysqli($con['host'], $con['user'], $con['pass'], $con['dbname'], $con['port'], $con['socket']);
 
@@ -408,4 +408,4 @@ class Base {
 }
 
 \r3v\DB\Base::go();
-\r3v\Mod::registerUnload(['\\r3v\\DB\\Base::end']);
+//\r3v\Mod::registerUnload(['\\r3v\\DB\\Base::end']);
