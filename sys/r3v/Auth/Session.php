@@ -7,27 +7,38 @@ use r3v\Vars;
  */
 class Session {
 	const SESSION_PERIOD = 2592000;//30days*24hours*60minutes*60seconds
-	protected static $ts = NULL;
-	protected static $id = NULL;
-	protected static $hash = NULL;
+	protected static $ts = null;
+	protected static $id = null;
+	protected static $salt = null;
+	protected static $hash = null;
 	public static $data = [];
 
 	/** Return user session hash */
 	protected static function hash() {
-		return hash('sha256', self::$id.((string)self::$ts).$_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR'].HOST);
+		$t = self::$salt.self::$id.((string)self::$ts).$_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR'].HOST;
+		return base_convert(hash('sha256', $t), 16, 36);
 	}
 
-	/** Recalculate signature, hash, update ts and cookie */
+	/** Recalculate signature, hash, update ts and cookie, send to db */
 	public static function recalc() {
-		self::$ts = NOW_MICRO;
+		self::$ts = NOW;
+		self::$salt = base_convert(bin2hex(openssl_random_pseudo_bytes(64)), 16, 36);
 		self::$hash = self::hash();
-		setcookie('session', self::$hash, NOW+self::SESSION_PERIOD, '/');
+		setcookie('session', self::$hash, self::$ts+self::SESSION_PERIOD, '/');
+		DB('Session')->insert([
+			'ts' => (string)self::$ts,
+			'user_id' => self::$id,
+			'salt' => self::$salt,
+			'data' => json_encode(self::$data),
+			'hash' => self::$hash,
+		])->exec();
 	}
 
 	/** Is current session valid? */
 	public static function valid() {
-		if ((!self::$hash) || (self::$hash != self::hash()) ||
-			(((int)((NOW_MICRO - self::$ts) / 10000.0)) > self::SESSION_PERIOD)) {
+		if (!self::$hash)
+			return false;
+		if ((self::$hash != self::hash()) || ((NOW - self::$ts) > self::SESSION_PERIOD)) {
 			self::destroy();
 			return false;
 		}
@@ -51,7 +62,8 @@ class Session {
 		self::$ts = $data['ts'];
 		self::$id = $data['user_id'];
 		self::$hash = $data['hash'];
-		self::$data = @json_decode($data['data'], true) ?: [];
+		self::$salt = $data['salt'];
+		self::$data = json_decode($data['data'], true);
 		return self::valid();
 	}
 
@@ -63,13 +75,15 @@ class Session {
 
 	/** Delete session from DB, 'unset' variables */
 	public static function destroy() {
-		if (self::$hash) {
-			DB('Session')->delete()->where(array('hash' => self::$hash))->exec();
-			setcookie('session', self::$hash, self::SESSION_PERIOD, '/');
-		}
-		self::$ts = NULL;
-		self::$id = NULL;
-		self::$hash = NULL;
+		if (!self::$hash)
+			return;
+
+		DB('Session')->delete()->where(array('hash' => self::$hash))->exec();
+		setcookie('session', self::$hash, self::SESSION_PERIOD, '/');
+		self::$ts = null;
+		self::$id = null;
+		self::$hash = null;
+		self::$salt = null;
 		self::$data = [];
 	}
 
@@ -78,35 +92,16 @@ class Session {
 		return self::$id;
 	}
 
-	/** Save session into DB */
-	public static function save() {
-		if (!self::$hash)
-			return;
-		$db = DB('Session');
-		$arr = [
-			'ts' => self::$ts,
-			'user_id' => self::$id,
-			'data' => (@json_encode(self::$data) ?: '{}')
-		];
-		$hsh = ['hash' => self::$hash];
-		if (self::$ts == NOW_MICRO)
-			$db->insert($arr+$hsh);
-		else
-			$db->update($arr)->where($hsh);
-		$db->exec();
-	}
-
 	public static function dump() {
 		if (DEBUG)
 		return [
 			'ts' => self::$ts,
 			'user_id' => self::$id,
 			'hash' => self::$hash,
+			'salt' => self::$salt,
 			'new_hash' => self::hash(),
-			'hash_match' => (self::$hash == self::hash()),
+			'rem_time' => (self::SESSION_PERIOD - (NOW - self::$ts)),
 			'data' => self::$data,
 		];
 	}
 }
-
-\r3v\Mod::registerUnload(['\\r3v\\Auth\\Session::save']);

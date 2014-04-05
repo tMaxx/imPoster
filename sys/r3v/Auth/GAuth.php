@@ -3,6 +3,11 @@ namespace r3v\Auth;
 
 /**
  * Google auth/login class
+ * Wrapper for .\Session
+ *
+ * On auth request it will get user info from G,
+ * compare data and then create session with r3v user id.
+ * TODO: Registration
  */
 class GAuth {
 	protected static $client;
@@ -11,7 +16,9 @@ class GAuth {
 	protected static $userinfo = [];
 
 
-	public static function load() {
+	public static function init() {
+		if (self::$client)
+			return;
 		\r3v\Mod::loadMod('google-api');
 
 		self::$client = new \Google_Client();
@@ -43,6 +50,10 @@ class GAuth {
 		return $r;
 	}
 
+	public static function load() {
+		return Session::load();
+	}
+
 	/** Return string info about client status */
 	public static function notices() {
 		return implode(NEWLINE, self::$notices);
@@ -52,12 +63,18 @@ class GAuth {
 	 * Set auth code for client
 	 */
 	public static function auth($code) {
+		self::init();
 		self::$client->authenticate($code);
 		Session::$data['token'] = self::$client->getAccessToken();
 		Session::recalc();
+
+		//FIXME: load user
+		//compare email & google_id
+		//get id, recalc session
 	}
 
 	public static function login_redirect() {
+		self::init();
 		\r3v\View::redirect(self::$client->createAuthUrl());
 	}
 
@@ -70,5 +87,3 @@ class GAuth {
 		return self::$userinfo ?: false;
 	}
 }
-
-GAuth::load();

@@ -4,7 +4,7 @@ r3v engine
 A work in progress project.
 
 ### Changelog
- - 0.6alpha7: Config fixes, micro-refactor of View, Google auth stub
+ - 0.6alpha7: Config fixes, micro-refactor of View, Google auth
  - 0.6alpha5/6: Introduced MVC, some performance optimalizations, class organization, various other fixes
  - 0.6alpha3/4: Working static file handler (for now), fix Error a bit, routing, cleanups, optimalizations
  - 0.6aplha2: Moved various things into modules, revamp autoloader (_again..._) and modloader, got CLI working (_again..._), trying to launch route scopes, extend Conf (stub for now)
@@ -21,7 +21,6 @@ A work in progress project.
  - Some more types for static file server (like images, plaintext)
  - Cache module (_much, much later_)
  - Static files: time of life
- - Move google auth to separate class
  - Simplify DB - maybe move to PDO?
  - Fix 'safe exit' functionality in Mod
 
