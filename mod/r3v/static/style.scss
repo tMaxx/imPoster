@@ -393,6 +393,27 @@ a {
 		width: 75%;
 	}
 
+	pre.xdebug-var-dump {
+		b {
+			color:white;
+		}
+		font {
+			&[color="#3465a4"], &[color="#75507b"] {
+				color: #fce94f;
+			}
+			&[color="#4e9a06"], &[color="#f57900"] {
+				color: #4FCC00;
+			}
+			&[color="#f57900"]:after {
+				content: 'f';
+				color: white;
+			}
+			&[color="#cc0000"] {
+				color: #559fdc;
+			}
+		}
+	}
+
 	// ==================================================================
 	//
 	// Application-specific styles
@@ -436,11 +457,12 @@ a {
 	}
 }
 
-div.right-panel {
-	position: absolute;
-	right: 0;
-	top: 0;
-	width: 18%;
+div.rpanel {
+	position: fixed;
+	right: 5px;
+	top: 5px;
+	width: 10%;
+	text-align: right;
 
 	a.panel-item {
 		display: block;

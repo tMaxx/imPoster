@@ -1,93 +1,117 @@
-<?php ///r3v engine \r3v\User
+<?php ///r3v engine \r3v\Auth\User
 namespace r3v\Auth;
 
 /**
- * User class handler
+ * Google auth/login class
+ * Wrapper for .\Session
+ *
+ * On auth request it will get user info from G,
+ * compare data and then create session with r3v user id.
+ * TODO: Registration
  */
 class User {
-	const SALT_PRE = '$2y$07$';
-	public static $me = NULL;
-	private static $id = NULL;
+	protected static $_gclient;
+	protected static $_goauth;
 
-	public static function login($email, $pass) {
-		if (self::$me || self::$id)
+	public static $user = [];
+
+	/** Init shitty Google Oauth2-ready libraries */
+	public static function g_lib_init() {
+		if (self::$_gclient)
 			return;
+		\r3v\Mod::loadMod('google-api');
 
-		if (!($obj = self::load($email)))
+		self::$_gclient = new \Google_Client();
+
+		//currently online as nothing will be processed outside page
+		self::$_gclient->setAccessType('online');
+		self::$_gclient->setApplicationName(\r3v\Conf::get('site/name'));
+		self::$_gclient->setScopes(['openid', 'profile', 'email']);
+
+		$conf = \r3v\Conf::get('google_oauth');
+
+		self::$_gclient->setClientId($conf['client_id']);
+		self::$_gclient->setClientSecret($conf['client_secret']);
+		self::$_gclient->setRedirectUri(HOST.'/user:callback/');
+	}
+
+	/** Redirect to Session::load() */
+	public static function load() {
+		if (!Session::load())
 			return false;
 
-		if (!self::checkpw($pass, $obj->get('password')))
-			return 0;
+		if (Session::id())
+			self::$user = DB('User')->select()->where(['id' => Session::id()])->row();
 
-		self::$me = $obj;
-		Session::create($obj->get('user_id'));
-		return true;
+		return !!(self::$user);
 	}
 
-	public static function autoload() {
-		if (CLI) return; //FIXME
-		if (Session::load()) {
-			if ($obj = self::load(Session::getId())) {
-				self::$id = $obj->get('user_id');
-				self::$me = $obj;
+	/**
+	 * Authorize request from G
+	 * @param $code
+	 * @return
+	 * 	false: successfully logged in
+	 *		string: notice to user
+	 */
+	public static function callback_auth($code) {
+		self::g_lib_init();
+		self::$_goauth = new \Google_Service_Oauth2(self::$_gclient);
+		self::$_gclient->authenticate($code);
+
+		$uinfo = self::$_goauth->userinfo->get();
+
+		$data = DB('User')->select()->where(['gid' => $uinfo->id])->row();
+
+		if (!$data) { //register
+			if (!$uinfo->verifiedEmail)
+				return 'Email connected with this Google account is not verified, aborting registration';
+
+			$q = DB('User')->insert([
+				'email' => $uinfo->email,
+				'login' => $uinfo->name,
+				'is_active' => false,
+				'is_removed' => false,
+				'ts_seen' => NOW,
+				'gid' => $uinfo->id,
+			]);
+			if ($q->bool()) {
+				$r = 'Account successfully registered.<br>';
+				$r .= 'Please proceed <a href="/user/confirm:';
+				$r .= $q->getInsertID().'">here</a> to request a confirmation email.';
 			} else
-				Session::destroy();
+				$r = 'Error while trying to register account';
+			return $r;
 		}
+
+		if ($data['is_removed'])
+			throw new Error403();
+		if (!$data['is_active'])
+			return 'Account is inactive, login aborted';
+
+		if ($data['auth'] == 'admin' && (!$uinfo->verifiedEmail || $data['email'] != $uinfo->email))
+			throw new r3v\Error403('Invalid e-mail for auth "admin"; login aborted');
+
+		Session::create($data['id']);
+		vdump($uinfo, $data, Session::dump());
 	}
 
-	protected static function load($e) {
-		$res = DB('User')->select()->where('is_active!=0');
-		if (is_numeric($e))
-			$res->where('user_id=?')->param('i', $e);
-		elseif (is_string($e))
-			$res->where('email=?')->param('s', $e);
-		else
-			return null;
-
-		return $res->obj('r3v\\Auth\\UserObj');
+	public static function login_redirect() {
+		self::g_lib_init();
+		\r3v\View::redirect(self::$_gclient->createAuthUrl());
 	}
 
 	public static function logout() {
-		if (self::$me || self::$id) {
-			Session::destroy();
-			self::$me = NULL;
-			self::$id = NULL;
-			return true;
-		}
-		return false;
+		Session::destroy();
+		self::$user = [];
 	}
 
-	public static function register($email, $login, $password, $active = 0) {
-		if (DB('SELECT user_id FROM User WHERE email=? OR login=?')->params('ss', array($email, $login))->row())
-			return false;
-
-		$hash = crypt($password, $salt = self::SALT_PRE.Sys::randString(22));
-		if ($hash[0] == '*')
-			throw new \Error500("Error generating hash with salt: $salt");
-		$q = DB('User')->insert(array(
-			'password' => $hash,
-			'email' => $email,
-			'login' => $login,
-			'is_active' => $active,
-		));
-		if ($q->bool())
-			return $q->getInsertID();
-		else
-			return 0;
-	}
-
-	///Check if passwords are the same
-	public static function checkpw($pass, $hash) {
-		return !!(crypt($pass, $hash) == $hash);
-	}
-
-	///Return user id
+	/** Return user id */
 	public static function id() {
-		return self::$id;
+		return (!isset(self::$user['id'])) ?: self::$user['id'];
 	}
 
-	///Return authentication status (bool)
-	public static function auth($role) {
+	/** Return authentication status (bool) */
+	public static function role($role) {
 		return Role::auth($role);
 	}
 }

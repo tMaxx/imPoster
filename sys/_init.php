@@ -1,25 +1,26 @@
 <?php ///r3v engine sys/_init.php
 ///Initialize CMS, add templates, run commands
 
-///dumper, uglier than ever
-function vdump(){
-	$vars = func_get_args();
-	if (!CLI)
+/** dumper, uglier than ever */
+function vdump() {
+	if (!DEBUG) return;
+	$wpre = (!CLI && (!function_exists('xdebug_get_code_coverage')));
+	if ($wpre)
 		echo '<pre>';
 	elseif (class_exists('\\r3v\\Console', false))
 		$insp = r3v\Console::inst('inspector');
-	foreach ($vars as $v) {
+	foreach (func_get_args() as $v) {
 		if (CLI)
 			echo $insp->inspect($v);
 		else
 			var_dump($v);
 		echo NEWLINE;
 	}
-	if (!CLI)
+	if ($wpre)
 		echo '</pre>';
 }
 
-///clone array, w. dereferencing
+/** clone array, w. dereferencing */
 function array_copy(array $source) {
 	$arr = array();
 
@@ -45,6 +46,7 @@ function array_popk(array &$arr) {
 	return [$k => $v];
 }
 
+/** Return milliseconds elapsed from init of script */
 function ms_from_start() {
 	return round(((microtime(true)*10000) - NOW_MICRO)/10, 2);
 }

@@ -1,5 +1,8 @@
 <div id="content">
-test widoku strony głównej:
-<br>
 <? !$view_child ?: $view_child->go() ?>
 </div>
+<? if ($rpane): ?>
+	<div class="rpanel">
+		<?= $user_data['login'] ?>
+	</div>
+<? endif ?>

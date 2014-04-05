@@ -1,6 +1,6 @@
 <?php //r3v engine \r3v\Role
 namespace r3v;
-trigger_user_error("Depracated.", E_USER_DEPRECATED);
+//trigger_user_error("Depracated.", E_USER_DEPRECATED);
 /**
  * Auth
  * Autorization class
@@ -13,39 +13,36 @@ class Role {
 	 * This one is final:
 	 * role2 => []
 	 */
-	protected $map = array();
+	protected $map = [];
 
-	///User roles cache
-	protected $user = array();
+	/** User roles cache */
+	protected $user = [];
 
 	public static function init() {
 		if (self::$map)
 			return;
-		$rows = DB('SELECT * FROM ACLRoles')->rows();
-		foreach ($rows as $r) {
-			$c = (array)explode(' ', $r['child']);
-			$r = $r['role'];
-
-			if (!isset(self::$map[$r]))
-				self::$map[$r] = [];
-
-			foreach ($c as $e)
-				if ($e)
-					self::$map[$r][] = $e;
-		}
+		self::$map = Conf::get('auth/map');
 	}
 
-	///Retrieve user role by given $id and add it to cache
+	/** Retrieve user role by given $id and add it to cache */
 	public static function cache($id) {
 		if (is_numeric($id)) {
 			if (isset(self::$user[$id]))
 				return;
-			$role = DB('UserACL')->select('role')->where(['user_id' => $id])->val();
+			$role = DB('User')->select('auth')->where(['user_id' => $id])->val();
 
 			self::$user[$id] = $role;
 		}
 	}
 
+	/**
+	 * Micro-authorization
+	 * Walks internal array of auth
+	 * @param $start which array key we're in
+	 * @param $role which role we're looking for
+	 * @param &$limit how many jumps we can do
+	 * @return bool
+	 */
 	protected static function microauth($start, $role, &$limit) {
 		if (!$limit || !$start || !isset(self::$auth[$start]))
 			return false;
@@ -57,16 +54,20 @@ class Role {
 			//role has an element we look for
 			if ($r == $role)
 				return true;
-			if ($r)
-				return self::microauth($r, $role, $limit);
+			return self::microauth($r, $role, $limit);
 		}
 		return false;
 	}
 
+	/**
+	 * Check if current user has authorization for specified role
+	 * @param $role name
+	 * @return bool
+	 */
 	public static function auth($role) {
 		if ($role == 'anonymous')
 			return true;
-		$id = Me::id();
+		$id = User::id();
 		if (!$id)
 			return false;
 		elseif ($role == 'user')

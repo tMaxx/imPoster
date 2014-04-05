@@ -20,7 +20,10 @@ class Session {
 	}
 
 	/** Recalculate signature, hash, update ts and cookie, send to db */
-	public static function recalc() {
+	public static function recalc($id = null) {
+		self::destroy();
+
+		self::$id = $id;
 		self::$ts = NOW;
 		self::$salt = base_convert(bin2hex(openssl_random_pseudo_bytes(64)), 16, 36);
 		self::$hash = self::hash();
@@ -29,7 +32,7 @@ class Session {
 			'ts' => (string)self::$ts,
 			'user_id' => self::$id,
 			'salt' => self::$salt,
-			'data' => json_encode(self::$data),
+			'data' => self::$data ? json_encode(self::$data) : null,
 			'hash' => self::$hash,
 		])->exec();
 	}
@@ -63,14 +66,13 @@ class Session {
 		self::$id = $data['user_id'];
 		self::$hash = $data['hash'];
 		self::$salt = $data['salt'];
-		self::$data = json_decode($data['data'], true);
+		self::$data = $data['data'] ? json_decode($data['data'], true) : null;
 		return self::valid();
 	}
 
 	/** Set id, data, generate new hashes */
 	public static function create($id = null) {
-		self::$id = $id;
-		self::recalc();
+		self::recalc($id);
 	}
 
 	/** Delete session from DB, 'unset' variables */
@@ -78,7 +80,7 @@ class Session {
 		if (!self::$hash)
 			return;
 
-		DB('Session')->delete()->where(array('hash' => self::$hash))->exec();
+		DB('Session')->delete()->where(['hash' => self::$hash])->exec();
 		setcookie('session', self::$hash, self::SESSION_PERIOD, '/');
 		self::$ts = null;
 		self::$id = null;
@@ -88,7 +90,7 @@ class Session {
 	}
 
 	/** Get id stored in session */
-	public static function getId() {
+	public static function id() {
 		return self::$id;
 	}
 

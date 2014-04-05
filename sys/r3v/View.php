@@ -16,6 +16,9 @@ class View {
 	/** Route paths config */
 	protected static $config = [];
 
+	/** Current/selected route path dir */
+	protected static $basepath = [];
+
 	/** Render view, handle thrown HTTP errors */
 	public static function go() {
 		if (self::$config)
@@ -29,6 +32,7 @@ class View {
 		$selected = isset($node[0], $routes[$node[0]]) ? $node[0] : '';
 		$len = strlen($selected) + 1;
 		$selected = $routes[$selected];
+		self::$basepath = $selected['dir'];
 		unset($routes);
 
 		$no_template = empty($selected['template']);
@@ -36,7 +40,7 @@ class View {
 
 		ob_start();
 		try {
-			if (($reqpath && strncmp($reqpath, 'index', 5) != 0) && !$selected['force_path'])
+			if ((!$selected['force_path']) && $reqpath && (strncmp($reqpath, 'index', 5) != 0))
 				$cont = new View\Explicit($selected['dir'], $reqpath);
 
 			(new View\Explicit(
@@ -164,6 +168,11 @@ class View {
 		self::addHTTPHeaders('Location: '.filter_var($path, FILTER_SANITIZE_URL));
 		self::HTTPflush();
 		die;
+	}
+
+	/** Return current basepath */
+	public static function getCurrentBasepath() {
+		return self::$basepath;
 	}
 }
 

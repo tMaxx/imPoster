@@ -223,11 +223,9 @@ class Mod {
 
 		//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 
-		if (CLI) {
-			Console::start();
-			return;
-		}
-
-		View::go(); //start app in html/http mode
+		if (CLI)
+			Console::start(); //console/cli/REPL mode
+		else
+			View::go(); //start app in html/http mode
 	}
 }

@@ -25,7 +25,10 @@ class Template {
 	/** Parse template and return result */
 	public function get() {
 		if ($this->type == 'abs') {
-			$this->type = Error::pathdiff($this->type);
+			$this->src = Error::pathdiff($this->src);
+			$this->type = 'file';
+		} elseif ($this->type == 'templates') {
+			$this->src = \r3v\View::getCurrentBasepath().'/templates/'.$this->src.'.html';
 			$this->type = 'file';
 		}
 

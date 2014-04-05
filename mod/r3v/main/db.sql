@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `User` (
 	`email` VARCHAR(50) NOT NULL UNIQUE,
 	`login` VARCHAR(16) NOT NULL UNIQUE,
 	`auth` VARCHAR(10) NOT NULL DEFAULT 'user' COMMENT 'authorization',
-	`ts_seen` INT(11),
+	`ts_seen` INT(11) NOT NULL DEFAULT UNIX_TIMESTAMP(),
 	`is_active` TINYINT(1) DEFAULT 0,
 	`is_removed` TINYINT(1) DEFAULT 0,
 
@@ -15,52 +15,38 @@ CREATE INDEX iudex_User_login ON `User`(`login`);
 CREATE INDEX iudex_User_gid ON `User`(`gid`);
 
 CREATE TABLE IF NOT EXISTS `Session` (
-	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`user_id` INT UNSIGNED,
-	`ts` BIGINT(14),
-	`salt` VARCHAR(64),
-	`hash` VARCHAR(64),
-	`data` VARCHAR(2048) DEFAULT '{}',
+	`ts` BIGINT(14) NOT NULL,
+	`salt` VARCHAR(64) NOT NULL UNIQUE,
+	`hash` VARCHAR(50) NOT NULL,
+	`data` VARCHAR(512) DEFAULT '{}',
 
-	PRIMARY KEY (`id`)
+	PRIMARY KEY (`hash`)
 ) ENGINE=MEMORY;
 CREATE INDEX iudex_Session_hash ON `Session`(`hash`);
 
--- CREATE TABLE IF NOT EXISTS `UserACL` (
--- 	`user_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
--- 	`role` VARCHAR(50),
+-- CREATE OR REPLACE VIEW `UserSessions` AS
+-- 	SELECT
+-- 		s.user_id as id,
+-- 		s.ts as ts,
+-- 		s.salt as salt,
+-- 		s.hash as hash,
+-- 		s.data as data,
 
--- 	PRIMARY KEY (`user_id`),
--- 	FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE
--- ) ENGINE=InnoDB;
-
--- CREATE TABLE IF NOT EXISTS `ACLRoles` (
--- 	`role` VARCHAR(20) NOT NULL UNIQUE,
--- 	`child` VARCHAR(62) DEFAULT NULL
--- ) ENGINE=InnoDB;
-
--- CREATE TABLE IF NOT EXISTS `ACLActions` (
--- 	`role` VARCHAR(20) NOT NULL,
--- 	`action` VARCHAR(30) NOT NULL
--- ) ENGINE=InnoDB;
+-- 	FROM `Session` s RIGHT JOIN `User` u
+-- 	ON s.user_id=u.id
+-- ;
 
 CREATE TABLE IF NOT EXISTS `Entry` (
 	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	`user_id` INT UNSIGNED NOT NULL,
-	-- `user_dest` INT UNSIGNED NULL DEFAULT NULL,
-	-- `list_id` INT UNSIGNED NULL DEFAULT NULL,
 	`name` VARCHAR(140),
 	`content` TEXT NOT NULL,
 	`type` INT,
 	`ts` INT(11) NOT NULL,
 	`is_draft` TINYINT(1) NOT NULL DEFAULT 0,
-	`is_read` TINYINT(1) NOT NULL DEFAULT 0,
 
-	PRIMARY KEY (`elem_id`),
-	FOREIGN KEY (`list_id`) REFERENCES `Entry`(`elem_id`),
-	FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`),
+	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-CREATE INDEX iudex_Elem_user_id ON `Entry`(`user_id`);
 
 -- CREATE TABLE IF NOT EXISTS `Ping` (
 -- 	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,

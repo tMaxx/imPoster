@@ -1,4 +1,5 @@
 <?php
+throw new r3v\Error501('FIX ME, PLEASE...!');
 if ($reg = r3v\Vars::get('confirm')) {
 	$reg = explode(':', $reg, 2);
 	$el = DB('User')->select()->where(['user_id' => $reg[0], 'is_active' => false, 'is_removed' => false])->obj();
@@ -16,29 +17,16 @@ if ($reg = r3v\Vars::get('confirm')) {
 if (r3v\Auth\User::id())
 	$this->redirect('/');
 
-$form = new r3v\Form(array(
-	'name' => 'formregister',
-	'fields' => array(
-		'email' => array('email',
-			'label' => 'Email',
-		),
-		'login' => array('string',
-			'label' => 'Nazwa użytkownika',
-		),
-		'password' => array('password',
-			'label' => 'Hasło',
-		),
-		'repeat' => array('password',
-			'label' => 'Powtórz hasło'
-		),
-		'submit' => array('submit',
-			'label' => 'Zarejestruj',
-		),
-	),
-));
-
 if ($form->submitted()) {
 	$data = $form->get();
+
+			$tmp = new \r3v\Template('register_mail', 'templates');
+			$tmp->replace([
+
+			]);
+			\r3v\Mail::create($uinfo->email, \r3v\Conf::get('site/title').': rejestracja konta', $tmp->get());
+			\r3v\Mail::flush();
+
 
 	if ($data['password'] != $data['repeat'])
 		$form->error('Hasła nie są równe', 'repeat');
@@ -50,7 +38,7 @@ if ($form->submitted()) {
 			echo 'Wystąpił błąd podczas rejestracji';
 		else {
 			$hash = $reg.':'.substr(hash('sha256', $reg.$data['email'].$data['login']), 0, 10);
-			$hash = HOST.'/user/register?confirm='.$hash;
+			$hash = HOST.'/user/confirm:'.$hash;
 			echo 'OK';
 
 			$tmp = new r3v\Template(__DIR__.'/register_mail.html', 'abs');
