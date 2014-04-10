@@ -63,7 +63,7 @@ register_shutdown_function('\\r3v\\Mod::unloadAll', 'shutdown');
 \r3v\Mod::sysinit(); //load sys definition
 
 //set DEBUG constant, Conf will come in handy anyway
-\r3v\Mod::loadClass('\\r3v\\Conf');
+\r3v\Mod::loadClass('r3v\\Conf');
 
 if (DEBUG) {
 	error_reporting(E_ALL);

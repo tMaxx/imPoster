@@ -6,3 +6,6 @@
 r3v_env.*
 #engine's configuration file
 config.json
+
+#lampp launch script
+server

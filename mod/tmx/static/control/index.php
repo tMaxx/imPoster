@@ -1,10 +1,10 @@
 <?php ///r3vNgine static files server
-r3v\Mod::loadMod('scssphp');
 $vars = r3v\Vars::uri(array('scss', 'js'));
-$servepath = '/mod/r3v/static/';
+$servepath = r3v\View::getCurrentBasepath().'/res/';
 
 switch (true) {
 	case isset($vars['scss']): {
+		r3v\Mod::loadMod('ext/scssphp');
 		$_GET['p'] = r3v\File::sanitizePath($vars['scss']).'.scss';
 
 		if (!r3v\File::fileExists($servepath.$_GET['p']))

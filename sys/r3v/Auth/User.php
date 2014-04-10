@@ -107,7 +107,7 @@ class User {
 
 	/** Return user id */
 	public static function id() {
-		return (!isset(self::$user['id'])) ?: self::$user['id'];
+		return isset(self::$user['id']) ? self::$user['id'] : null;
 	}
 
 	/** Return authentication status (bool) */

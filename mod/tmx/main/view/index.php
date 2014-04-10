@@ -1,5 +1,9 @@
 <div id="content">
-<? !$view_child ?: $view_child->go() ?>
+<? if ($view_content): ?>
+	<?= $view_content ?>
+<? else: ?>
+	<h3>Hi :D</h3>
+<? endif; ?>
 </div>
 <? if ($rpane): ?>
 	<div class="rpanel">

@@ -5,9 +5,9 @@ mb_internal_encoding('UTF-8');
 mb_regex_encoding('UTF-8');
 
 //CMS version
-define('r3v_VERSION', '0.6alpha7');
+define('r3v_VERSION', '0.6alpha8');
 //CMS identificator
-define('r3v_ID', 'r3v engine [elementary] v'.r3v_VERSION);
+define('r3v_ID', 'rev engine [elementary] v'.r3v_VERSION);
 
 //time
 define('NOW_MICRO', floor(microtime(true) * 10000));

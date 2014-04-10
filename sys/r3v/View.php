@@ -40,13 +40,15 @@ class View {
 
 		ob_start();
 		try {
+			Mod::runFuncArray($selected['autorun']);
+
 			if ((!$selected['force_path']) && $reqpath && (strncmp($reqpath, 'index', 5) != 0))
-				$cont = new View\Explicit($selected['dir'], $reqpath);
+				$subview = new View\Explicit($selected['dir'], $reqpath);
 
 			(new View\Explicit(
 				$selected['dir'],
 				($selected['force_path'] ?: ''),
-				['__view_child' => (isset($cont) ? $cont : false)]
+				['_view_child' => (isset($subview) ? $subview : null)]
 			))->go();
 
 		} catch (ErrorHTTP $e) {

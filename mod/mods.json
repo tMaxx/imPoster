@@ -11,22 +11,22 @@
 	},
 	"__example": {},
 
-	"boris": {
+	"ext/boris": {
 		"origin": "git@github.com:joddie/boris.git completion-and-network-hacks",
 		"is_composer": true,
 		"explicit_load": true
 	},
-	"google-api": {
+	"ext/google-api": {
 		"is_composer": true,
 		"explicit_load": true,
 		"autoload": {
-			"include_path": "/src/",
+			"include-path": "/src/",
 			"psr-0": {
 				"": "src/"
 			}
 		}
 	},
-	"scssphp": {
+	"ext/scssphp": {
 		"origin": "git@github.com:leafo/scssphp.git",
 		"is_composer": true,
 		"explicit_load": true,
@@ -34,7 +34,7 @@
 			"files": ["/scss.inc.php"]
 		}
 	},
-	"r3v/static": {
+	"tmx/static": {
 		"is_composer": false,
 		"explicit_load": true,
 		"route": {
@@ -42,16 +42,17 @@
 			"force_path": "/"
 		}
 	},
-	"r3v/main": {
+	"tmx/main": {
 		"is_composer": false,
 		"route": {
 			"dir": "/",
 			"scope": "",
 			"template": "/index.template.php",
-			"error_page": "/error"
+			"error_page": "/error",
+			"autorun": ["r3v\\Auth\\User::load"]
 		}
 	},
-	"r3v/api": {
+	"tmx/api": {
 		"is_composer": false,
 		"route": {
 			"scope": "api"

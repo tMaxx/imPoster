@@ -29,8 +29,8 @@ class Error extends \ErrorException {
 			case E_RECOVERABLE_ERROR:	return 'E_RECOVERABLE_ERROR';
 			case E_DEPRECATED:			return 'E_DEPRECATED';
 			case E_USER_DEPRECATED:		return 'E_USER_DEPRECATED';
+			default:							return '';
 		}
-		return "";
 	}
 
 	/**
@@ -91,12 +91,12 @@ class Error extends \ErrorException {
 			}
 
 			$result[] = '<big><b>Error</b></big>  ['.$eName.']  '.$estr;
-			$result[] = NEWLINE.'<i>-></i> '.self::pathdiff($efile).':'.$eline;
+			$result[] = NEWLINE.'=> '.self::pathdiff($efile).':'.$eline;
 		} elseif (isset($eno)) { //exception handler
 			$result[] = '<big><b>'.get_class($eno).'</b></big>  ';
 
 			$result[] = (method_exists($eno, 'getExtMessage') ? $eno->getExtMessage() : $eno->getMessage());
-			$result[] = NEWLINE.'<i>-></i> '.self::pathdiff($eno->getFile()).':'.$eno->getLine();
+			$result[] = NEWLINE.'=> '.self::pathdiff($eno->getFile()).':'.$eno->getLine();
 
 			$trace = $eno->getTrace();
 		}

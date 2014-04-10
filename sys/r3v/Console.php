@@ -38,14 +38,14 @@ class Console {
 	/** start console loop */
 	public static function start() {
 		if (!class_exists('\\Boris\\Boris')) {
-			Mod::loadMod('boris');
+			Mod::loadMod('ext/boris');
 			echo Console::white,
 				'Hi :D // ', r3v_ID,
 				' // loaded in ', ms_from_start(), 'ms',
 				' // Boris REPL v', \Boris\Boris::VERSION,
 				Console::reset, "\n";
 			self::$inspector = new \Boris\ColoredInspector();
-			self::$boris = new \Boris\Boris('r3v> ');
+			self::$boris = new \Boris\Boris("r".self::white."æ".self::reset."v> ");
 			self::$boris->setInspector(self::$inspector);
 			self::$boris->start();
 		} else

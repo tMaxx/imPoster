@@ -81,8 +81,8 @@ class Mod {
 					self::$class[$k] = $path.$v; //set
 			}
 
-		if (isset($al['include_path']))
-			set_include_path(get_include_path().PATH_SEPARATOR.ROOT.$path.$al['include_path']);
+		if (isset($al['include-path']))
+			set_include_path(get_include_path().PATH_SEPARATOR.ROOT.$path.$al['include-path']);
 
 		if (isset($al['classmap']))
 			; //SOMEDAY
@@ -129,10 +129,23 @@ class Mod {
 	 * @param $name of class
 	 */
 	public static function loadClass($name) {
-		$ns = str_replace(['\\','_'], DIRECTORY_SEPARATOR, $name);
-		foreach (self::$class as $path)
-			if (file_exists(ROOT.$path.$ns.'.php')) {
-				require_once ROOT.$path.$ns.'.php';
+		if ($name[0] == '\\')
+			$name = substr($name, 1);
+
+		$nsmain = explode('\\', $name, 2)[0];
+
+		if (!isset(self::$class[$nsmain]))
+			$nsmain .= '\\';
+
+		if (isset(self::$class[$nsmain]))
+			$traverse = [self::$class[$nsmain]];
+		else
+			$traverse = self::$class;
+
+		$nspath = str_replace(['\\','_'], DIRECTORY_SEPARATOR, $name);
+		foreach ($traverse as $path)
+			if (file_exists(ROOT.$path.$nspath.'.php')) {
+				req1(ROOT.$path.$nspath.'.php');
 				self::$loaded[$name] = [];
 				return true;
 			}
@@ -174,11 +187,11 @@ class Mod {
 			return;
 
 		while (($i = array_pop(self::$loaded)) !== null)
-			if (!is_bool($i) && $i)
+			if ($i)
 				self::runFuncArray($i);
 
 		if ($x && CLI)
-			echo Console::light_yellow,
+			echo Console::light_green,
 				"K, ThxBye :3\n",
 				Console::reset;
 	}
@@ -212,10 +225,11 @@ class Mod {
 				$basepath = '/mod/'.$name;
 
 				self::$route[$r['scope']] = [
-					'dir'        => $basepath.(isset($r['dir']) ? $r['dir'] : '/'),
-					'template'   => (isset($r['template'])      ? $basepath.$r['template'] : false),
-					'force_path' => (isset($r['force_path'])    ? $r['force_path'] : false),
-					'error_page' => (isset($r['error_page'])    ? $r['error_page'] : false),
+					'dir' => $basepath.(isset($r['dir'])        ? $r['dir'] : '/'),
+					'template'      => (isset($r['template'])   ? $basepath.$r['template'] : false),
+					'force_path'    => (isset($r['force_path']) ? $r['force_path'] : false),
+					'error_page'    => (isset($r['error_page']) ? $r['error_page'] : false),
+					'autorun'       => (isset($r['autorun']))   ? $r['autorun'] : [],
 				];
 			}
 		}
@@ -228,4 +242,9 @@ class Mod {
 		else
 			View::go(); //start app in html/http mode
 	}
+}
+
+/** Scope sandbox */
+function req1() {
+	require_once func_get_arg(0);
 }
