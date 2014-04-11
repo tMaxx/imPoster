@@ -3,21 +3,21 @@
 		"description": "module description, ignored by parser",
 		"origin": "repo origin, ignored by parser",
 		"explicit_load": "if true, this mod won't be loaded until its name is specifically called through r3v\\Mod::loadMod(mod_name)",
-		"is_composer": "if package uses composer or our custom format",
+		"def_type": "'composer', 'revdef', 'none'/null/false",
 		"route_dir": "string, this will point to location where views are stored; defaults to /",
 		"route_scope": "which scope this thing is in",
 		"autoload": "additional autoload overrides",
-			"include_path": "append these to PHP's include path"
+			"include-path": "append these to PHP's include path (deprecated by composer, but GoogleAPI needs it...)"
 	},
 	"__example": {},
 
 	"ext/boris": {
 		"origin": "git@github.com:joddie/boris.git completion-and-network-hacks",
-		"is_composer": true,
+		"def_type": "composer",
 		"explicit_load": true
 	},
 	"ext/google-api": {
-		"is_composer": true,
+		"def_type": "composer",
 		"explicit_load": true,
 		"autoload": {
 			"include-path": "/src/",
@@ -28,14 +28,14 @@
 	},
 	"ext/scssphp": {
 		"origin": "git@github.com:leafo/scssphp.git",
-		"is_composer": true,
+		"def_type": "composer",
 		"explicit_load": true,
 		"autoload": {
 			"files": ["/scss.inc.php"]
 		}
 	},
 	"tmx/static": {
-		"is_composer": false,
+		"def_type": null,
 		"explicit_load": true,
 		"route": {
 			"scope": "static",
@@ -43,7 +43,7 @@
 		}
 	},
 	"tmx/main": {
-		"is_composer": false,
+		"def_type": "revdef",
 		"route": {
 			"dir": "/",
 			"scope": "",
@@ -53,7 +53,7 @@
 		}
 	},
 	"tmx/api": {
-		"is_composer": false,
+		"def_type": "revdef",
 		"route": {
 			"scope": "api"
 		}

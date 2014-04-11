@@ -3,15 +3,15 @@ CREATE TABLE IF NOT EXISTS `User` (
 	`gid` DECIMAL(22) UNSIGNED NOT NULL UNIQUE COMMENT 'google id',
 	`email` VARCHAR(50) NOT NULL UNIQUE,
 	`login` VARCHAR(16) NOT NULL UNIQUE,
-	`auth` VARCHAR(10) NOT NULL DEFAULT 'user' COMMENT 'authorization',
+	`auth` VARCHAR(10) NOT NULL DEFAULT 'user' COMMENT 'auth level',
 	`ts_seen` INT(11) NOT NULL DEFAULT UNIX_TIMESTAMP(),
 	`is_active` TINYINT(1) DEFAULT 0,
 	`is_removed` TINYINT(1) DEFAULT 0,
 
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-CREATE INDEX iudex_User_email ON `User`(`email`);
-CREATE INDEX iudex_User_login ON `User`(`login`);
+-- CREATE INDEX iudex_User_email ON `User`(`email`);
+-- CREATE INDEX iudex_User_login ON `User`(`login`);
 CREATE INDEX iudex_User_gid ON `User`(`gid`);
 
 CREATE TABLE IF NOT EXISTS `Session` (
@@ -37,13 +37,37 @@ CREATE INDEX iudex_Session_hash ON `Session`(`hash`);
 -- 	ON s.user_id=u.id
 -- ;
 
-CREATE TABLE IF NOT EXISTS `Entry` (
+CREATE TABLE IF NOT EXISTS `Blog` (
 	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(140),
 	`content` TEXT NOT NULL,
 	`type` INT,
-	`ts` INT(11) NOT NULL,
+	`ts_publ` INT(11) NOT NULL COMMENT 'ts published',
+	`ts_mod` INT(11) NOT NULL COMMENT 'ts modified',
 	`is_draft` TINYINT(1) NOT NULL DEFAULT 0,
+
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+CREATE INDEX iudex_Blog_ts_publ ON `Blog`(`ts_publ`);
+CREATE INDEX iudex_Blog_ts_mod ON `Blog`(`ts_mod`);
+
+CREATE TABLE IF NOT EXISTS `Comments` (
+	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`blog` INT UNSIGNED NOT NULL,
+	`author` INT DEFAULT NULL,
+	`content` TEXT NOT NULL,
+	`ts` INT(11) NOT NULL COMMENT 'ts published',
+
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`blog`) REFERENCES `Blog`(`id`)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `Locker` (
+	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`content` TEXT NOT NULL,
+	`note` VARCHAR(140),
+	`src` INT,
+	`ts` INT(11) NOT NULL,
 
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;

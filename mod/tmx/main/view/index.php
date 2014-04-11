@@ -1,3 +1,9 @@
+<div id="menu">
+<? foreach ((tmx\Menu::getLeft() + tmx\Menu::getRight()) as $k => $v): ?>
+	<a href="<?= $k ?>"<?= $k == $subpage ? ' id="cur"' : '' ?>
+		<?= isset($v['class']) ? 'class="'.implode(' ', $v['class']).'"' : '' ?>><?= $v['name'] ?></a>
+<? endforeach; ?>
+</div>
 <div id="content">
 <? if ($view_content): ?>
 	<?= $view_content ?>

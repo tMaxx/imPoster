@@ -1,6 +1,0 @@
-{
-	"require": ["scssphp"],
-	"route": {
-		"default": "parser.php"
-	}
-}

@@ -85,7 +85,7 @@ class Mod {
 			set_include_path(get_include_path().PATH_SEPARATOR.ROOT.$path.$al['include-path']);
 
 		if (isset($al['classmap']))
-			; //SOMEDAY
+			; //FIXME: SOMEDAY
 			//WE'RE GONNA RISE UP ON THAT WIND
 			//YOU KNOOOOW
 			//SOMEDAY
@@ -106,10 +106,14 @@ class Mod {
 
 		$def = self::$mods_def[$modname];
 		$basepath = '/mod/'.$modname.'/';
-		$jsonpath = $basepath.($def['is_composer'] ? 'composer' : 'def').'.json';
 
-		if (($selfdef = self::readJsonFromFile($jsonpath)) === false)
-			throw new Error("Could not load mod self-definition: $modname");
+		if (!$def['def_type'] || $def['def_type'] == 'none')
+			$selfdef = [];
+		else {
+			$jsonpath = $basepath.($def['def_type'] == 'composer' ? 'composer' : 'def').'.json';
+			if (($selfdef = self::readJsonFromFile($jsonpath)) === false)
+				throw new Error("Could not load self-definition for mod '$modname' (def_type: $def[def_type])");
+		}
 
 		if (isset($def['require']))
 			foreach ((array) $def['require'] as $v)
@@ -117,7 +121,7 @@ class Mod {
 
 		//merge config from mods.json with composer/def
 		$al = isset($def['autoload']) ? $def['autoload'] : [];
-		$al = isset($selfdef['autoload']) ? array_replace_recursive($selfdef['autoload'], $al) : [];
+		$al = isset($selfdef['autoload']) ? array_replace_recursive($selfdef['autoload'], $al) : $al;
 		if ($al)
 			self::parseAutoloader($al, $basepath);
 
@@ -129,6 +133,7 @@ class Mod {
 	 * @param $name of class
 	 */
 	public static function loadClass($name) {
+		//rare case, mostly with manual loading
 		if ($name[0] == '\\')
 			$name = substr($name, 1);
 

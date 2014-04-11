@@ -130,6 +130,10 @@ a {
 		&:hover:before, &:hover:after {
 			color: $lgrey;
 		}
+
+		&.right {
+			float: right;
+		}
 	}
 
 	#cur { //current item

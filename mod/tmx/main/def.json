@@ -1,2 +1,10 @@
 {
+	"autoload": {
+		"psr-0": {
+			"tmx\\": "class"
+		}
+	},
+	"db": {
+		"template": "db.sql"
+	}
 }
