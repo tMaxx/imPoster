@@ -1,4 +1,4 @@
-<?php ///r3v engine sys/_init.php
+<?php ///rev engine sys/_init.php
 ///Initialize CMS, add templates, run commands
 
 /** dumper, uglier than ever */

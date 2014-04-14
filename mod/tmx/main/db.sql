@@ -25,17 +25,12 @@ CREATE TABLE IF NOT EXISTS `Session` (
 ) ENGINE=MEMORY;
 CREATE INDEX iudex_Session_hash ON `Session`(`hash`);
 
--- CREATE OR REPLACE VIEW `UserSessions` AS
--- 	SELECT
--- 		s.user_id as id,
--- 		s.ts as ts,
--- 		s.salt as salt,
--- 		s.hash as hash,
--- 		s.data as data,
-
--- 	FROM `Session` s RIGHT JOIN `User` u
--- 	ON s.user_id=u.id
--- ;
+CREATE OR REPLACE VIEW `UserSessions` AS
+	SELECT
+		*
+	FROM `Session` s RIGHT JOIN `User` u
+	ON s.user_id=u.id
+;
 
 CREATE TABLE IF NOT EXISTS `Blog` (
 	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,

@@ -4,7 +4,7 @@
 <span class="emsg"><?= $error->inmessage ?></span>
 <? if (DEBUG): ?>
 	<div class="trace">
-		<div class="location"><i>-></i> <?= r3v\Error::pathdiff($error->getFile()), ':', $error->getLine() ?></div>
+		<div class="location"><i>=></i> <?= r3v\Error::pathdiff($error->getFile()), ':', $error->getLine() ?></div>
 		<?= r3v\Error::prettyTrace($error->getTrace()) ?>
 	</div>
 <? endif ?>

@@ -1,5 +1,5 @@
 <?
-switch ($r = r3v\Vars::uri('user')) {
+switch (r3v\Vars::uri('user')) {
 	case 'login':
 		r3v\Auth\User::login_redirect();
 		break;
@@ -13,7 +13,6 @@ switch ($r = r3v\Vars::uri('user')) {
 		if (!isset($_GET['code']))
 			throw new r3v\Error400();
 		$r = r3v\Auth\User::callback_auth($_GET['code']);
-		break;
 		if (!$r)
 			$this->redirect('/');
 		else
@@ -28,14 +27,5 @@ switch ($r = r3v\Vars::uri('user')) {
 			vdump(r3v\Auth\Session::dump());
 			break;
 		}
-
-	default:
-		if ($r)
-			throw new Error404();
-
-		return [
-			'/user/notice',
-			'msg' => 'Hi!'
-		];
-		break;
 }
+throw new Error404();

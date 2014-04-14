@@ -1,4 +1,4 @@
-<?php ///r3v engine \r3v\View
+<?php ///rev engine \r3v\View
 namespace r3v;
 
 /**
@@ -65,7 +65,7 @@ class View {
 					echo '<html><head><title>', self::title(), '</title></head><body>';
 				echo '<div><h1>HTTP ', $e->httpcode, '</h1>', $e->inmessage;
 				if (DEBUG)
-					echo '<div><i>@</i>', Error::pathdiff($e->getFile()), ':', $e->getLine(),
+					echo '<div>', Error::formatErrorLine($e->getFile(), $e->getLine()),
 						'<br>', Error::prettyTrace($e->getTrace()), '</div>';
 				echo '</div>';
 				if ($no_template)
@@ -73,7 +73,7 @@ class View {
 			}
 		}
 
-		self::HTTPflush();
+		self::flushHTTPheaders();
 		if (AJAX || $no_template)
 			ob_end_flush();
 		else {
@@ -111,7 +111,7 @@ class View {
 	 * Add HTTP header for later flushing
 	 * @param $header
 	 */
-	public static function addHTTPHeaders($header) {
+	public static function addHTTPheaders($header) {
 		foreach ((array)$header as $k => $v) {
 			if (!is_string($v))
 				throw new Exception('Parameter is not a string!');
@@ -153,22 +153,21 @@ class View {
 				return false;
 				break;
 		}
-		self::$HTTP_headers['content-type'] = 'Content-Type: '.$type.'; charset=utf-8';
+		self::$HTTP_headers['content-type'] = 'Content-Type: '.$type.';charset=UTF-8';
 		return true;
 	}
 
 	///Flush headers
-	public static function HTTPflush() {
-		foreach (self::$HTTP_headers as &$v) {
-			header($v);
-			unset($v);
-		}
+	public static function flushHTTPheaders() {
+		foreach (self::$HTTP_headers as $v)
+			header($v, true);
+		self::$HTTP_headers = [];
 	}
 
 	/** Redirect to given $path */
 	public static function redirect($path) {
-		self::addHTTPHeaders('Location: '.filter_var($path, FILTER_SANITIZE_URL));
-		self::HTTPflush();
+		self::addHTTPheaders('Location: '.filter_var($path, FILTER_SANITIZE_URL));
+		self::flushHTTPheaders();
 		die;
 	}
 
@@ -179,9 +178,10 @@ class View {
 }
 
 if (!CLI)
-	View::addHTTPHeaders([
+	View::addHTTPheaders([
+		'Server: got hella wasted',
 		'X-Powered-By: lots of self-esteem',
 		'X-Backend: '.r3v_ID,
 	]);
 
-Mod::registerUnload('r3v\\View', ['\\r3v\\View::HTTPflush']);
+Mod::registerUnload('r3v\\View', ['\\r3v\\View::flushHTTPheaders']);

@@ -2,10 +2,17 @@
 if (!class_exists('r3v\Auth\User', false))
 	throw new r3v\Error('User auth not loaded!');
 
-tmx\Menu::append(['/blog' => 'Blog']);
-tmx\Menu::append(['/about' => 'About']);
-tmx\Menu::addright(['/user:login' => '+']);
-tmx\Menu::addright(['/locker' => 'Locker']);
+tmx\Menu::append([
+	'/blog' => 'Blog',
+	'/about' => 'About'
+]);
+if (r3v\Auth\User::id()) {
+	tmx\Menu::addright(['/user:logout' => '&#x1f51a;']);
+	if (r3v\Auth\User::role('admin'))
+		tmx\Menu::addright(['/tmx/admin' => '&#x2318;']);
+} else
+	tmx\Menu::addright(['/user:login' => '&#x21af;']);
+tmx\Menu::addright(['/locker' => '&#x1f512;']);
 
 if ($_view_child) {
 	ob_start();

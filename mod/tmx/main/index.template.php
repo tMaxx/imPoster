@@ -9,8 +9,10 @@
 	<title><?= self::title() ?></title>
 </head>
 <body>
-<div id="main">
-	<a href="/" id="logo"><small>the</small><big>M</big>aksiu &nbsp; <small class="blue">burza w szklance wody</small></a>
+<div id="logowrap">
+	<a href="/" id="logo" class="cnt-set"><small>the</small><big>M</big>aksiu &nbsp; <small class="blue">burza w szklance wody</small></a>
+</div>
+<div class="cnt-set">
 	<?= $BODY ?>
 </div>
 	<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>

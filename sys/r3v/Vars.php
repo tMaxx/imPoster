@@ -1,4 +1,4 @@
-<?php ///r3v engine \r3v\Vars
+<?php ///rev engine \r3v\Vars
 namespace r3v;
 
 /**
@@ -10,21 +10,21 @@ class Vars {
 	///"Hack" to initialize class
 	public function __construct() {
 		//revamp request to something more readable
-		$ipath = (array) explode('/', explode('?', REQUEST_URI)[0]);
+		$ipath = (array) explode('/', REQUEST_URI);
 
 		$rpath = '/';
 		self::$URI['r3v/nodes'] = array();
 		foreach ($ipath as $k => $v) {
 			if (empty($v) || !is_numeric($k))
 				continue;
-			$e = (array) explode(':', $v, 2);
+			$e = (array) explode(':', htmlspecialchars($v, ENT_IGNORE|ENT_DISALLOWED|ENT_HTML5), 2);
 			$rpath .= $e[0];
 			self::$URI['r3v/nodes'][] = $e[0];
 			if (isset($e[1]))
 				self::$URI[$e[0]] = $e[1];
 			$rpath .= '/';
 		}
-		self::$URI['r3v/path'] = substr($rpath, 0, -1);
+		self::$URI['r3v/path'] = htmlspecialchars(substr($rpath, 0, -1), ENT_IGNORE|ENT_DISALLOWED|ENT_HTML5);
 	}
 
 	/**

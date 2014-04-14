@@ -1,4 +1,4 @@
-<?php ///r3v engine \r3v\Mod
+<?php ///rev engine \r3v\Mod
 namespace r3v;
 
 /**
@@ -208,7 +208,7 @@ class Mod {
 		self::$class['r3v\\'] = '/sys/';
 	}
 
-	/** Start r3v engine (:D) and load some definitions (^_^) */
+	/** Start rev engine (:D) and load some definitions (^_^) */
 	public static function go() {
 		if (self::$mods_def)
 			return;

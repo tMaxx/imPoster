@@ -1,4 +1,4 @@
-<?php ///r3v engine \r3v\View\Explicit
+<?php ///rev engine \r3v\View\Explicit
 namespace r3v\View;
 use \r3v\File;
 
@@ -31,7 +31,7 @@ class Explicit {
 		elseif (File::fileExists($route.'/index.php'))
 			$route .= ($extension = '/index.php');
 		else
-			throw new \r3v\Error404("Controller \"{$this->node}\" was not found");
+			throw new \r3v\Error404("Page not found: \"{$this->node}\"");
 
 		$ret = $this->inc($this->vars, $route);
 		$this->vars = [];

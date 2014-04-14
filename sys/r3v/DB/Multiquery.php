@@ -1,4 +1,4 @@
-<?php ///r3v engine \r3v\DB\Multiquery
+<?php ///rev engine \r3v\DB\Multiquery
 namespace r3v\DB;
 
 /**

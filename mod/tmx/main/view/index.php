@@ -1,6 +1,7 @@
+<div class="clear"></div>
 <div id="menu">
 <? foreach ((tmx\Menu::getLeft() + tmx\Menu::getRight()) as $k => $v): ?>
-	<a href="<?= $k ?>"<?= $k == $subpage ? ' id="cur"' : '' ?>
+	<a href="<?= $k ?>"<?= $k == $subpage ? ' id="sel"' : '' ?>
 		<?= isset($v['class']) ? 'class="'.implode(' ', $v['class']).'"' : '' ?>><?= $v['name'] ?></a>
 <? endforeach; ?>
 </div>

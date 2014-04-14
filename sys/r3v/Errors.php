@@ -1,4 +1,4 @@
-<?php ///r3v engine \r3v\Error
+<?php ///rev engine \r3v\Error
 namespace r3v;
 ///Error class
 class Error extends \ErrorException {
@@ -33,36 +33,43 @@ class Error extends \ErrorException {
 		}
 	}
 
+	public static function formatErrorLine($file, $line) {
+		return '=> '.self::pathdiff($file).':'.$line;
+	}
+
 	/**
 	 * Prettify trace
 	 * @param $trace
 	 * @param $args include arguments?
-	 * @param $separator string
+	 * @param $mode string: "<br>", "\n", "array"
 	 * @return string
 	 */
-	public static function prettyTrace($trace, $args = false, $separator = NEWLINE) {
+	public static function prettyTrace($trace, $args = false, $mode = NEWLINE) {
 		$result = [];
 		foreach ($trace as $i => $v) {
-			$result[] = $i.'# ';
+			$line = [];
+			$line[] = $i.'# ';
 
 			if (isset($v['file']) && $v['file'])
-				$result[] = self::pathdiff($v['file']).':'.$v['line'].' - ';
+				$line[] = self::pathdiff($v['file']).':'.$v['line'].' - ';
 			else
-				$result[] = '[internal call] ';
+				$line[] = '[internal call] ';
 
 			if (isset($v['class']))
-				$result[] = $v['class'].$v['type'];
+				$line[] = $v['class'].$v['type'];
 
-			$result[] = $v['function'];
+			$line[] = $v['function'];
 
 			if ($args && isset($v['args']) && $v['args'])
-				$result[] = htmlspecialchars(self::pathdiff(json_encode($v['args'], JSON_UNESCAPED_SLASHES|JSON_NUMERIC_CHECK)), ENT_COMPAT|ENT_HTML5);
+				$line[] = htmlspecialchars(self::pathdiff(json_encode($v['args'], JSON_UNESCAPED_SLASHES|JSON_NUMERIC_CHECK)), ENT_COMPAT|ENT_HTML5);
 			else
-				$result[] = '()';
+				$line[] = '()';
 
-			$result[] = $separator;
+			$result[] = implode($line);
 		}
-		return implode($result);
+		if ($mode == 'array')
+			return $result;
+		return implode($mode, $result);
 	}
 
 	/**
@@ -91,12 +98,12 @@ class Error extends \ErrorException {
 			}
 
 			$result[] = '<big><b>Error</b></big>  ['.$eName.']  '.$estr;
-			$result[] = NEWLINE.'=> '.self::pathdiff($efile).':'.$eline;
+			$result[] = NEWLINE.self::formatErrorLine($efile, $eline);
 		} elseif (isset($eno)) { //exception handler
 			$result[] = '<big><b>'.get_class($eno).'</b></big>  ';
 
 			$result[] = (method_exists($eno, 'getExtMessage') ? $eno->getExtMessage() : $eno->getMessage());
-			$result[] = NEWLINE.'=> '.self::pathdiff($eno->getFile()).':'.$eno->getLine();
+			$result[] = NEWLINE.self::formatErrorLine($eno->getFile(), $eno->getLine());
 
 			$trace = $eno->getTrace();
 		}

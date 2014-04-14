@@ -1,4 +1,4 @@
-<?php ///r3v engine \r3v\Auth\User
+<?php ///rev engine \r3v\Auth\User
 namespace r3v\Auth;
 
 /**
@@ -19,7 +19,7 @@ class User {
 	public static function g_lib_init() {
 		if (self::$_gclient)
 			return;
-		\r3v\Mod::loadMod('google-api');
+		\r3v\Mod::loadMod('ext/google-api');
 
 		self::$_gclient = new \Google_Client();
 
@@ -92,7 +92,6 @@ class User {
 			throw new r3v\Error403('Invalid e-mail for auth "admin"; login aborted');
 
 		Session::create($data['id']);
-		vdump($uinfo, $data, Session::dump());
 	}
 
 	public static function login_redirect() {
@@ -112,6 +111,8 @@ class User {
 
 	/** Return authentication status (bool) */
 	public static function role($role) {
+		if (self::$user['auth'] == $role)
+			return true;
 		return Role::auth($role);
 	}
 }

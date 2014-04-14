@@ -1,6 +1,6 @@
-<?php //r3v engine \r3v\Role
-namespace r3v;
-//trigger_user_error("Depracated.", E_USER_DEPRECATED);
+<?php //rev engine \r3v\Role
+namespace r3v\Auth;
+
 /**
  * Auth
  * Autorization class
@@ -13,15 +13,15 @@ class Role {
 	 * This one is final:
 	 * role2 => []
 	 */
-	protected $map = [];
+	protected static $map = [];
 
 	/** User roles cache */
-	protected $user = [];
+	protected static $user = [];
 
 	public static function init() {
 		if (self::$map)
 			return;
-		self::$map = Conf::get('auth/map');
+		self::$map = \r3v\Conf::get('auth/map');
 	}
 
 	/** Retrieve user role by given $id and add it to cache */
@@ -29,7 +29,7 @@ class Role {
 		if (is_numeric($id)) {
 			if (isset(self::$user[$id]))
 				return;
-			$role = DB('User')->select('auth')->where(['user_id' => $id])->val();
+			$role = DB('User')->select('auth')->where(['id' => $id])->val();
 
 			self::$user[$id] = $role;
 		}
