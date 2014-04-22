@@ -4,7 +4,8 @@ if (!class_exists('r3v\Auth\User', false))
 
 tmx\Menu::append([
 	'/blog' => 'Blog',
-	'/about' => 'About'
+	'/about' => 'About',
+	'/findme' => 'Find me'
 ]);
 if (r3v\Auth\User::id()) {
 	tmx\Menu::addright(['/user:logout' => '&#x1f51a;']);

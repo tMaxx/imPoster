@@ -21,7 +21,7 @@ A work in progress project.
  - Simplify DB - maybe move to PDO?
  - Fix 'safe exit' functionality in Mod
  - Cosmetic change: move mods from 'ext' to 'lib'
- - Vars::uri get only nodes as array in ascending order
+ - highlight.js
 
 
 ### Licensing

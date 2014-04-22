@@ -51,6 +51,11 @@ function ms_from_start() {
 	return round(((microtime(true)*10000) - NOW_MICRO)/10, 2);
 }
 
+/** Return formatted date from unix timestamp */
+function datef($unix_ts, $hrs = false) {
+	return date(($hrs ? 'H:i ' : '').'d.m.Y', $unix_ts);
+}
+
 require_once ROOT.'/sys/r3v/Errors.php';
 
 set_exception_handler('\\r3v\\Error::h');

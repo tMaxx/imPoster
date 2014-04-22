@@ -3,22 +3,35 @@
  * Licensed under CC BY-NC-SA    *
  * * * * * * * * * * * * * * * * *
 */
-// Variables
-$fontcolor: #D5D9D1;
-$fontimp: #FFFFFF;
-$bgcolor: #0F1114;//#161C1E;
-$blue: #3465a4;
-$grey: darken($fontcolor, 10%);
-$lblue: lighten($blue, 10%);
-$lgrey: #888a85 + #222;
-$llgrey: lighten($lgrey, 10%);
-$dv: 0.5em; //common divisor
-$em: (1 / 16) + 0em; // unit conversion
-$fontsmono: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
-// Mixins
+// Colors
+$c_font: #D5D9D1;
+$c_font_imp: #FFFFFF;
+$c_bg: #0F1114;//#161C1E;
+$c_logo_bg: darken($c_bg, 5%);
+
+$c_blue: #3465a4;
+$c_lblue: lighten($c_blue, 10%);
+$c_blueish: #6dcff6;
+$c_grey: darken($c_font, 10%);
+$c_lgrey: #888a85 + #222;
+$c_dgrey: lighten($c_bg, 15%);
+$c_ddgrey: darken($c_bg, 2%);
+
+// Distances
+$dv: .5em; //common divisor
+//$em: (1 / 16) + 0em; // unit conversion
+
+// Fonts
+$font_mono: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+$font_main: 'Trebuchet MS', Arial, sans-serif;
+$font_title: 'Ubuntu Light', $font_main;
+
+// Various
 @mixin mrg($dmul: 1.0, $lmul: 0.0) {
 	margin: 0 0 ($dmul * $dv) ($lmul * $dv);
 }
+$border_logo: 2px groove lighten($c_bg, 5%);
+
 
 // General setup, commons
 * {
@@ -28,10 +41,10 @@ $fontsmono: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
 	box-sizing: border-box;
 }
 body {
-	background: $bgcolor;
-	color: $fontcolor;
-	font-family: 'Trebuchet MS', Arial, sans-serif;
-	font-size: 0.85em;
+	background: $c_bg;
+	color: $c_font;
+	font-family: $font_main;
+	font-size: .80em;
 }
 html, body, img {
 	margin: 0;
@@ -44,67 +57,63 @@ a {
 }
 .clear {clear: both; visibility: hidden;}
 .center {text-align: center;}
-.white {color: $fontimp;}
+.white {color: $c_font_imp;}
 .fright {float:right;}
 
+// xdebug overrides
+pre.xdebug-var-dump {
+	b {
+		color:white;
+	}
+	font {
+		&[color="#3465a4"], &[color="#75507b"] {
+			color: #fce94f;
+		}
+		&[color="#4e9a06"], &[color="#f57900"] {
+			color: #4FCC00;
+		}
+		&[color="#f57900"]:after {
+			content: 'f';
+		}
+		&[color="#cc0000"] {
+			color: #559fdc;
+		}
+	}
+}
+table.xdebug-error {
+	color: black !important;
+}
 
 // Content settings
 .cnt-set {
 	margin: 0 auto;
 	width: 70%;
-	min-width: 320px;
+	min-width: 400px;
 	display: block;
-}
-
-$logo_bg: darken($bgcolor, 5%);
-$logo_border: 1px solid lighten($bgcolor, 5%);
-
-#logowrap {
-	background: $logo_bg;
-	width: 100%;
-	padding: 10px 5px 5px;
-	color: $fontimp;
-	border-bottom: $logo_border;
 }
 
 // Logo/header
 #logo {
-	margin-bottom: 4px;
-	display: block;
+	background: $c_logo_bg;
+	width: 100%;
+	padding: $dv/1.5 .2em;
+	color: darken($c_font_imp, 5%);
+	border-bottom: $border_logo;
 	font-size: 2.3em;
-	.blue {
-		color: $blue;
-	}
-	small {
-		color: $lgrey;
-		&.blue {
-			font-size: 0.6em;
-			font-style: italic;
-		}
-	}
-}
 
-// Header
-#toppanel {
-	float: right;
-	font-size: 0.98em;
-	height: 0;
-	color: $lgrey;
 	a {
-		color: $lgrey;
-		&:before {
-			content: '[ ';
+		font-family: $font_title;
+		font-weight: lighter;
+
+		.blue {
+			color: $c_blue;
 		}
-		&:after {
-			content: ' ]';
-		}
-		&:before, &:after {
-			color: $lblue !important;
-		}
-		&:hover {
-			color: $fontcolor !important;
-			&:before, &:after {
-				color: $fontimp !important;
+		small {
+			color: $c_lgrey;
+
+			&.blue {
+				font-size: .6em;
+				font-style: italic;
 			}
 		}
 	}
@@ -112,138 +121,180 @@ $logo_border: 1px solid lighten($bgcolor, 5%);
 
 // Footer
 #footer {
-	font-size: 0.9em;
-	font-family: $fontsmono;
-	color: $lgrey;
+	font-size: .9em;
+	font-family: $font_mono;
+	color: $c_lgrey;
 	position: fixed;
-	bottom: $dv/2;
-	right: $dv;
+	background: $c_bg;
+	padding: $dv/2;
+	right: 0;
+	bottom: 0;
 }
 
-// Generics, these hold some kind of content
-#info, #content {
-	overflow: auto;
-	width: 100%;
-}
-
-// Commons for menus (item, selected)
+// Top-level menu
 #menu {
 	overflow:auto;
 	font-size: 1.15em;
-	margin: -1px $dv*1.3 $dv*2;
+	margin: -2px .2em $dv*2;
 
 	a {
-		background: $logo_bg;
-		float: left;
+		background: $c_logo_bg;
 		display: block;
-		padding: 0.8*$dv 1.5*$dv $dv;
-		border-left: $logo_border;
-		border-right: $logo_border;
-		border-bottom: $logo_border;
-		margin-right: 1px;
+		padding: .8*$dv 1.5*$dv $dv;
+		border-bottom: $border_logo;
 
 		&:hover {
-			border-bottom-color: white;
+			border-bottom-color: white !important;
+			background: lighten($c_logo_bg, 10%);
 		}
-
-		&.right {
+		&.button {
 			float: right;
-			color: darken($fontcolor, 20%);
+			color: darken($c_font, 20%);
+			border-left: $border_logo;
+			border-left-style: ridge;
+			border-right: $border_logo;
 			padding-left: $dv;
 			padding-right: $dv;
 			margin: 0 0 0 $dv/2;
 		}
 	}
+	.wrap {
+		float: left;
+		display: inline-block;
+
+		a {
+			display: inline-block;
+			padding-left: 2*$dv;
+			padding-right: 2*$dv;
+
+			&:first-child {
+				border-left: $border_logo;
+				border-left-style: ridge;
+			}
+			&:last-child {
+				border-right: $border_logo;
+			}
+		}
+	}
 
 	// Selected item
 	#sel {
-		color: $fontimp;
+		color: $c_font_imp;
 		font-weight: bold;
-		border-bottom-color: $blue;
+		border-color: $c_blue;
 	}
 }
 
-// Information panel
-#info {
-	color: $fontimp;
-	font-weight: bold;
-	font-size: 1.2em;
-	padding: 10px 0 5px 5px;
-	#date {
-		color: $fontcolor;
-		float: right;
-		font-size: 0.8em;
-		font-weight: normal;
-		@include mrg(0.7,0.7);
-	}
-}
-
+// Error messages
 .errorhttp {
 	.emsg {
 		color: white;
 		font-size: 1.3em;
 	}
 	.trace {
-		color: darken($grey, 20%);
-		font-size: 0.9em;
+		color: darken($c_grey, 20%);
+		font-size: .9em;
 		text-align: left;
 		margin: 15px auto 0;
 		width: 80%;
 	}
 }
 
+// Smallish right panel
+div.rpanel {
+	position: fixed;
+	right: 5px;
+	top: 5px;
+	width: 10%;
+	text-align: right;
+}
+
 // Content
-#content, .content {
+.content {
 	margin-top: $dv;
 	word-wrap: normal;
 	overflow-wrap: break-word;
-	line-height: 1.75;
+	line-height: 1.85;
+	overflow: auto;
 
-	p, blockquote {
+	p, blockquote, pre {
 		text-align: justify;
-		@include mrg(2);
-	}
-	p {
-		text-indent: 1em;
+		margin: 0 0 1em;
 	}
 	a {
-		border-bottom: 1px dashed;
 		display: inline;
+		color: $c_blueish;
+
 		&:hover {
-			color: $fontimp;
+			color: $c_font_imp;
 			border-bottom: 1px solid;
 			display: inline;
 		}
 	}
-	code, blockquote {
-		@include mrg(2,1);
-	}
 	blockquote {
-		border-left: 3px double $fontimp;
+		border-left: 2px dotted lighten($c_bg, 10%);
 		display: inline-block;
-		padding: 2px 0 2px 5px;
+		background: $c_ddgrey;
+		padding: 1em 1em 0 1em;
+
 		small {
-			font-size: 0.9em;
-			color: $lgrey;
+			font-size: .9em;
+			color: $c_lgrey;
 			display: block;
+
 			&:before {
 				font-weight: bold;
 				content: '~ ';
-		}	}
+			}
+		}
 	}
 	code, .code {
-		font-family: $fontsmono;
+		font-family: $font_mono;
+		background: $c_ddgrey;
 	}
-	code {
-		text-align: left;
-		display: block;
-		@include mrg(2,1);
+	pre {
+		white-space: pre-wrap;
+		padding: 1em 1em 0 1em;
+		background: $c_ddgrey;
+		position: relative;
+
+		code, .code  {
+			display: block;
+			padding: 0 0 1em;
+
+			&:parent {
+				background: red;
+			}
+			&:after {
+				content: attr(rel);
+				position: absolute;
+				color: $c_lblue;
+				top: 5px;
+				right: 5px;
+			}
+		}
 	}
+
+	// @src: http://nicolasgallagher.com/pure-css-gui-icons/
+	.tags:before {
+		content: '';
+		border-width: 11px 5px 4px;
+		border-style: solid;
+		border-color: $c_font $c_font transparent;
+		margin: 0 5px 0 0;
+		font-size: 0;
+	}
+
+	acronym, abbr {
+		cursor: help;
+		border-bottom: 1px dotted $c_blueish;
+	}
+
 	h1, h2, h3, h4, h5 {
-		color: $fontimp;
+		color: $c_font_imp;
 		display: block;
 		font-weight: bold;
-		@include mrg(1);
+		margin: .5em 0 0 0;
 	}
 	h1 {font-size: 2em;}
 	h2 {font-size: 1.5em;}
@@ -258,8 +309,10 @@ $logo_border: 1px solid lighten($bgcolor, 5%);
 		}
 	}
 
-	img {}
-	.imgdesc {}
+	.img {
+		img {}
+		.desc {}
+	}
 
 	form {
 		@include mrg(1,3);
@@ -276,111 +329,79 @@ $logo_border: 1px solid lighten($bgcolor, 5%);
 
 	input[type=text], input[type=file], input[type=password], input[type=submit],
 		input[type=search], input[type=email], textarea, .button {
-		width: 50%;
-		margin: 2*$dv $dv 0 $dv;
-		padding: 1px 4px;
+		// -moz-transition: all 0.3s ease-in-out;
+		// -o-transition: all 0.3s ease-in-out;
+		// -webkit-transition: all 0.3s ease-in-out;
+		// transition: all 0.3s ease-in-out;
+		// outline: none;
+		margin: $dv $dv 0 $dv;
 		font: inherit;
-		color: $fontcolor;
+		color: $c_font;
 		border: none;
-		background: darken($bgcolor,4%);
-		border-radius: 2px;
-		padding: 0.1em 0.3em;
+		background: darken($c_bg, 4%);
+		border-radius: 4px;
+		padding: .1em .3em;
+
+		// &:focus {
+		// 	-moz-box-shadow: 0 0 2px #51cbee;
+		// 	-webkit-box-shadow: 0 0 2px #51cbee;
+		// 	box-shadow: 0 0 2px #51cbee;
+		// 	// padding: 3px 0px 3px 3px;
+		// 	// margin: 5px 1px 3px 0px;
+		// 	border: 1px solid #51cbee;
+		// }
 	}
 	input[type=radio], input[type=checkbox] {
 		margin: 1px 3px 0 6px;
 	}
 	input[type=submit], .button {
 		width: auto;
-		$bstyle: 2px solid $lgrey;
+		$bstyle: 2px solid $c_lgrey;
 		border-left: $bstyle;
 		border-right: $bstyle;
-		border-top: none;
-		border-bottom: none;
-		border-top-left-radius: 5px;
-		border-top-right-radius: 0;
-		border-bottom-right-radius: 5px;
-		border-bottom-left-radius: 0;
-		padding: 0.1em 0.3em;
 	}
+
 	.form-label, label {
 		display: block;
-	}
-	label {
 		margin-bottom: $dv;
 	}
 
 	textarea.big {
 		height: 30*$dv;
 	}
-
 	input.big, .button.big {
 		font-size: 1.3em;
 	}
-
 	input.wide, textarea.wide, .buttton.big {
 		width: 75%;
 	}
 
-	pre.xdebug-var-dump {
-		b {
-			color:white;
-		}
-		font {
-			&[color="#3465a4"], &[color="#75507b"] {
-				color: #fce94f;
-			}
-			&[color="#4e9a06"], &[color="#f57900"] {
-				color: #4FCC00;
-			}
-			&[color="#f57900"]:after {
-				content: 'f';
-			}
-			&[color="#cc0000"] {
-				color: #559fdc;
-			}
-		}
-	}
 
-	div.elem-item.task, div.elem-item.list {
-		margin-top: 2*$dv;
-		h4 {
-			float: left;
-			font-size: 1.25em;
-			color: $fontimp;
-			margin-top: 0;
-			margin-bottom: 0.3em;
-			a {
-				border: none;
-			}
-			&.finished {
-				color: $fontcolor;
-				text-decoration: line-through;
-			}
-		}
-		span.type {
-			font: $fontsmono;
-		}
-		.elem-options {
-			float: right;
-			color: $lgrey;
-			font-size: 0.9em;
-			a {
-				margin-right: $dv;
-			}
-		}
-		p:last-of-type {
-			margin-bottom: 0;
-		}
-	}
-	div.elem-item.list {
-		font-size: 1.1em;
-	}
-}
+	// Post info: title, tags, etc.
+	.post-meta {
+		margin-bottom: 3*$dv;
 
-div.rpanel {
-	position: fixed;
-	right: 5px;
-	top: 5px;
-	width: 10%;
-	text-align: right;
+		.post-title {
+			color: $c_blueish;
+			font-size: 1.7em;
+		}
+		.post-info {
+			color: $c_font_imp;
+			font-size: .9em;
+			margin: 0;
+			padding: 0;
+
+			&:after {
+				content: '|';
+				color: $c_dgrey;
+				font-weight: bold;
+				font-size: 1.5em;
+				margin: 0 .5em;
+			}
+			&:last-of-type:after {
+				content: '';
+				margin: 0;
+			}
+		}
+	}
 }

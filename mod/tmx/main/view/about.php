@@ -7,6 +7,12 @@ tu jeszcze nic nie ma
 
 <br><br><br>
 
+tabela:
+lewo: $c_blueish, to right
+prawo: normal, to left
+
+
+
 <table class="wikitable" style="color:white;text-align:center;width:50%;">
 <tbody><tr>
 <td style="color: #555; font-weight:bold; width:100px;">Butter</td>

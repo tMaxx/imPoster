@@ -19,7 +19,7 @@ define('ROOT', __DIR__);
 //properties
 define('AJAX', (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'));
 define('CLI', (PHP_SAPI === 'cli'));
-define('HOST', (CLI ? 'interactive' : (($_SERVER['HTTPS'] ? 'https' : 'http').'://'.$_SERVER['HTTP_HOST'])));
+define('HOST', (CLI ? 'interactive' : ((empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'])));
 define('REQUEST_URI', (CLI ? '/' : (explode('?', $_SERVER['REQUEST_URI'], 2)[0])));
 define('PROCESS_ID', @posix_getpid());
 

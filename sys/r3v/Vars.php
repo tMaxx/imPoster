@@ -12,19 +12,24 @@ class Vars {
 		//revamp request to something more readable
 		$ipath = (array) explode('/', REQUEST_URI);
 
+		//filter out any html-ish characters
+		$repl = function ($v) {
+			return str_replace(['<', '>', '&', '?', '#'], 0xFFFD, $v);
+		};
+
 		$rpath = '/';
 		self::$URI['r3v/nodes'] = array();
 		foreach ($ipath as $k => $v) {
 			if (empty($v) || !is_numeric($k))
 				continue;
-			$e = (array) explode(':', htmlspecialchars($v, ENT_IGNORE|ENT_DISALLOWED|ENT_HTML5), 2);
+			$e = (array) explode(':', $repl($v), 2);
 			$rpath .= $e[0];
 			self::$URI['r3v/nodes'][] = $e[0];
 			if (isset($e[1]))
 				self::$URI[$e[0]] = $e[1];
 			$rpath .= '/';
 		}
-		self::$URI['r3v/path'] = htmlspecialchars(substr($rpath, 0, -1), ENT_IGNORE|ENT_DISALLOWED|ENT_HTML5);
+		self::$URI['r3v/path'] = $repl(substr($rpath, 0, -1));
 	}
 
 	/**

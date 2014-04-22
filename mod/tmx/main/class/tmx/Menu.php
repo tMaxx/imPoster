@@ -29,7 +29,7 @@ class Menu {
 	}
 
 	public static function addright(array $a) {
-		self::$right += self::format($a, ['class' => ['right']]);
+		self::$right += self::format($a);
 	}
 
 	public static function getLeft() {
