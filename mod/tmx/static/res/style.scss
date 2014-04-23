@@ -404,4 +404,39 @@ div.rpanel {
 			}
 		}
 	}
+
+	table, tr, td, thead, tbody {
+		border: none;
+	}
+
+	.tmx_about {
+		margin: 0 auto;
+		min-width: 300px;
+		max-width: 50%;
+	}
+	p.tmx_about {
+		margin-top: 1em;
+	}
+	table.tmx_about {
+		border-collapse: collapse;
+
+		.header {
+			font-size: 2em;
+			color: $c_font_imp !important;
+			font-weight: bold;
+			border-bottom: 1px solid $c_lgrey;
+
+			td {
+				padding: 0;
+			}
+		}
+		tr td {
+			padding: .5em .4em;
+
+			&:first-of-type {
+				color: $c_blueish;
+				text-align: right;
+			}
+		}
+	}
 }

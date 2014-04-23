@@ -20,8 +20,9 @@ A work in progress project.
  - Cache module (_much, much later_)
  - Simplify DB - maybe move to PDO?
  - Fix 'safe exit' functionality in Mod
- - Cosmetic change: move mods from 'ext' to 'lib'
+ - Cosmetic change: move mods from 'ext' to 'lib', add as submodules
  - highlight.js
+ - URI Vars: allow only int/float or letters (a-zA-Z)
 
 
 ### Licensing
