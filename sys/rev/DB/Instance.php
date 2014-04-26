@@ -1,5 +1,5 @@
 <?php ///rev engine /sys/DB/.php
-namespace r3v\DB;
+namespace rev\DB;
 
 /**
  * Instance - model instance handler

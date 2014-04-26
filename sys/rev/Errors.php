@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\Error
-namespace r3v;
+<?php ///rev engine \rev\Error
+namespace rev;
 ///Error class
 class Error extends \ErrorException {
 

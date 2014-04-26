@@ -1,6 +1,6 @@
 <?php ///rev engine /sys/Session.php
-namespace r3v\Auth;
-use r3v\Vars;
+namespace rev\Auth;
+use rev\Vars;
 
 /**
  * Session management class

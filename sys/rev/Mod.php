@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\Mod
-namespace r3v;
+<?php ///rev engine \rev\Mod
+namespace rev;
 
 /**
  * Modloader class
@@ -209,9 +209,9 @@ class Mod {
 
 	/** Add /sys/ autoloader **/
 	public static function sysinit() {
-		if (isset(self::$class['r3v\\']))
+		if (isset(self::$class['rev\\']))
 			return;
-		self::$class['r3v\\'] = '/sys/';
+		self::$class['rev\\'] = '/sys/';
 	}
 
 	/** Start rev engine (:D) and load some definitions (^_^) */

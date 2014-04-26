@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\Mail\Obj
-namespace r3v\Mail;
+<?php ///rev engine \rev\Mail\Obj
+namespace rev\Mail;
 
 /**
  * Mailer: Object
@@ -32,7 +32,7 @@ class Obj {
 		$this->headers[] = 'To: '.$this->email_to;
 		$this->headers[] = 'From: ' . $selfmail;
 		$this->headers[] = 'Reply-to: ' . $selfmail;
-		$this->headers[] = 'X-Mailer: '.r3v_ID;
+		$this->headers[] = 'X-Mailer: '.rev_ID;
 		$headers = implode ("\r\n", $this->headers);
 		mail($this->email_to, $this->email_subject, $this->email_message, $headers);
 	}

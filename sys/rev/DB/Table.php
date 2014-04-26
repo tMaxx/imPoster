@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\DB\Table
-namespace r3v\DB;
+<?php ///rev engine \rev\DB\Table
+namespace rev\DB;
 
 /**
  * Table - query builder/repository

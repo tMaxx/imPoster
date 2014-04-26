@@ -1,6 +1,6 @@
-<?php ///rev engine \r3v\View\Explicit
-namespace r3v\View;
-use \r3v\File;
+<?php ///rev engine \rev\View\Explicit
+namespace rev\View;
+use \rev\File;
 
 /**
  * Explicit view loader - mostly static stuff
@@ -31,7 +31,7 @@ class Explicit {
 		elseif (File::fileExists($route.'/index.php'))
 			$route .= ($extension = '/index.php');
 		else
-			throw new \r3v\Error404("Page not found: \"{$this->node}\"");
+			throw new \rev\Error404("Page not found: \"{$this->node}\"");
 
 		$ret = $this->inc($this->vars, $route);
 		$this->vars = [];
@@ -44,12 +44,12 @@ class Explicit {
 					return;
 
 				if (!File::fileExists($view))
-					throw new \r3v\Error404("View \"{$view}\" was not found");
+					throw new \rev\Error404("View \"{$view}\" was not found");
 
 				$this->inc($ret, $view);
 
 			} elseif (isset($ret[0]) && is_int($ret[0])) {
-				$view = '\\r3v\\Error'.$view;
+				$view = '\\rev\\Error'.$view;
 				if (isset($ret[1]))
 					throw (new $view($ret[1]));
 				throw (new $view());
@@ -58,14 +58,14 @@ class Explicit {
 		$this->vars = [];
 	}
 
-	/** @see r3v\View::setContentType */
+	/** @see rev\View::setContentType */
 	public function setContentType($v) {
-		\r3v\View::setContentType($v);
+		\rev\View::setContentType($v);
 	}
 
-	/** @see r3v\View::redirect */
+	/** @see rev\View::redirect */
 	public function redirect($v) {
-		\r3v\View::redirect($v);
+		\rev\View::redirect($v);
 	}
 
 	/** Render view subpath */

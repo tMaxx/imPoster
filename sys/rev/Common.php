@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\Common
-namespace r3v;
+<?php ///rev engine \rev\Common
+namespace rev;
 
 /**
  * Common - Static system helpers

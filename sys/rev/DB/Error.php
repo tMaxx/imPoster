@@ -1,7 +1,7 @@
-<?php ///rev engine \r3v\DB\Error
-namespace r3v\DB;
+<?php ///rev engine \rev\DB\Error
+namespace rev\DB;
 
-class Error extends \r3v\Error {
+class Error extends \rev\Error {
 	public $inst = NULL;
 
 	public function __construct($msg = NULL, $inst = NULL) {

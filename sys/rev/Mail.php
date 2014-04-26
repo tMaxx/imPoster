@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\Mail
-namespace r3v;
+<?php ///rev engine \rev\Mail
+namespace rev;
 
 /**
  * Email handling class
@@ -25,4 +25,4 @@ class Mail {
 	}
 }
 
-Mod::registerUnload(['\\r3v\\Mail::flush']);
+Mod::registerUnload(['\\rev\\Mail::flush']);

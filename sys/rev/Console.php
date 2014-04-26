@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\Console
-namespace r3v;
+<?php ///rev engine \rev\Console
+namespace rev;
 
 /**
  * Console support
@@ -40,7 +40,7 @@ class Console {
 		if (!class_exists('\\Boris\\Boris')) {
 			Mod::loadMod('lib/boris');
 			echo Console::white,
-				'Hi :D // ', r3v_ID,
+				'Hi :D // ', rev_ID,
 				' // loaded in ', ms_from_start(), 'ms',
 				' // Boris REPL v', \Boris\Boris::VERSION,
 				Console::reset, "\n";

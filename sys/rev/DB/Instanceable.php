@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\DB\Instanceable
-namespace r3v\DB;
+<?php ///rev engine \rev\DB\Instanceable
+namespace rev\DB;
 
 ///Enable class saving
 interface Instanceable {

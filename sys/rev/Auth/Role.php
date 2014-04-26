@@ -1,5 +1,5 @@
-<?php //rev engine \r3v\Role
-namespace r3v\Auth;
+<?php //rev engine \rev\Role
+namespace rev\Auth;
 
 /**
  * Auth
@@ -21,7 +21,7 @@ class Role {
 	public static function init() {
 		if (self::$map)
 			return;
-		self::$map = \r3v\Conf::get('auth/map');
+		self::$map = \rev\Conf::get('auth/map');
 	}
 
 	/** Retrieve user role by given $id and add it to cache */

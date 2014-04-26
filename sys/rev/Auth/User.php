@@ -1,12 +1,12 @@
-<?php ///rev engine \r3v\Auth\User
-namespace r3v\Auth;
+<?php ///rev engine \rev\Auth\User
+namespace rev\Auth;
 
 /**
  * Google auth/login class
  * Wrapper for .\Session
  *
  * On auth request it will get user info from G,
- * compare data and then create session with r3v user id.
+ * compare data and then create session with rev user id.
  * TODO: Registration
  */
 class User {
@@ -19,16 +19,16 @@ class User {
 	public static function g_lib_init() {
 		if (self::$_gclient)
 			return;
-		\r3v\Mod::loadMod('lib/google-api');
+		\rev\Mod::loadMod('lib/google-api');
 
 		self::$_gclient = new \Google_Client();
 
 		//currently online as nothing will be processed outside page
 		self::$_gclient->setAccessType('online');
-		self::$_gclient->setApplicationName(\r3v\Conf::get('site/name'));
+		self::$_gclient->setApplicationName(\rev\Conf::get('site/name'));
 		self::$_gclient->setScopes(['openid', 'profile', 'email']);
 
-		$conf = \r3v\Conf::get('google_oauth');
+		$conf = \rev\Conf::get('google_oauth');
 
 		self::$_gclient->setClientId($conf['client_id']);
 		self::$_gclient->setClientSecret($conf['client_secret']);
@@ -61,7 +61,7 @@ class User {
 		$uinfo = self::$_goauth->userinfo->get();
 
 		if (!ctype_digit($uinfo->id))
-			throw new r3v\Error418('Interesting, user id is not numeric. Aborting.');
+			throw new rev\Error418('Interesting, user id is not numeric. Aborting.');
 
 		$data = DB('SELECT
 			id, email, name, auth, ts_seen, is_removed, is_active
@@ -94,14 +94,14 @@ class User {
 			return 'Account is inactive, login aborted';
 
 		if ($data['auth'] == 'admin' && (!$uinfo->verifiedEmail || $data['email'] != $uinfo->email))
-			throw new r3v\Error403('Invalid e-mail for auth "admin"; login aborted');
+			throw new rev\Error403('Invalid e-mail for auth "admin"; login aborted');
 
 		Session::create($data['id']);
 	}
 
 	public static function login_redirect() {
 		self::g_lib_init();
-		\r3v\View::redirect(self::$_gclient->createAuthUrl());
+		\rev\View::redirect(self::$_gclient->createAuthUrl());
 	}
 
 	public static function logout() {

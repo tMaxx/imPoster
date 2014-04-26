@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\View
-namespace r3v;
+<?php ///rev engine \rev\View
+namespace rev;
 
 /**
  * View/HTML class
@@ -26,7 +26,7 @@ class View {
 
 		self::setContentType('html');
 		self::$config = Conf::get('site');
-		$node = Vars::uri('r3v/nodes');
+		$node = Vars::uri('rev/nodes');
 		$routes = Mod::getRoutePaths();
 
 		$selected = isset($node[0], $routes[$node[0]]) ? $node[0] : '';
@@ -36,7 +36,7 @@ class View {
 		unset($routes);
 
 		$no_template = empty($selected['template']);
-		$reqpath = substr(Vars::uri('r3v/path'), $len);
+		$reqpath = substr(Vars::uri('rev/path'), $len);
 
 		ob_start();
 		try {
@@ -181,7 +181,7 @@ if (!CLI)
 	View::addHTTPheaders([
 		'Server: got hella wasted',
 		'X-Powered-By: lots of self-esteem',
-		'X-Backend: '.r3v_ID,
+		'X-Backend: '.rev_ID,
 	]);
 
-Mod::registerUnload('r3v\\View', ['\\r3v\\View::flushHTTPheaders']);
+Mod::registerUnload('rev\\View', ['\\rev\\View::flushHTTPheaders']);

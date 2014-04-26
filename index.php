@@ -5,9 +5,9 @@ mb_internal_encoding('UTF-8');
 mb_regex_encoding('UTF-8');
 
 //rev version
-define('r3v_VERSION', '0.6beta1');
+define('rev_VERSION', '0.6beta1');
 //rev identificator
-define('r3v_ID', 'rev engine [dragons] v'.r3v_VERSION);
+define('rev_ID', 'rev engine [dragons] v'.rev_VERSION);
 
 //time
 define('NOW_MICRO', floor(microtime(true) * 10000));
@@ -24,7 +24,7 @@ define('REQUEST_URI', (CLI ? '/' : (explode('?', $_SERVER['REQUEST_URI'], 2)[0])
 define('PROCESS_ID', @posix_getpid());
 
 if (CLI) {
-	cli_set_process_title('r3v engine');
+	cli_set_process_title('rev engine');
 	define('NEWLINE', "\n"); //kinda sucks, but kinda works :D
 } else
 	define('NEWLINE', '<br>');
@@ -32,4 +32,4 @@ if (CLI) {
 //redirect to init file
 require_once ROOT.'/sys/_init.php';
 
-\r3v\Mod::go();
+\rev\Mod::go();

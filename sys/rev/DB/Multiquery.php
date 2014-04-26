@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\DB\Multiquery
-namespace r3v\DB;
+<?php ///rev engine \rev\DB\Multiquery
+namespace rev\DB;
 
 /**
  * Multi query executer

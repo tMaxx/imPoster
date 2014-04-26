@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\Vars
-namespace r3v;
+<?php ///rev engine \rev\Vars
+namespace rev;
 
 /**
  * Vars - variables handling class
@@ -18,18 +18,18 @@ class Vars {
 		};
 
 		$rpath = '/';
-		self::$URI['r3v/nodes'] = array();
+		self::$URI['rev/nodes'] = array();
 		foreach ($ipath as $k => $v) {
 			if (empty($v) || !is_numeric($k))
 				continue;
 			$e = (array) explode(':', $repl($v), 2);
 			$rpath .= $e[0];
-			self::$URI['r3v/nodes'][] = $e[0];
+			self::$URI['rev/nodes'][] = $e[0];
 			if (isset($e[1]))
 				self::$URI[$e[0]] = $e[1];
 			$rpath .= '/';
 		}
-		self::$URI['r3v/path'] = $repl(substr($rpath, 0, -1));
+		self::$URI['rev/path'] = $repl(substr($rpath, 0, -1));
 	}
 
 	/**
@@ -41,7 +41,7 @@ class Vars {
 	 *       value of if_not_set will be appended to result
 	 *    array("var_name")
 	 *       nothing will be appended to result
-	 * @throws \r3v\Error
+	 * @throws \rev\Error
 	 * @return array|input
 	 */
 	public static function __callStatic($name, $args) {

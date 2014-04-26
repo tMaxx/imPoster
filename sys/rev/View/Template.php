@@ -1,6 +1,6 @@
-<?php ///rev engine \r3v\View\Template
-namespace r3v\View;
-use \r3v\File;
+<?php ///rev engine \rev\View\Template
+namespace rev\View;
+use \rev\File;
 
 /**
  * Template creating
@@ -28,7 +28,7 @@ class Template {
 			$this->src = Error::pathdiff($this->src);
 			$this->type = 'file';
 		} elseif ($this->type == 'templates') {
-			$this->src = \r3v\View::getCurrentBasepath().'/templates/'.$this->src.'.html';
+			$this->src = \rev\View::getCurrentBasepath().'/templates/'.$this->src.'.html';
 			$this->type = 'file';
 		}
 

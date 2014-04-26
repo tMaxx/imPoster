@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\DB\Saveable
-namespace r3v\DB;
+<?php ///rev engine \rev\DB\Saveable
+namespace rev\DB;
 
 ///Make a class saveable via DB\Instance
 interface Saveable {

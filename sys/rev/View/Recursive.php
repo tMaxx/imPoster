@@ -1,6 +1,6 @@
-<?php ///rev engine /sys/r3v/View.php
-namespace r3v\View;
-use \r3v\File;
+<?php ///rev engine /sys/rev/View.php
+namespace rev\View;
+use \rev\File;
 
 ///Actually just a complete view generator
 class Recursive {

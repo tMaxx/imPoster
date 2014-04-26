@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\Conf
-namespace r3v;
+<?php ///rev engine \rev\Conf
+namespace rev;
 
 /**
  * Conf
@@ -12,7 +12,7 @@ class Conf {
 
 	/** Load project config */
 	public static function load() {
-		$type = glob(ROOT.'/r3v_env.*');
+		$type = glob(ROOT.'/rev_env.*');
 		if (!isset($type[0]))
 			throw new Error('Project environment not set!');
 

@@ -7,8 +7,8 @@ function vdump() {
 	$wpre = (!CLI && (!function_exists('xdebug_get_code_coverage')));
 	if ($wpre)
 		echo '<pre>';
-	elseif (class_exists('\\r3v\\Console', false))
-		$insp = r3v\Console::inst('inspector');
+	elseif (class_exists('\\rev\\Console', false))
+		$insp = rev\Console::inst('inspector');
 	foreach (func_get_args() as $v) {
 		if (CLI)
 			echo $insp->inspect($v);
@@ -56,19 +56,19 @@ function datef($unix_ts, $hrs = false) {
 	return date(($hrs ? 'H:i ' : '').'d.m.Y', $unix_ts);
 }
 
-require_once ROOT.'/sys/r3v/Errors.php';
+require_once ROOT.'/sys/rev/Errors.php';
 
-set_exception_handler('\\r3v\\Error::h');
-set_error_handler('\\r3v\\Error::h', E_ALL);
+set_exception_handler('\\rev\\Error::h');
+set_error_handler('\\rev\\Error::h', E_ALL);
 
-require_once ROOT.'/sys/r3v/Mod.php';
+require_once ROOT.'/sys/rev/Mod.php';
 
-spl_autoload_register('\\r3v\\Mod::loadClass');
-register_shutdown_function('\\r3v\\Mod::unloadAll', 'shutdown');
-\r3v\Mod::sysinit(); //load sys definition
+spl_autoload_register('\\rev\\Mod::loadClass');
+register_shutdown_function('\\rev\\Mod::unloadAll', 'shutdown');
+\rev\Mod::sysinit(); //load sys definition
 
 //this sets DEBUG constant, Conf will come in handy anyway
-\r3v\Mod::loadClass('r3v\\Conf');
+\rev\Mod::loadClass('rev\\Conf');
 
 if (DEBUG) {
 	error_reporting(E_ALL);
@@ -82,12 +82,12 @@ if (DEBUG) {
 
 ///DB factory
 function DB($var) {
-	if (is_object($var) && ($var instanceof r3v\DB\Saveable))
-		return new r3v\DB\Instance($var);
+	if (is_object($var) && ($var instanceof rev\DB\Saveable))
+		return new rev\DB\Instance($var);
 	elseif (is_string($var)) {
 		if (substr_count($var, ' ') == 0)
-			return new r3v\DB\Table($var);
-		return new r3v\DB\Base($var);
+			return new rev\DB\Table($var);
+		return new rev\DB\Base($var);
 	} else
-		throw new r3v\DB\Error('Unsupported $var type');
+		throw new rev\DB\Error('Unsupported $var type');
 }

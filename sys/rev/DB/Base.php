@@ -1,5 +1,5 @@
-<?php ///rev engine \r3v\DB\Base
-namespace r3v\DB;
+<?php ///rev engine \rev\DB\Base
+namespace rev\DB;
 use \PDO, \PDOStatement;
 
 /**
@@ -29,7 +29,7 @@ class Base {
 		if (!class_exists('\\PDO', false))
 			throw new Error('Could not find PDO extension. Aborting.');
 
-		$con = \r3v\Conf::db();
+		$con = \rev\Conf::db();
 
 		$dsn = 'mysql:';
 		if (!empty($con['socket']))
@@ -386,5 +386,5 @@ class Base {
 	}
 }
 
-\r3v\DB\Base::go();
-//\r3v\Mod::registerUnload(['\\r3v\\DB\\Base::end']);
+\rev\DB\Base::go();
+//\rev\Mod::registerUnload(['\\rev\\DB\\Base::end']);
