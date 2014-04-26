@@ -10,3 +10,6 @@
 [submodule "mod/lib/google-authenticator"]
 	path = mod/lib/google-authenticator
 	url = git@github.com:masel/google-authenticator.git
+[submodule "mod/lib/boris"]
+	path = mod/lib/boris
+	url = git@github.com:tMaxx/boris.git
