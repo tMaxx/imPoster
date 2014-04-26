@@ -1,18 +1,18 @@
 <?
-switch (r3v\Vars::uri('user')) {
+switch (rev\Vars::uri('user')) {
 	case 'login':
-		r3v\Auth\User::login_redirect();
+		rev\Auth\User::login_redirect();
 		break;
 
 	case 'logout':
-		r3v\Auth\User::logout();
+		rev\Auth\User::logout();
 		$this->redirect('/');
 		break;
 
 	case 'callback':
 		if (!isset($_GET['code']))
-			throw new r3v\Error400();
-		$r = r3v\Auth\User::callback_auth($_GET['code']);
+			throw new rev\Error400();
+		$r = rev\Auth\User::callback_auth($_GET['code']);
 		if (!$r)
 			$this->redirect('/');
 		else
@@ -24,8 +24,8 @@ switch (r3v\Vars::uri('user')) {
 
 	case 'dump':
 		if (DEBUG) {
-			vdump(r3v\Auth\Session::dump());
+			vdump(rev\Auth\Session::dump());
 			break;
 		}
 }
-throw new r3v\Error404();
+throw new rev\Error404();

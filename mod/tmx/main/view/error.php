@@ -4,8 +4,8 @@
 	<span class="emsg"><?= (method_exists($error, 'getExtMessage') ? $error->getExtMessage() : $error->getMessage()) ?></span>
 	<? if (DEBUG): ?>
 		<div class="trace">
-			<div class="location"><i>=></i> <?= r3v\Error::pathdiff($error->getFile()), ':', $error->getLine() ?></div>
-			<?= r3v\Error::prettyTrace($error->getTrace()) ?>
+			<div class="location"><i>=></i> <?= rev\Error::pathdiff($error->getFile()), ':', $error->getLine() ?></div>
+			<?= rev\Error::prettyTrace($error->getTrace()) ?>
 		</div>
 	<? endif ?>
 </div>

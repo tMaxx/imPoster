@@ -7,10 +7,10 @@ if (isset($header))
 	];
 
 
-if (is_numeric($id = r3v\Vars::uri('blog'))) {
+if (is_numeric($id = rev\Vars::uri('blog'))) {
 	$single = DB('SELECT * FROM Blog WHERE id=? AND is_draft=0')->param('i', $id)->row();
 	if (!$single)
-		throw new r3v\Error404();
+		throw new rev\Error404();
 
 	$single['tags'] = DB('SELECT name FROM Tags WHERE blog_id=?')->param('i', $id)->vals();
 

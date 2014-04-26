@@ -1,6 +1,6 @@
 <?php ///tmx static files server
-$vars = r3v\Vars::uri(array('scss', 'js'));
-$servepath = r3v\View::getCurrentBasepath().'res/';
+$vars = rev\Vars::uri(array('scss', 'js'));
+$servepath = rev\View::getCurrentBasepath().'res/';
 
 function setCacheControl($path) {
 	$path = ROOT.$path;
@@ -11,7 +11,7 @@ function setCacheControl($path) {
 	$exptime = $time;
 	while (($exptime += 2764800) <= (NOW+2764800));
 
-	r3v\View::addHTTPheaders([
+	rev\View::addHTTPheaders([
 		"Last-Modified: $time",
 		// "Cache-Control: must-revalidate",
 		'Expires: '.gmdate('r', $exptime),
@@ -22,11 +22,11 @@ function setCacheControl($path) {
 		&& $_SERVER['HTTP_IF_MODIFIED_SINCE'] == $time) ||
 		(isset($_SERVER['HTTP_IF_NONE_MATCH'])
 		&& str_replace('"', '', stripslashes($_SERVER['HTTP_IF_NONE_MATCH'])) == $etag)) {
-		r3v\View::addHTTPheaders([
+		rev\View::addHTTPheaders([
 			'HTTP/1.1 304 Not Modified',
 			'Content-Length: 0',
 		]);
-		r3v\View::flushHTTPheaders();
+		rev\View::flushHTTPheaders();
 		return true;
 	}
 	return false;
@@ -34,9 +34,9 @@ function setCacheControl($path) {
 
 switch (true) {
 	case isset($vars['scss']): {
-		$_GET['p'] = r3v\File::sanitizePath($vars['scss']).'.scss';
+		$_GET['p'] = rev\File::sanitizePath($vars['scss']).'.scss';
 
-		if (!r3v\File::fileExists($servepath.$_GET['p']))
+		if (!rev\File::fileExists($servepath.$_GET['p']))
 			break;
 		if ($vars['scss'][0] == '_')
 			break;
@@ -46,7 +46,7 @@ switch (true) {
 
 		$this->setContentType('css');
 
-		r3v\Mod::loadMod('lib/scssphp');
+		rev\Mod::loadMod('lib/scssphp');
 
 		$compiler = new scssc();
 		$compiler->setFormatter('scss_formatter_compressed');
@@ -59,14 +59,14 @@ switch (true) {
 	}
 
 	case isset($vars['js']): {
-		$servepath .= r3v\File::sanitizePath($vars['js']) . '.js';
-		if (!r3v\File::fileExists($servepath))
+		$servepath .= rev\File::sanitizePath($vars['js']) . '.js';
+		if (!rev\File::fileExists($servepath))
 			break;
 		if (setCacheControl($servepath))
 			return;
 
 		$this->setContentType('js');
-		echo r3v\File::contents($servepath);
+		echo rev\File::contents($servepath);
 		return;
 	}
 

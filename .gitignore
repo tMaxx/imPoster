@@ -1,9 +1,10 @@
 #sublime text project files
 *.sublime-*
 
-#r3v version marker
+#rev version marker
 #ex: dev, stable
 r3v_env.*
+rev_env.*
 #engine's configuration file
 config.json
 
