@@ -56,7 +56,7 @@
 			"scope": "",
 			"template": "/index.template.php",
 			"error_page": "/error",
-			"autorun": ["r3v\\Auth\\User::load"]
+			"autorun": ["rev\\Auth\\User::load"]
 		}
 	},
 	"tmx/api": {
