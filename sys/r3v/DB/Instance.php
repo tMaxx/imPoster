@@ -18,11 +18,10 @@ class Instance extends Base {
 
 	///Reset state
 	public function reset() {
-		if (is_object($this->stmt))
-			$this->stmt->close();
+		$this->close();
 		$this->stmt = NULL;
 		$this->stmt_types = '';
-		$this->stmt_param = array();
+		$this->stmt_values = array();
 		$this->query = '';
 		$this->query_result = NULL;
 

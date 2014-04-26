@@ -1,0 +1,108 @@
+// tmx stylesheet, (C) 2014 theMaxx
+// Basic style setup
+
+// Distances
+$dv: .5em; //common divisor
+
+// Fonts
+$font_mono: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+$font_main: 'Trebuchet MS', Arial, sans-serif;
+
+
+// General setup, commons
+* {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;
+}
+html, body {
+	min-height: 100%;
+	height: 100%;
+}
+html, body, img {
+	margin: 0;
+	padding: 0;
+	border: none;
+}
+a {
+	text-decoration: none;
+	color: inherit;
+}
+.clear 	{clear: both; visibility: hidden;}
+.center	{text-align: center;}
+.fright	{float:right;}
+
+// Content settings
+.cnt-set {
+	margin: 0 auto;
+	width: 70%;
+	min-width: 400px;
+	display: block;
+}
+
+.content {
+	p, blockquote, pre {
+		text-align: justify;
+		margin: 0 0 1em;
+	}
+	h1, h2, h3, h4, h5 {
+		display: block;
+		font-weight: bold;
+		margin: .5em 0 0 0;
+	}
+	h1 {font-size: 2em;}
+	h2 {font-size: 1.5em;}
+	h3 {font-size: 1.17em;}
+
+	ol, ul {
+		display: block;
+		margin: 0 0 2*$dv;
+		padding: 0 0 0 2em;
+		li {
+			display: list-item;
+		}
+	}
+
+	.img {
+		img {}
+		.desc {}
+	}
+
+	form {
+		margin: 0 0 $dv;
+		line-height: 1.9em;
+	}
+	.button, a.button {
+		cursor: pointer;
+		text-decoration: none;
+		display: inline-block;
+	}
+	a.button:hover {
+		border-bottom: none;
+	}
+
+	input[type=radio], input[type=checkbox] {
+		margin: 1px 3px 0 6px;
+	}
+
+	.form-label, label {
+		display: block;
+		margin-bottom: $dv;
+	}
+
+	textarea.big {
+		height: 30*$dv;
+	}
+	input.big, .button.big {
+		font-size: 1.3em;
+	}
+	input.wide, textarea.wide, .buttton.big {
+		width: 75%;
+	}
+
+	table, tr, td, thead, tbody {
+		border: none;
+	}
+}
+

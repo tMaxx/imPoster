@@ -4,7 +4,8 @@ rev engine
 A work in progress project.
 
 ### Changelog
- - 0.6alpha9: Static files' time of life, shorten changelog
+ - 0.6beta1: Release. Finally.
+ - 0.6alpha9-10: Static files' time of life, shorten changelog, app-side work, DB to PDO, git submodules
  - 0.6alpha5-8: Cleanups, add MVC to View, User/Google auth, reorganize modules, optimalizations & fixes
  - 0.6alpha1-4: Rewritten autoloader, modloader and initialization, add CLI, config handler, modularize things a bit, static file handler, fix Error a bit, routing, cleanups, optimalizations
  - 0.5alpha2: Improved DB support, included basic authentication and session management
@@ -14,15 +15,16 @@ A work in progress project.
  - 0.1: Request path support, classes, errors, file management
 
 ### TODO
- - Errors module: ~~(trash,) rewrite~~ fix it, optimize, tone down
  - Explicit view generation: try to fix cross-referencing modules, then fail miserably
  - Some more types for static file server (like images, plaintext)
  - Cache module (_much, much later_)
- - Simplify DB - maybe move to PDO?
  - Fix 'safe exit' functionality in Mod
- - Cosmetic change: move mods from 'ext' to 'lib', add as submodules
  - highlight.js
- - URI Vars: allow only int/float or letters (a-zA-Z)
+ - URI Vars: allow only int or letters (a-zA-Z0-9)
+ - View: ETags to standalone method
+ - SCSS: consider writing own server, current one is hellish slow
+ - DB: try to speed up a bit, simplify, interface names (IEnableable)
+ - names: move to official "rev" instead of "r3v" and whatever
 
 
 ### Licensing

@@ -38,7 +38,7 @@ class Console {
 	/** start console loop */
 	public static function start() {
 		if (!class_exists('\\Boris\\Boris')) {
-			Mod::loadMod('ext/boris');
+			Mod::loadMod('lib/boris');
 			echo Console::white,
 				'Hi :D // ', r3v_ID,
 				' // loaded in ', ms_from_start(), 'ms',

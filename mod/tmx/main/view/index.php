@@ -16,8 +16,3 @@
 	<h3>Hi :D</h3>
 <? endif; ?>
 </div>
-<? if ($rpane): ?>
-	<div class="rpanel">
-		<?= $user_data['login'] ?>
-	</div>
-<? endif ?>

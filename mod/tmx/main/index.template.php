@@ -9,17 +9,19 @@
 	<title><?= self::title() ?></title>
 </head>
 <body>
-<div id="logo">
+<div id="page-wrap">
+	<div id="logo">
+		<div class="cnt-set">
+			<a href="/" class=""><small>the</small><big>M</big>aksiu&nbsp;&nbsp;<small class="blue">burza w szklance wody</small></a>
+		</div>
+	</div>
 	<div class="cnt-set">
-		<a href="/" class=""><small>the</small><big>M</big>aksiu&nbsp;&nbsp;<small class="blue">burza w szklance wody</small></a>
+		<?= $BODY ?>
 	</div>
 </div>
-<div class="cnt-set">
-	<?= $BODY ?>
-</div>
+<div id="footer">[<?= ms_from_start() ?>, {"&amp;copy;": <?= (($a=date('Y')) == '2014') ? 2014 : '"2014-'.$a.'"' ?>}]</div>
 	<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 	<script src="/static/js:script"></script>
 	<script src="/static/js:ga"></script>
-<div id="footer">["<?= r3v\Conf::envType() ?>", <?= ms_from_start() ?>, {"&amp;copy;": <?= (($a=date('Y')) == '2014') ? 2014 : '"2014-'.$a.'"' ?>}]</div>
 </body>
 </html>

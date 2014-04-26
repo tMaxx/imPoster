@@ -5,9 +5,9 @@ mb_internal_encoding('UTF-8');
 mb_regex_encoding('UTF-8');
 
 //rev version
-define('r3v_VERSION', '0.6alpha9');
+define('r3v_VERSION', '0.6beta1');
 //rev identificator
-define('r3v_ID', 'rev engine [elementary] v'.r3v_VERSION);
+define('r3v_ID', 'rev engine [dragons] v'.r3v_VERSION);
 
 //time
 define('NOW_MICRO', floor(microtime(true) * 10000));

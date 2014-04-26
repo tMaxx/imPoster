@@ -19,7 +19,7 @@ class User {
 	public static function g_lib_init() {
 		if (self::$_gclient)
 			return;
-		\r3v\Mod::loadMod('ext/google-api');
+		\r3v\Mod::loadMod('lib/google-api');
 
 		self::$_gclient = new \Google_Client();
 
@@ -60,7 +60,12 @@ class User {
 
 		$uinfo = self::$_goauth->userinfo->get();
 
-		$data = DB('User')->select()->where(['gid' => $uinfo->id])->row();
+		if (!ctype_digit($uinfo->id))
+			throw new r3v\Error418('Interesting, user id is not numeric. Aborting.');
+
+		$data = DB('SELECT
+			id, email, name, auth, ts_seen, is_removed, is_active
+			FROM User WHERE gid=?')->param('s', $uinfo->id)->row();
 
 		if (!$data) { //register
 			if (!$uinfo->verifiedEmail)
@@ -68,7 +73,7 @@ class User {
 
 			$q = DB('User')->insert([
 				'email' => $uinfo->email,
-				'login' => $uinfo->name,
+				'name' => $uinfo->name,
 				'is_active' => false,
 				'is_removed' => false,
 				'ts_seen' => NOW,
@@ -107,6 +112,11 @@ class User {
 	/** Return user id */
 	public static function id() {
 		return isset(self::$user['id']) ? self::$user['id'] : null;
+	}
+
+	/** Return user name */
+	public static function name() {
+		return isset(self::$user['name']) ? self::$user['name'] : 'anonymous';
 	}
 
 	/** Return authentication status (bool) */

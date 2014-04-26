@@ -1,0 +1,12 @@
+[submodule "mod/lib/endroid-qrcode"]
+	path = mod/lib/endroid-qrcode
+	url = git@github.com:endroid/QrCode.git
+[submodule "mod/lib/google-api"]
+	path = mod/lib/google-api
+	url = git@github.com:google/google-api-php-client.git
+[submodule "mod/lib/scssphp"]
+	path = mod/lib/scssphp
+	url = git@github.com:leafo/scssphp.git
+[submodule "mod/lib/google-authenticator"]
+	path = mod/lib/google-authenticator
+	url = git@github.com:masel/google-authenticator.git

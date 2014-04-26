@@ -67,4 +67,9 @@ class Explicit {
 	public function redirect($v) {
 		\r3v\View::redirect($v);
 	}
+
+	/** Render view subpath */
+	public function sub($path, $vars = []) {
+		(new Explicit($this->basepath, $path, $vars))->go();
+	}
 }

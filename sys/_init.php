@@ -67,7 +67,7 @@ spl_autoload_register('\\r3v\\Mod::loadClass');
 register_shutdown_function('\\r3v\\Mod::unloadAll', 'shutdown');
 \r3v\Mod::sysinit(); //load sys definition
 
-//set DEBUG constant, Conf will come in handy anyway
+//this sets DEBUG constant, Conf will come in handy anyway
 \r3v\Mod::loadClass('r3v\\Conf');
 
 if (DEBUG) {

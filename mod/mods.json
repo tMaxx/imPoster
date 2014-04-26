@@ -11,12 +11,12 @@
 	},
 	"__example": {},
 
-	"ext/boris": {
+	"lib/boris": {
 		"origin": "git@github.com:joddie/boris.git completion-and-network-hacks",
 		"def_type": "composer",
 		"explicit_load": true
 	},
-	"ext/google-api": {
+	"lib/google-api": {
 		"def_type": "composer",
 		"explicit_load": true,
 		"autoload": {
@@ -26,7 +26,7 @@
 			}
 		}
 	},
-	"ext/scssphp": {
+	"lib/scssphp": {
 		"origin": "git@github.com:leafo/scssphp.git",
 		"def_type": "composer",
 		"explicit_load": true,
@@ -34,6 +34,13 @@
 			"files": ["/scss.inc.php"]
 		}
 	},
+	"lib/google-authenticator": {
+		"origin": "git@github.com:masel/google-authenticator.git",
+		"def_type": "composer",
+		"explicit_load": true
+	},
+
+
 	"tmx/static": {
 		"def_type": null,
 		"explicit_load": true,

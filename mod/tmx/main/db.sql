@@ -1,22 +1,22 @@
 CREATE TABLE IF NOT EXISTS `User` (
 	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	`gid` DECIMAL(22) UNSIGNED NOT NULL UNIQUE COMMENT 'google id',
+	-- compatibility problems with DECIMAL(22,0)
+	`gid` CHAR(22) NOT NULL UNIQUE COMMENT 'google id',
 	`email` VARCHAR(50) NOT NULL UNIQUE,
-	`login` VARCHAR(16) NOT NULL UNIQUE,
+	`name` VARCHAR(16) NOT NULL UNIQUE,
 	`auth` VARCHAR(10) NOT NULL DEFAULT 'user' COMMENT 'auth level',
-	`ts_seen` INT(11) NOT NULL DEFAULT UNIX_TIMESTAMP(),
-	`is_active` TINYINT(1) DEFAULT 0,
-	`is_removed` TINYINT(1) DEFAULT 0,
+	`ts_seen` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+	`is_active` BIT(1) DEFAULT 0,
+	`is_removed` BIT(1) DEFAULT 0,
 
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
--- CREATE INDEX iudex_User_email ON `User`(`email`);
--- CREATE INDEX iudex_User_login ON `User`(`login`);
 CREATE INDEX iudex_User_gid ON `User`(`gid`);
+CREATE INDEX iudex_User_is_act_rm ON `User`(`is_active`, `is_removed`);
 
 CREATE TABLE IF NOT EXISTS `Session` (
 	`user_id` INT UNSIGNED,
-	`ts` BIGINT(14) NOT NULL,
+	`ts` INT(11) UNSIGNED NOT NULL,
 	`salt` VARCHAR(64) NOT NULL UNIQUE,
 	`hash` VARCHAR(50) NOT NULL,
 	`data` VARCHAR(512) DEFAULT '{}',
@@ -25,47 +25,45 @@ CREATE TABLE IF NOT EXISTS `Session` (
 ) ENGINE=MEMORY;
 CREATE INDEX iudex_Session_hash ON `Session`(`hash`);
 
-CREATE OR REPLACE VIEW `UserSessions` AS
-	SELECT
-		*
-	FROM `Session` s RIGHT JOIN `User` u
-	ON s.user_id=u.id
-;
+
 
 CREATE TABLE IF NOT EXISTS `Blog` (
 	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(140),
 	`content` TEXT NOT NULL,
 	`type` INT,
-	`ts_publ` INT(11) NOT NULL COMMENT 'ts published',
-	`ts_mod` INT(11) NOT NULL COMMENT 'ts modified',
-	`is_draft` TINYINT(1) NOT NULL DEFAULT 0,
+	`ts_publ` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+	`ts_mod` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+	`is_draft` BIT(1) NOT NULL DEFAULT 0,
 
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE INDEX iudex_Blog_ts_publ ON `Blog`(`ts_publ`);
 CREATE INDEX iudex_Blog_ts_mod ON `Blog`(`ts_mod`);
 
-CREATE TABLE IF NOT EXISTS `Comments` (
-	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	`blog` INT UNSIGNED NOT NULL,
-	`author` INT DEFAULT NULL,
-	`content` TEXT NOT NULL,
-	`ts` INT(11) NOT NULL COMMENT 'ts published',
+CREATE TABLE IF NOT EXISTS `Tags` (
+	`blog_id` INT UNSIGNED NOT NULL,
+	`name` VARCHAR(20),
 
-	PRIMARY KEY (`id`),
-	FOREIGN KEY (`blog`) REFERENCES `Blog`(`id`)
+	FOREIGN KEY (`blog_id`) REFERENCES `Blog`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+CREATE INDEX iudex_Tags_name ON `Tags`(`name`);
+
+
 
 CREATE TABLE IF NOT EXISTS `Locker` (
 	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`content` TEXT NOT NULL,
 	`note` VARCHAR(140),
 	`src` INT,
-	`ts` INT(11) NOT NULL,
+	`ts` INT(11) UNSIGNED NOT NULL,
 
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
+
+
+
+
 
 -- CREATE TABLE IF NOT EXISTS `Ping` (
 -- 	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -84,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `Locker` (
 -- CREATE TABLE IF NOT EXISTS `UserFriends` (
 -- 	`user_one` INT UNSIGNED NOT NULL,
 -- 	`user_two` INT UNSIGNED NOT NULL,
--- 	`status` TINYINT(1) NULL DEFAULT NULL,
+-- 	`status` BIT(1) NULL DEFAULT NULL,
 
 -- 	FOREIGN KEY (`user_one`) REFERENCES `User`(`user_id`),
 -- 	FOREIGN KEY (`user_two`) REFERENCES `User`(`user_id`)

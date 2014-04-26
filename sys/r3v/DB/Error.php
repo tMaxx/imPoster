@@ -2,7 +2,7 @@
 namespace r3v\DB;
 
 class Error extends \r3v\Error {
-	protected $inst = NULL;
+	public $inst = NULL;
 
 	public function __construct($msg = NULL, $inst = NULL) {
 		if (is_object($inst))

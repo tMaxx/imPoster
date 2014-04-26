@@ -28,4 +28,4 @@ switch (r3v\Vars::uri('user')) {
 			break;
 		}
 }
-throw new Error404();
+throw new r3v\Error404();

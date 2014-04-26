@@ -1,21 +1,22 @@
 <?php ///rev engine \r3v\DB\Base
 namespace r3v\DB;
+use \PDO, \PDOStatement;
 
 /**
  * Base - Database support class
  */
 class Base {
-	//db object
-	protected static $db = NULL;
-	///compiled query
+	/** db object */
+	protected static $db = null;
+	/** compiled query */
 	protected $query = '';
-	///statement
+
+	/** statement & params */
 	protected $stmt = null;
 	protected $stmt_types = '';
-	protected $stmt_param = array();
-	///last query's result
-	protected $query_result = null;
-	///db state after last query
+	protected $stmt_values = array();
+
+	/** db state after last query */
 	protected $db_status = array();
 
 	/**
@@ -23,54 +24,60 @@ class Base {
 	 * @param $con connection options
 	 */
 	public static function go() {
-		if (!class_exists('\\mysqli', false))
-			return;
 		if (self::$db)
 			return;
+		if (!class_exists('\\PDO', false))
+			throw new Error('Could not find PDO extension. Aborting.');
 
 		$con = \r3v\Conf::db();
 
-		$defaults = [
-			'host' => ini_get("mysqli.default_host"),
-			'username' => ini_get("mysqli.default_user"),
-			'passwd' => ini_get("mysqli.default_pw"),
-			'dbname' => "",
-			'port' => ini_get("mysqli.default_port"),
-			'socket' => ini_get("mysqli.default_socket")
-		];
-		$con = array_replace($defaults, $con);
+		$dsn = 'mysql:';
+		if (!empty($con['socket']))
+			$dsn .= 'unix_socket='.$con['socket'].';';
+		elseif (!empty($con['host']) && !empty($con['port']))
+			$dsn .= 'host='.$con['host'].';port='.$con['port'].';';
+		$dsn .= 'dbname='.$con['dbname'].';charset=utf8';
 
-		self::$db = new \mysqli($con['host'], $con['user'], $con['pass'], $con['dbname'], $con['port'], $con['socket']);
-
-		if (self::$db->connect_error)
-			throw new Error('Connecting error: '.self::$db->connect_errno);
-
-		if(!self::$db->set_charset("utf8"))
-			throw new Error('Set charset failed');
-	}
-
-	///End execution, close everything
-	public static function end() {
-		if (isset(self::$db)) {
-			self::$db->close();
-			self::$db = NULL;
+		try {
+			self::$db = new \PDO($dsn, $con['user'], $con['pass']);
 		}
+		catch (\PDOException $e) {
+			throw new Error('Could not connect to db, details: '.$e->getMessage());
+		}
+
+		// set error reporting mode
+		self::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	}
 
+	/** End execution, close everything */
+	public static function end() {
+		if (isset(self::$db))
+			self::$db = null;
+	}
+
+	/** Construct, with query as param */
 	function __construct($var) {
 		$this->query = $var;
 	}
 
+	/** Destruct, closing statement cursor */
 	function __destruct() {
-		$this->query_result = null;
+		if ($this->stmt)
+			$this->stmt->closeCursor();
+		$this->stmt = null;
 	}
 
-	/**
-	 * Return no of rows affected by last query
-	 * @return int
-	 */
-	public function getAffectedRows() {
-		return $this->db_status['affected_rows'];
+	/** Allow access for db and stmt */
+	public function __get($v) {
+		switch ($v) {
+			case 'db':
+				return self::${$v};
+				break;
+			case 'stmt':
+				return $this->{$v};
+				break;
+		}
+		return null;
 	}
 
 	/**
@@ -86,7 +93,7 @@ class Base {
 	 * @return int
 	 */
 	public function getFieldCount() {
-		return $this->db_status['field_counts'];
+		return $this->db_status['field_count'];
 	}
 
 	/**
@@ -97,45 +104,45 @@ class Base {
 		return $this->db_status['num_rows'];
 	}
 
-	///Get DB state after action
+	/** Get DB state after action */
 	protected function retrieveState() {
+		$num = $fc = null;
 		if (isset($this->stmt)) {
-			$num = $this->stmt->num_rows;
-			$aff = $this->stmt->affected_rows;
-			$fc = $this->stmt->field_count;
-		} else {
-			if ($this->query_result instanceof \mysqli_result)
-				$num = $this->query_result->num_rows;
-			else
-				$num = false;
-			$aff = self::$db->affected_rows;
-			$fc = self::$db->field_count;
+			$num = $this->stmt->rowCount();
+			$fc = $this->stmt->columnCount();
 		}
 
 		$this->db_status['num_rows'] = $num;
-		$this->db_status['affected_rows'] = $aff;
 		$this->db_status['field_count'] = $fc;
-		$this->db_status['insert_id'] = self::$db->insert_id;
+		$this->db_status['insert_id'] = self::$db->lastInsertId();
 		return $this;
 	}
 
+	/** Return db errors as string */
 	public static function getErrors() {
-		if (!isset(self::$db->error))
+		if (!self::$db)
 			return '';
-		$r = self::$db->error;
-		if (!$r && self::$db->error_list)
-			$r = print_r(self::$db->error_list, true);
-		return $r;
+		$ec = self::$db->errorCode();
+		if (!$ec || $ec === '00000')
+			return '';
+
+		if ($ei = self::$db->errorInfo())
+			$ec .= ' '.print_r($ei, true);
+		return $ec;
 	}
 
+	/** Return string of statement errors */
 	public function getStmtErrors() {
-		if (isset($this->stmt)) {
-			$r = $this->stmt->error;
-			if (!$r && $this->stmt->error_list)
-				$r = print_r($this->stmt->error_list, true);
-			return $r;
-		}
-		return '';
+		if (!isset($this->stmt))
+			return '';
+
+		$ec = $this->stmt->errorCode();
+		if (!$ec || $ec === '00000')
+			return '';
+
+		if ($ei = $this->stmt->errorInfo())
+			$ec .= ' '.print_r($ei, true);
+		return $ec;
 	}
 
 	// ==================================================================
@@ -144,7 +151,7 @@ class Base {
 	//
 	// ------------------------------------------------------------------
 
-	protected function implode($glue, array $arr, $parametrize = FALSE, $setter = FALSE, $iglue = '') {
+	protected function implode($glue, array $arr, $parametrize = false, $setter = false, $iglue = '') {
 		$r = array();
 
 		foreach ($arr as $k => $v)
@@ -162,7 +169,7 @@ class Base {
 				} else
 					$r[] = $v;
 			} else {
-				if ($v === NULL && !$setter && !$iglue)
+				if ($v === null && !$setter && !$iglue)
 					$k .= ' is null';
 				elseif ($parametrize) {
 					if ($iglue)
@@ -184,13 +191,13 @@ class Base {
 	 * @param $val
 	 * @return this
 	 */
-	public function param($type, $val = NULL) {
-		if ($val === NULL) {
+	public function param($type, $val = null) {
+		if ($val === null) {
 			$val = $type;
 			$type = strtolower(gettype($val)[0]);
 		}
 		$this->stmt_types .= $type;
-		$this->stmt_param[] = $val;
+		$this->stmt_values[] = $val;
 		return $this;
 	}
 
@@ -210,94 +217,72 @@ class Base {
 		return $this;
 	}
 
-	///Prepare all queries
+	/** Prepare all queries */
 	protected function bindquery() {
 		if (!$this->stmt) {
 			if (method_exists($this, 'createquery'))
 				$this->createquery();
 
-			if (!$this->stmt_types || !$this->stmt_param)
-				return FALSE;
+			if (!$this->stmt_types || !$this->stmt_values)
+				return false;
 
-			$types = $this->stmt_types;
-			$values = $this->stmt_param;
-			if (strlen($types) != ($c = count($values)))
+			if (strlen($this->stmt_types) != ($c = count($this->stmt_values)))
 				throw new Error('Number of types != number of values!', $this);
 
 			if (($this->stmt = self::$db->prepare($this->query)) === false)
 				throw new Error('Mishap while preparing query', $this);
 
-			if ($c != $this->stmt->param_count)
-				throw new Error('Number query params != number of values', $this);
-
-			$params = array();
-
 			for ($i = 0; $i < $c; $i++) {
-				switch ($types[$i]) {
-					case 'b': //blob - noop || boolean
-						if (is_bool($values[$i]))
-							$types[$i] = 'i';
-						else
-							throw new Error('Param type blob not yet supported');
+				switch (strtolower($this->stmt_types[$i])) {
+					case 'b': //blob ^ boolean
+						$ptype = (is_bool($this->stmt_values[$i]) ? PDO::PARAM_BOOL : PDO::PARAM_LDO);
 						break;
 					case 'n': //null
-						$values[$i] = NULL;
-						$types[$i] = 'i';
+						$this->stmt_values[$i] = null;
+						$ptype = PDO::PARAM_NULL;
 						break;
 					case 'i':
-					case 'd':
-					case 's':
+						$ptype = PDO::PARAM_INT;
 						break;
+					case 'd': //for doubles PARAM_STR is assumed anyway
+					case 's':
 					default:
-						$types[$i] = 's';
+						$ptype = PDO::PARAM_STR;
 						break;
 				}
-				if ($values[$i] !== NULL)
-					switch ($types[$i]) {
-						case 'i':
-							if (!is_numeric($values[$i]))
-								$values[$i] = (int) $values[$i];
-							break;
-						case 'd':
-							if (!is_numeric($values[$i]))
-								$values[$i] = (double) $values[$i];
-							break;
-						case 's':
-							$values[$i] = (string) $values[$i];
-							break;
-					}
-				$params[] = &$values[$i];
-			}
 
-			array_unshift($params, $types);
-			if (!call_user_func_array(array($this->stmt, 'bind_param'), $params))
-				throw new Error('Could not bind query params', $this);
+				if (ctype_upper($this->stmt_types[$i]))
+					$ptype |= PDO::PARAM_INPUT_OUTPUT;
+
+				$this->stmt->bindParam($i+1, $this->stmt_values[$i], $ptype);
+			}
 		}
-		return TRUE;
+		return true;
 	}
 
-	///Compile and execute query
+	/** Compile and execute query */
 	public function exec() {
-		if (!$this->query_result) {
+		if (!$this->stmt) {
 			if ($this->bindquery()) {
-				if (!($this->query_result = $this->stmt->execute()))
+				if (!$this->stmt->execute())
 					throw new Error('Query execution unsuccessful', $this);
-
-				if ($meta = $this->stmt->result_metadata()) {//has result set
-					if (!$this->stmt->store_result())
-						throw new Error('Statement\'s store_result failed');
-					$this->query_result = new Result($this->stmt, $meta);
-				}
 			} else {
 				if (!$this->query)
 					throw new Error('Query is empty!');
-				$this->stmt = NULL;
-				if (($this->query_result = self::$db->query($this->query)) === FALSE)
+
+				if (($this->stmt = self::$db->query($this->query)) === false)
 					throw new Error('Error when executing query: "'.
 						(strlen($this->query) > 200 ? mb_substr($this->query, 0, 200).'(...)' : $this->query).'"');
 			}
 			$this->retrieveState();
 		}
+		return $this;
+	}
+
+	/** Closes statement cursor (no more results are required) */
+	public function close() {
+		if ($this->stmt)
+			$this->stmt->closeCursor();
 		return $this;
 	}
 
@@ -307,28 +292,22 @@ class Base {
 	//
 	// ------------------------------------------------------------------
 
-	///Fetch a single row from db
+	/** Fetch a single row from db */
 	public function row() {
-		if (!is_object($this->exec()->query_result))
-			return null;
-		return $this->query_result->fetch_assoc();
-	}
-
-	///Fetch a set of rows from db
-	public function rows() {
-		if (!is_object($this->exec()->query_result))
-			return array();
-
-		$r = array();
-		if (method_exists('mysqli_result', 'fetch_all'))
-			$r = $this->query_result->fetch_all(MYSQLI_ASSOC);
-		else
-			while($tmp = $this->query_result->fetch_assoc())
-				$r[] = $tmp;
-
+		if (!($r = $this->exec()->stmt->fetch(PDO::FETCH_ASSOC)))
+			$this->stmt->closeCursor();
 		return $r;
 	}
 
+	/** Fetch a set of rows from db */
+	public function rows() {
+		$r = $this->exec()->stmt->fetchAll(PDO::FETCH_ASSOC);
+		$this->stmt->closeCursor();
+
+		return $r ?: [];
+	}
+
+	/** Return result as array, with keys of given column name */
 	public function rowsBy($key) {
 		$q = $this->rows();
 		$r = array();
@@ -339,14 +318,16 @@ class Base {
 		return $r;
 	}
 
-	public function obj($type = NULL) {
+	/** Return result as object by param */
+	public function obj($type = null) {
 		if (!$type && $this instanceof Table)
 			$type = $this->table;
 
 		return (($r = $this->row()) ? new $type($r) : $r);
 	}
 
-	public function objs($type = NULL) {
+	/** Return result as array of objects by param */
+	public function objs($type = null) {
 		if (!$type && $this instanceof Table)
 			$type = $this->table;
 
@@ -357,27 +338,22 @@ class Base {
 		return $r;
 	}
 
+	/** Return result as numeric array */
 	public function num() {
-		if (!is_object($this->exec()->query_result))
-			return null;
-
-		return $this->query_result->fetch_row();
-	}
-
-	public function nums() {
-		if (!is_object($this->exec()->query_result))
-			return array();
-
-		$r = array();
-		if (method_exists($this->query_result, 'fetch_all'))
-			$r = $this->query_result->fetch_all(MYSQLI_NUM);
-		else
-			while($tmp = $this->query_result->fetch_row())
-				$r[] = $tmp;
-
+		if (!($r = $this->exec()->stmt->fetch(PDO::FETCH_NUM)))
+			$this->stmt->closeCursor();
 		return $r;
 	}
 
+	/** Return result as array of numeric arrays */
+	public function nums() {
+		$r = $this->exec()->stmt->fetchAll(PDO::FETCH_NUM);
+		$this->stmt->closeCursor();
+
+		return $r ?: [];
+	}
+
+	/** Return result as pairs 1st col => 2nd col */
 	public function pairs() {
 		$q = $this->nums();
 		$r = array();
@@ -386,18 +362,21 @@ class Base {
 		return $r;
 	}
 
+	/** Return if query changed any rows in db */
 	public function bool() {
 		$this->exec();
-		return !!($this->getAffectedRows() || $this->getNumberOfRows());
+		return !!$this->getNumberOfRows();
 	}
 
+	/** Return single, 1st col value from result */
 	public function val() {
-		if (!is_object($this->exec()->query_result))
+		$v = $this->num();
+		if (($v = $this->num()) === null)
 			return null;
-		$v = $this->query_result->fetch_row();
 		return $v[0];
 	}
 
+	/** Return array of 1st col values from result */
 	public function vals() {
 		$q = $this->nums();
 		$r = array();

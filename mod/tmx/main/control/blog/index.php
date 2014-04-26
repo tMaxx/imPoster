@@ -1,9 +1,19 @@
 <?
 
+if (isset($header))
+	return [
+		'/blog/header',
+		'header' => $header
+	];
+
+
 if (is_numeric($id = r3v\Vars::uri('blog'))) {
-	$single = DB('SELECT * FROM Blog WHERE id=?')->param('i', $id)->row();
+	$single = DB('SELECT * FROM Blog WHERE id=? AND is_draft=0')->param('i', $id)->row();
 	if (!$single)
 		throw new r3v\Error404();
+
+	$single['tags'] = DB('SELECT name FROM Tags WHERE blog_id=?')->param('i', $id)->vals();
+
 	return [
 		'/blog/single',
 		'single' => $single
@@ -11,8 +21,7 @@ if (is_numeric($id = r3v\Vars::uri('blog'))) {
 }
 
 
-$entr = DB('SELECT * FROM Blog')->rows();
-
+$entr = DB('SELECT id, name, ts_publ FROM Blog')->rows();
 
 return [
 	'entr' => $entr

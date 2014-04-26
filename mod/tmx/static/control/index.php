@@ -1,6 +1,6 @@
 <?php ///tmx static files server
 $vars = r3v\Vars::uri(array('scss', 'js'));
-$servepath = r3v\View::getCurrentBasepath().'/res/';
+$servepath = r3v\View::getCurrentBasepath().'res/';
 
 function setCacheControl($path) {
 	$path = ROOT.$path;
@@ -34,18 +34,23 @@ function setCacheControl($path) {
 
 switch (true) {
 	case isset($vars['scss']): {
-		r3v\Mod::loadMod('ext/scssphp');
 		$_GET['p'] = r3v\File::sanitizePath($vars['scss']).'.scss';
 
 		if (!r3v\File::fileExists($servepath.$_GET['p']))
+			break;
+		if ($vars['scss'][0] == '_')
 			break;
 
 		if (setCacheControl($servepath.$_GET['p']))
 			return;
 
 		$this->setContentType('css');
+
+		r3v\Mod::loadMod('lib/scssphp');
+
 		$compiler = new scssc();
 		$compiler->setFormatter('scss_formatter_compressed');
+		$compiler->addImportPath(ROOT.$servepath);
 
 		$server = new scss_server(ROOT.$servepath, ROOT.'/cache', $compiler);
 		$server->serve();

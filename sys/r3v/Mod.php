@@ -97,14 +97,20 @@ class Mod {
 	 * self::$mods_def MUST BE ALREADY FILLED!
 	 * @throws Error
 	 * @param $modname
+	 * @param $ov_def definition override
+	 * 	Use only for mods that lack definition
+	 * 	in mod/mods.def, for whatever reason
 	 * @return bool success
 	 */
-	public static function loadMod($modname) {
+	public static function loadMod($modname, $ov_def = null) {
 		if (!empty(self::$mods_loaded[$modname]))
 			return true; //already loaded
 		self::$mods_loaded[$modname] = true;
 
-		$def = self::$mods_def[$modname];
+		if (!isset(self::$mods_def[$modname]) && $ov_def !== null)
+			$def = ['def_type' => $ov_def];
+		else
+			$def = self::$mods_def[$modname];
 		$basepath = '/mod/'.$modname.'/';
 
 		if (!$def['def_type'] || $def['def_type'] == 'none')
@@ -227,11 +233,11 @@ class Mod {
 			//add route scopes
 			if (!empty($def['route'])) {
 				$r = $def['route'];
-				$basepath = '/mod/'.$name;
+				$bpath = '/mod/'.$name; //basepath
 
 				self::$route[$r['scope']] = [
-					'dir' => $basepath.(isset($r['dir'])        ? $r['dir'] : '/'),
-					'template'      => (isset($r['template'])   ? $basepath.$r['template'] : false),
+					'dir'    => $bpath.(isset($r['dir'])        ? $r['dir'] : '/'),
+					'template'      => (isset($r['template'])   ? $bpath.$r['template'] : false),
 					'force_path'    => (isset($r['force_path']) ? $r['force_path'] : false),
 					'error_page'    => (isset($r['error_page']) ? $r['error_page'] : false),
 					'autorun'       => (isset($r['autorun']))   ? $r['autorun'] : [],
