@@ -25,4 +25,4 @@ class Mail {
 	}
 }
 
-Mod::registerUnload(['\\rev\\Mail::flush']);
+Mod::registerUnload(['\\rev\\Mail::flush'], 10);

@@ -154,6 +154,6 @@ class Common {
 	}
 
 	public static function jsonFromFile($p) {
-		return Mod::readJsonFromFile($p);
+		return File::jsonFromFile($p);
 	}
 }

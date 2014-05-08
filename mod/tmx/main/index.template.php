@@ -5,7 +5,9 @@
 	<meta name="description" content="Dziwno, straszno, ale (chyba) ciekawie. Przynajmniej taką mam nadzieję." />
 	<meta name="author" content="MikWaw aka theMaxx (C)2014" />
 	<?= implode(self::$HTML_head) ?>
-	<link type="text/css" href="/static/scss:style" rel="stylesheet" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" type="text/css" href="/static/scss:style" />
+	<link rel="stylesheet" type="text/css" media="only screen and (max-width: 400px)" href="/static/scss:mobile" />
 	<title><?= self::title() ?></title>
 </head>
 <body>

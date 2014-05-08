@@ -38,7 +38,7 @@ class Console {
 	/** start console loop */
 	public static function start() {
 		if (!class_exists('\\Boris\\Boris')) {
-			Mod::loadMod('lib/boris');
+			Mod::loadMod('lib/boris', 'composer');
 			echo Console::white,
 				'Hi :D // ', rev_ID,
 				' // loaded in ', ms_from_start(), 'ms',

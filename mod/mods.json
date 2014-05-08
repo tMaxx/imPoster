@@ -11,11 +11,6 @@
 	},
 	"__example": {},
 
-	"lib/boris": {
-		"origin": "git@github.com:joddie/boris.git completion-and-network-hacks",
-		"def_type": "composer",
-		"explicit_load": true
-	},
 	"lib/google-api": {
 		"def_type": "composer",
 		"explicit_load": true,

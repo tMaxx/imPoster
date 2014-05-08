@@ -387,4 +387,4 @@ class Base {
 }
 
 \rev\DB\Base::go();
-//\rev\Mod::registerUnload(['\\rev\\DB\\Base::end']);
+\rev\Mod::registerUnload(['\\rev\\DB\\Base::end'], 0);

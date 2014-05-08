@@ -18,7 +18,7 @@ class Conf {
 
 		self::$env_type = substr($type[0], strlen(ROOT)+9);
 
-		$json = Mod::readJsonFromFile('/config.json');
+		$json = Mod::jsonFromFile('/config.json');
 		if (isset($json['__default']))
 			$json = array_replace_recursive($json['__default'], $json[self::$env_type]);
 		else

@@ -21,11 +21,10 @@ A work in progress project.
  - Fix 'safe exit' functionality in Mod
  - highlight.js
  - URI Vars: allow only int or letters (a-zA-Z0-9)
- - View: ETags to standalone method
  - SCSS: consider writing own server, current one is hellish slow
  - DB: try to speed up a bit, simplify, interface names (IEnableable)
- - names: move to official "rev" instead of "r3v" and whatever
-
+ - statics: allow also plain old css file serving (no scss parsing)
+ - extend Form's field renderer
 
 ### Licensing
 Code in this repository is subject to Creative Commons licence (CC BY-NC-SA).

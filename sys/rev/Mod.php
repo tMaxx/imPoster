@@ -25,7 +25,7 @@ class Mod {
 	 * @param $path
 	 * @return false on failure, array otherwise
 	 */
-	public static function readJsonFromFile($path) {
+	public static function jsonFromFile($path) {
 		if (!is_file(ROOT.$path))
 			return false;
 		if (($def = file_get_contents(ROOT.$path)) === false)
@@ -84,12 +84,9 @@ class Mod {
 		if (isset($al['include-path']))
 			set_include_path(get_include_path().PATH_SEPARATOR.ROOT.$path.$al['include-path']);
 
-		if (isset($al['classmap']))
-			; //FIXME: SOMEDAY
-			//WE'RE GONNA RISE UP ON THAT WIND
-			//YOU KNOOOOW
-			//SOMEDAY
-			//WE'RE GONNA DANCE WITH THOSE LIONS
+		// TODO: tokenize and extract
+		// if (isset($al['classmap']))
+		// 	;
 	}
 
 	/**
@@ -117,7 +114,7 @@ class Mod {
 			$selfdef = [];
 		else {
 			$jsonpath = $basepath.($def['def_type'] == 'composer' ? 'composer' : 'def').'.json';
-			if (($selfdef = self::readJsonFromFile($jsonpath)) === false)
+			if (($selfdef = self::jsonFromFile($jsonpath)) === false)
 				throw new Error("Could not load self-definition for mod '$modname' (def_type: $def[def_type])");
 		}
 
@@ -166,27 +163,12 @@ class Mod {
 
 	/**
 	 * Add unloaders for class
-	 * @param $class name
 	 * @param $unl oading function
+	 * @param $priority, higher value - unload me first
+	 * 	notice: values 0-100 are reserved for use inside framework
 	 */
-	public static function registerUnload($class, $unl = NULL) {
-		if (!isset($unl)) //only unload
-			self::$loaded[][] = $class;
-		else
-			self::$loaded[$class][] = $unl;
-	}
-
-	/**
-	 * Run unloaders (functions stack) for class
-	 * @param $class name
-	 * @return bool success
-	 */
-	public static function unload($class) {
-		if (empty(self::$loaded[$class]))
-			return false;
-
-		self::runFuncArray([self::$loaded[$class]]);
-		return true;
+	public static function registerUnload($unl, $priority = 999) {
+		self::$loaded[$priority][] = $unl;
 	}
 
 	/**
@@ -194,9 +176,10 @@ class Mod {
 	 * registered unloader function stack)
 	 */
 	public static function unloadAll($x = NULL) {
-		if (PROCESS_ID && PROCESS_ID != posix_getpid())
+		if ($x != 'shutdown' || (PROCESS_ID && PROCESS_ID != posix_getpid()))
 			return;
 
+		\sort(self::$loaded, SORT_NUMERIC);
 		while (($i = array_pop(self::$loaded)) !== null)
 			if ($i)
 				self::runFuncArray($i);
@@ -218,7 +201,7 @@ class Mod {
 	public static function go() {
 		if (self::$mods_def)
 			return;
-		if ((self::$mods_def = self::readJsonFromFile('/mod/mods.json')) === false)
+		if ((self::$mods_def = self::jsonFromFile('/mod/mods.json')) === false)
 			throw new Error('Unable to load mods definition!');
 		unset(self::$mods_def['__example']);
 

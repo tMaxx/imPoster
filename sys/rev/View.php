@@ -157,7 +157,46 @@ class View {
 		return true;
 	}
 
-	///Flush headers
+	/**
+	 * Set cache control through ETags
+	 * @param $path to file
+	 * @return bool
+	 * 	true: all headers sent, terminate application now
+	 * 	false: sending content is required
+	 */
+	public static function setCacheControl($path) {
+		if (!File::fileExists($path))
+			return false;
+		$path = ROOT.$path;
+		$mtime = filemtime($path);
+		$time = gmdate('r', $mtime);
+		$etag = md5($mtime.$path);
+
+		$exptime = $time;
+		while (($exptime += 2764800) <= (NOW+2764800));
+
+		self::addHTTPheaders([
+			"Last-Modified: $time",
+			// "Cache-Control: must-revalidate",
+			'Expires: '.gmdate('r', $exptime),
+			"Etag: $etag",
+		]);
+
+		if ((isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])
+			&& $_SERVER['HTTP_IF_MODIFIED_SINCE'] == $time) ||
+			(isset($_SERVER['HTTP_IF_NONE_MATCH'])
+			&& str_replace('"', '', stripslashes($_SERVER['HTTP_IF_NONE_MATCH'])) == $etag)) {
+			self::addHTTPheaders([
+				'HTTP/1.1 304 Not Modified',
+				'Content-Length: 0',
+			]);
+			self::flushHTTPheaders();
+			return true;
+		}
+		return false;
+	}
+
+	/** Flush headers */
 	public static function flushHTTPheaders() {
 		foreach (self::$HTTP_headers as $v)
 			header($v, true);
@@ -184,4 +223,4 @@ if (!CLI)
 		'X-Backend: '.rev_ID,
 	]);
 
-Mod::registerUnload('rev\\View', ['\\rev\\View::flushHTTPheaders']);
+Mod::registerUnload(['\\rev\\View::flushHTTPheaders'], 20);

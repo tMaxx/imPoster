@@ -1,0 +1,29 @@
+{
+	"name": "blogasek",
+	"table": "Blog",
+	"items_on_page": 5,
+
+	"fields": {
+		"id": {
+			"type": "id"
+		},
+		"name": {
+			"type": "string",
+			"label": "Tytuł"
+		},
+		"content": {
+			"type": "text"
+		},
+		"ts_publ": {
+			"type": "ts"
+		},
+		"ts_mod": {
+			"type": "ts",
+			"properties": "autoupdate"
+		},
+		"is_draft": {
+			"type": "bool",
+			"label": "Zatwierdzone"
+		}
+	}
+}
