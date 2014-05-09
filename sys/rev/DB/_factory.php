@@ -8,7 +8,7 @@ namespace rev\DB;
  * @throws rev\DB\Error if input is unrecognized
  */
 function Q($var) {
-	if (is_object($var) && ($var instanceof rev\DB\Saveable))
+	if (is_object($var) && ($var instanceof rev\DB\ISave))
 		return new Instance($var);
 	elseif (is_string($var)) {
 		if (substr_count($var, ' ') == 0)

@@ -10,3 +10,7 @@ config.json
 
 #lampp launch script
 server
+
+#project-specific files
+favicon.ico
+

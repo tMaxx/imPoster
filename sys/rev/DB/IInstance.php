@@ -1,7 +1,7 @@
-<?php ///rev engine \rev\DB\Instanceable
+<?php ///rev engine \rev\DB\IInstance
 namespace rev\DB;
 
 ///Enable class saving
-interface Instanceable {
+interface IInstance {
 	function __construct(array $a = array());
 }

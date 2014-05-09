@@ -8,11 +8,9 @@
 	<a href="<?= $k ?>"<?= $k == $subpage ? ' id="sel"' : '' ?> class="button"><?= $v['name'] ?></a>
 <? endforeach; ?>
 </div>
+<? if ($view_content): ?>
 <div class="clear"></div>
 <div class="content">
-<? if ($view_content): ?>
 	<?= $view_content ?>
-<? else: ?>
-	<h3>Hi :D</h3>
-<? endif; ?>
 </div>
+<? endif; ?>

@@ -23,6 +23,7 @@ A work in progress project.
  - URI Vars: allow only int or letters (a-zA-Z0-9)
  - SCSS: consider writing own server, current one is hellish slow
  - DB: try to speed up a bit, simplify, interface names (IEnableable)
+ - DB: make it honor PDO's :variable binding in query
  - statics: allow also plain old css file serving (no scss parsing)
  - extend Form's field renderer
 

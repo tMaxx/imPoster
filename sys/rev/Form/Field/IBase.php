@@ -22,7 +22,7 @@ interface IBase {
 	 * Should echo in a format like this:
 	 * 	<label>
 	 * 		text/title
-	 * 		<field body>
+	 * 		{input}
 	 * 	</label>
 	 */
 	function render();

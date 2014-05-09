@@ -1,5 +1,6 @@
 <?php ///rev engine \rev\Form\Form
 namespace rev\Form;
+use \rev\Error;
 
 /**
  * HTML <form> handling class
@@ -25,10 +26,17 @@ class Form {
 	 * )
 	 */
 	function __construct($def) {
-		if (!is_array($def))
-			throw new Error("Form: definition must be an array");
+		if (is_string($def)) {
+			$name = $def;
+			$def = \rev\File::jsonFromFile(\rev\View::getCurrentBasepath().'/form/'.$def.'.json');
+			$def['name'] = $name; unset($name);
 
-		$this->name = $def['name'];
+			if (!is_array($def))
+				throw new Error('Form: could not read form definition');
+		} elseif (!is_array($def))
+			throw new Error("Form: definition must be an array or path");
+
+		$this->name = isset($def['name']) ? $def['name'] : hash('crc32b', json_encode($def['name']));
 		$this->fields = $def['fields'];
 		unset($def['name'], $def['fields']);
 		$this->values = array();
@@ -37,7 +45,7 @@ class Form {
 			$this->def['attributes'] = NULL;
 
 		$field_keys = array_keys($this->fields);
-		$prefix = $this->name.'::';
+		$prefix = $this->name.'->';
 		foreach ($field_keys as $k => $v)
 			$field_keys[$k] = $prefix.$v;
 

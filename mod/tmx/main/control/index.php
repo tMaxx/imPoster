@@ -15,9 +15,11 @@ tmx\Menu::append([
 	// '/findme' => 'Find me'
 ]);
 if (rev\Auth\User::id()) {
-	tmx\Menu::addright(['/user:logout' => '<small>'.rev\Auth\User::name().'</small> &#x1f51a;']);//
+	tmx\Menu::addright(['/user:logout' => '&#x1f51a;']);//
 	if (rev\Auth\User::role('admin'))
-		tmx\Menu::addright(['/tmx/admin' => '&#x2318;']);
+		tmx\Menu::addright(['/admin' => '<small>cmd:'.rev\Auth\User::name().'</small>']);
+	else
+		tmx\Menu::addright(['/user' => '<small>usr:'.rev\Auth\User::name().'</small>']);
 } else
 	tmx\Menu::addright(['/user:login' => '&#x21af;']);
 tmx\Menu::addright(['/locker' => '&#x1f512;']);

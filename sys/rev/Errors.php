@@ -1,6 +1,7 @@
 <?php ///rev engine \rev\Error
 namespace rev;
-///Error class
+
+/** Error class */
 class Error extends \ErrorException {
 
 	/**
