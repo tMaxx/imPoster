@@ -28,7 +28,7 @@ class Session {
 		self::$salt = base_convert(bin2hex(openssl_random_pseudo_bytes(64)), 16, 36);
 		self::$hash = self::hash();
 		setcookie('session', self::$hash, self::$ts+self::SESSION_PERIOD, '/');
-		DB('Session')->insert([
+		\rev\DB\Q('Session')->insert([
 			'ts' => (string)self::$ts,
 			'user_id' => self::$id,
 			'salt' => self::$salt,
@@ -59,7 +59,7 @@ class Session {
 		$cookie = Vars::cookie('session');
 		if (!$cookie)
 			return false;
-		$data = DB('Session')->select()->where('hash=?')->param('s', $cookie)->row();
+		$data = \rev\DB\Q('Session')->select()->where('hash=?')->param('s', $cookie)->row();
 		if(!$data)
 			return false;
 		self::$ts = $data['ts'];
@@ -80,7 +80,7 @@ class Session {
 		if (!self::$hash)
 			return;
 
-		DB('Session')->delete()->where(['hash' => self::$hash])->exec();
+		\rev\DB\Q('Session')->delete()->where(['hash' => self::$hash])->exec();
 		setcookie('session', self::$hash, self::SESSION_PERIOD, '/');
 		self::$ts = null;
 		self::$id = null;

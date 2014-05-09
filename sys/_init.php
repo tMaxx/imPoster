@@ -35,17 +35,6 @@ function array_copy(array $source) {
 	return $arr;
 }
 
-///pop last el. of array as [key => value]
-///probably duplicate
-function array_popk(array &$arr) {
-	if (!$arr)
-		return [];
-	end($arr);
-	$k = key($arr);
-	$v = array_pop($arr);
-	return [$k => $v];
-}
-
 /** Return milliseconds elapsed from init of script */
 function ms_from_start() {
 	return round(((microtime(true)*10000) - NOW_MICRO)/10, 2);
@@ -76,18 +65,8 @@ if (DEBUG) {
 	ini_set('display_errors', '1');
 }
 
-/////////////////////////////////////////////////////////////////////
-// Class-specific functions
-/////////////////////////////////////////////////////////////////////
+/* * * * * * * * * * * * * * * * * * * * * *
+ * Framework includes for custom functions *
+ * * * * * * * * * * * * * * * * * * * * * */
 
-///DB factory
-function DB($var) {
-	if (is_object($var) && ($var instanceof rev\DB\Saveable))
-		return new rev\DB\Instance($var);
-	elseif (is_string($var)) {
-		if (substr_count($var, ' ') == 0)
-			return new rev\DB\Table($var);
-		return new rev\DB\Base($var);
-	} else
-		throw new rev\DB\Error('Unsupported $var type');
-}
+require_once ROOT.'/sys/rev/DB/_factory.php';

@@ -19,7 +19,7 @@
 		},
 		"ts_mod": {
 			"type": "ts",
-			"properties": "autoupdate"
+			"pre_save": "set now"
 		},
 		"is_draft": {
 			"type": "bool",

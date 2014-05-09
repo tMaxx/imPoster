@@ -7,25 +7,25 @@ namespace rev;
 class File {
 	/**
 	 * Includes file in param
-	 * @param $______file path to file, relative to /
+	 * @param file path to file, relative to /
 	 * @return bool true on success
 	 */
-	public static function inc($______file) {
-		if (!self::fileExists($______file))
+	public static function inc() {
+		if (!self::fileExists(func_get_arg(0)))
 			return false;
-		include ROOT.$______file;
+		include ROOT.func_get_arg(0);
 		return true;
 	}
 
 	/**
 	 * Includes file in param
-	 * @param $______file path to file, relative to /
+	 * @param file path to file, relative to /
 	 * @return bool true on success
 	 */
-	public static function inc1($______file) {
-		if (!self::fileExists($______file))
+	public static function inc1() {
+		if (!self::fileExists(func_get_arg(0)))
 			return false;
-		include_once ROOT.$______file;
+		include_once ROOT.func_get_arg(0);
 		return true;
 	}
 

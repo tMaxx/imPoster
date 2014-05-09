@@ -1,5 +1,5 @@
-<?php ///rev engine \rev\Form
-namespace rev;
+<?php ///rev engine \rev\Form\Form
+namespace rev\Form;
 
 /**
  * HTML <form> handling class
@@ -26,7 +26,7 @@ class Form {
 	 */
 	function __construct($def) {
 		if (!is_array($def))
-			throw new Error("Form definition must be an array");
+			throw new Error("Form: definition must be an array");
 
 		$this->name = $def['name'];
 		$this->fields = $def['fields'];
@@ -41,7 +41,7 @@ class Form {
 		foreach ($field_keys as $k => $v)
 			$field_keys[$k] = $prefix.$v;
 
-		$field_keys = Vars::POST($field_keys, true);
+		$field_keys = \rev\Vars::POST($field_keys, true);
 		if ($field_keys) {
 			$prefix = strlen($prefix);
 			foreach ($field_keys as $k => $v)

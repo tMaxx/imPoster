@@ -124,7 +124,7 @@ class Mod {
 
 		//merge config from mods.json with composer/def
 		$al = isset($def['autoload']) ? $def['autoload'] : [];
-		$al = isset($selfdef['autoload']) ? array_replace_recursive($selfdef['autoload'], $al) : $al;
+		$al = (/*!$al && */isset($selfdef['autoload'])) ? array_replace_recursive($selfdef['autoload'], $al) : $al;
 		if ($al)
 			self::parseAutoloader($al, $basepath);
 

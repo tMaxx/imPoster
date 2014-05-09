@@ -41,7 +41,7 @@ class User {
 			return false;
 
 		if (Session::id())
-			self::$user = DB('User')->select()->where(['id' => Session::id()])->row();
+			self::$user = \rev\DB\Q('User')->select()->where(['id' => Session::id()])->row();
 
 		return !!(self::$user);
 	}
@@ -63,7 +63,7 @@ class User {
 		if (!ctype_digit($uinfo->id))
 			throw new rev\Error418('Interesting, user id is not numeric. Aborting.');
 
-		$data = DB('SELECT
+		$data = \rev\DB\Q('SELECT
 			id, email, name, auth, ts_seen, is_removed, is_active
 			FROM User WHERE gid=?')->param('s', $uinfo->id)->row();
 
@@ -71,7 +71,7 @@ class User {
 			if (!$uinfo->verifiedEmail)
 				return 'Email connected with this Google account is not verified, aborting registration';
 
-			$q = DB('User')->insert([
+			$q = \rev\DB\Q('User')->insert([
 				'email' => $uinfo->email,
 				'name' => $uinfo->name,
 				'is_active' => false,

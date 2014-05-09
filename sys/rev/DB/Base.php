@@ -368,6 +368,12 @@ class Base {
 		return !!$this->getNumberOfRows();
 	}
 
+	/** Return insert id */
+	public function iid() {
+		$this->exec();
+		return $this->getInsertID();
+	}
+
 	/** Return single, 1st col value from result */
 	public function val() {
 		$v = $this->num();

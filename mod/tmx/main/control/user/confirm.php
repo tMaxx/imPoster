@@ -2,13 +2,13 @@
 throw new rev\Error501('FIX ME, PLEASE...!');
 if ($reg = rev\Vars::get('confirm')) {
 	$reg = explode(':', $reg, 2);
-	$el = DB('User')->select()->where(['user_id' => $reg[0], 'is_active' => false, 'is_removed' => false])->obj();
+	$el = \rev\DB\Q('User')->select()->where(['user_id' => $reg[0], 'is_active' => false, 'is_removed' => false])->obj();
 	if (!$el)
 		throw new rev\Error404('Użytkownik nie istnieje lub konto zostało już aktywowane');
 	$hash = substr(hash('sha256', $el->getId().$el->getEmail().$el->getLogin()), 0, 10);
 	if ($hash == $reg[1]) {
 		$el->setIsActive(true);
-		DB($el)->save();
+		\rev\DB\Q($el)->save();
 		$this->redirect('/user/login');
 	} else
 		throw new rev\Error400('Zły ciąg aktywacyjny');

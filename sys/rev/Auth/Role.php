@@ -29,7 +29,7 @@ class Role {
 		if (is_numeric($id)) {
 			if (isset(self::$user[$id]))
 				return;
-			$role = DB('User')->select('auth')->where(['id' => $id])->val();
+			$role = \rev\DB\Q('User')->select('auth')->where(['id' => $id])->val();
 
 			self::$user[$id] = $role;
 		}
