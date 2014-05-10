@@ -94,13 +94,6 @@ class Form {
 		}
 	}
 
-	/** Return requested field object */
-	public function field($name = null) {
-		if ($name === null)
-			return $this->fields;
-		return $this->fields[$name];
-	}
-
 	/**
 	 * Return array imploded in HTML attrib syntax
 	 * @param $in
@@ -109,7 +102,7 @@ class Form {
 	 * 	key="val lav"
 	 * @return string
 	 */
-	public static function attrib(array $in) {
+	public static function attr(array $in) {
 		$attr = '';
 		if (isset($in))
 			foreach ($in as $k => $v) {
@@ -139,7 +132,7 @@ class Form {
 
 	/** Render form */
 	public function r() {
-		echo '<form method="post" name="',$this->name,'"', self::attrib($this->def['attributes']), '>';
+		echo '<form method="post" name="',$this->name,'"', self::attr($this->def['attributes']), '>';
 		if ($this->error)
 			echo '<span class="form-error">', $this->error, '</span>';
 		foreach ($this->fields as $k => $v) {

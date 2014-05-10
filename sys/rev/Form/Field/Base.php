@@ -60,9 +60,9 @@ abstract class Base implements IBase {
 	}
 
 	/** Glue all attributes together */
-	protected function attrib() {
+	protected function attr() {
 		if (isset($this->def['attributes']))
-			return \rev\Form\Form::attrib($this->def['attributes']);
+			return \rev\Form\Form::attr($this->def['attributes']);
 		return '';
 	}
 
@@ -81,8 +81,7 @@ abstract class Base implements IBase {
 			if (!isset($val) && isset($this->def['value']))
 				$val = $this->def['value'];
 
-
-			echo '<input type="', $this->def[0], '" name="', $this->name, '" value="', $val, '"', $this->attrib(),'>';
+			echo '<input type="', $this->def[0], '" name="', $this->name, '" value="', $val, '"', $this->attr(),'>';
 		}
 
 		if ($this->error)
