@@ -4,9 +4,9 @@ namespace rev\Form\Field;
 /** Base abstract class */
 abstract class Base implements IBase {
 	/** Current value */
-	protected $value;
+	protected $value = null;
 	/** Error string, if any */
-	protected $error;
+	protected $error = null;
 	/** Field name */
 	protected $name;
 	/** Full field definition */
@@ -59,12 +59,33 @@ abstract class Base implements IBase {
 		}
 	}
 
+	/** Glue all attributes together */
+	protected function attrib() {
+		if (isset($this->def['attributes']))
+			return \rev\Form\Form::attrib($this->def['attributes']);
+		return '';
+	}
+
+	/** Should render only input itself, optional */
+	// protected function renderInput() {}
+
 	/** Render field */
 	public function render() {
-		echo '<label>';
-			Example.
-			<span class="error">Error</span>
-			<input>
-		echo '</label>';
+		if (!empty($this->def['label']))
+			echo '<label for="',$this->name,'" class="field-label">',$this->def['label'],'</label>';
+
+		if (method_exists($this, 'renderInput'))
+			$this->renderInput();
+		else {
+			$val = $this->value;
+			if (!isset($val) && isset($this->def['value']))
+				$val = $this->def['value'];
+
+
+			echo '<input type="', $this->def[0], '" name="', $this->name, '" value="', $val, '"', $this->attrib(),'>';
+		}
+
+		if ($this->error)
+			echo '<label for="',$this->name,'" class="field-error">',$this->error,'</label>';
 	}
 }

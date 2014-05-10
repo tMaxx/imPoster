@@ -7,11 +7,15 @@ use \rev\Error;
  * Simplyfy all stuff ;)
  */
 class Form {
-
+	/** All fields objects */
 	protected $fields;
-	protected $values;
+	/** Form name */
 	protected $name;
-	protected $submitted;
+	/** Form error string */
+	protected $error = null;
+	/** Was form submitted? */
+	protected $submitted = false;
+	/** Form definition, without fields */
 	protected $def;
 
 	/**
@@ -37,52 +41,75 @@ class Form {
 			throw new Error("Form: definition must be an array or path");
 
 		$this->name = isset($def['name']) ? $def['name'] : hash('crc32b', json_encode($def['name']));
-		$this->fields = $def['fields'];
+		if (!isset($def['attributes']))
+			$def['attributes'] = NULL;
+
+		foreach ($def['fields'] as $k => $v) {
+			if ($v[0] == 'raw') {
+				$this->fields[$k] = $v[1];
+				continue;
+			}
+
+			$type = '\\rev\\Form\\Field\\'.$v[0];
+			unset($v[0]);
+			$name = $this->name.'::'.$k;
+
+			$this->fields[$k] = new $type($name, $v);
+			if (isset($_POST[$name])) {
+				$this->fields[$k]->value = $_POST[$name];
+				unset($_POST[$name]);
+				$this->submitted = true;
+			}
+		}
+
 		unset($def['name'], $def['fields']);
-		$this->values = array();
 		$this->def = $def;
-		if (!isset($this->def['attributes']))
-			$this->def['attributes'] = NULL;
-
-		$field_keys = array_keys($this->fields);
-		$prefix = $this->name.'->';
-		foreach ($field_keys as $k => $v)
-			$field_keys[$k] = $prefix.$v;
-
-		$field_keys = \rev\Vars::POST($field_keys, true);
-		if ($field_keys) {
-			$prefix = strlen($prefix);
-			foreach ($field_keys as $k => $v)
-				$this->values[substr($k, $prefix)] = $v;
-			$this->submitted = true;
-		} else
-			$this->submitted = false;
 	}
 
+	/** Set RAW VALUE for specified array keys */
 	public function set(array $in) {
 		foreach ($in as $k => $v)
 			if (array_key_exists($k, $this->fields))
-				$this->values[$k] = $v;
+				$this->fields[$k]->raw_value = $v;
 
 		return $this;
 	}
 
-	public function get($key = NULL) {
+	/** Return all RAW VALUES from fields */
+	public function get($key = null) {
 		if (isset($key)) {
 			if (is_array($key)) {
-				$r = array();
+				$r = [];
 				foreach ($key as $v)
-					$r[$v] = array_key_exists($v, $this->values) ? $this->values[$v] : NULL;
+					$r[$v] = $this->fields[$v]->raw_value;
 				return $r;
 			} elseif (is_string($key)) {
-				$r = array_key_exists($key, $this->values) ? $this->values[$key] : NULL;
-				return $r;
+				return $this->fields[$key]->raw_value;
 			}
-		} else
-			return $this->values;
+		} else {
+			$r = [];
+			foreach ($this->fields as $k => $o)
+				$r[$k] = $o->raw_value;
+			return $r;
+		}
 	}
 
-	protected static function attrib($in) {
+	/** Return requested field object */
+	public function field($name = null) {
+		if ($name === null)
+			return $this->fields;
+		return $this->fields[$name];
+	}
+
+	/**
+	 * Return array imploded in HTML attrib syntax
+	 * @param $in
+	 * 	key => [val, lav]
+	 * 	becomes
+	 * 	key="val lav"
+	 * @return string
+	 */
+	public static function attrib(array $in) {
 		$attr = '';
 		if (isset($in))
 			foreach ($in as $k => $v) {
@@ -102,93 +129,34 @@ class Form {
 		return $attr;
 	}
 
-	public function error($msg, $field = NULL) {
-		if ($field === NULL)
-			$this->def['error'] = $msg;
-		elseif (isset($this->fields[$field]))
-			$this->fields[$field]['error'] = $msg;
-	}
+	/** Assign error message to field or whole form */
+	// public function error($msg, $field = null) {
+	// 	if ($field === null)
+	// 		$this->error = $msg;
+	// 	else
+	// 		$this->fields[$field]->error = $msg;
+	// }
 
-	///Render form
+	/** Render form */
 	public function r() {
-		echo '<form method="post"', self::attrib($this->def['attributes']), '>';
-		if (isset($this->def['error']))
-			echo '<span class="form-error">', $this->def['error'], '</span>';
+		echo '<form method="post" name="',$this->name,'"', self::attrib($this->def['attributes']), '>';
+		if ($this->error)
+			echo '<span class="form-error">', $this->error, '</span>';
 		foreach ($this->fields as $k => $v) {
-			if (($type = $v[0]) == 'raw') {
-				echo $v[1];
+			if (is_string($v)) {
+				echo $v;
 				continue;
 			}
 
-			$val = '';
-			if (isset($this->values[$k]))
-				$val = $this->values[$k];
-			elseif (isset($v['value']))
-				$val = $v['value'];
-
-			if (!(isset($this->def['placeholders']) && !$this->def['placeholders'] ) && $v[0] != 'submit') {
-				$v['attributes']['placeholder'] = $v['label'];
-				$v['label'] = '';
-			}
-
-			$attr = '';
-			if (isset($v['attributes']))
-				$attr = self::attrib($v['attributes']);
-
-			$name = $this->name.'::'.$k;
-			echo '<span class="form-label">';
-			if (isset($v['label']) && $v['label']) {
-				if ($type == 'submit' && !$val)
-					$val = $v['label'];
-				else
-					echo '<span class="form-label-text">'.$v['label'].'</span>';
-			}
-			switch ($type) {
-				case 'string':
-					$type = 'text';
-				//basic types
-				case 'email':
-				case 'password':
-				case 'text':
-				case 'submit':
-				case 'search':
-				case 'file';
-				case 'checkbox':
-					echo '<input type="', $type, '" name="', $name,'" ', $attr, ' value="', $val, '">';
-					break;
-				//select
-				case 'select': {
-					///TODO: check following option
-					echo '<select name="', $name, '" ', $attr, '>';
-					foreach ($v['options'] as $ok => $ov)
-						echo '<option value="', $ok, '"', (($val === $ok) ? ' selected' : ''), '>', $ov, '</option>';
-					echo '</select>';
-					break;
-				}
-				case 'textarea': {
-					echo '<textarea name="', $name, '" ', $attr, '>', $val, '</textarea>';
-					break;
-				}
-				default:
-					throw new Error('Unsupported field type');
-					break;
-			}
-			if (isset($v['error']))
-				echo '<span class="form-error">', $v['error'], '</span>';
-			echo '</span>';
+			echo '<div class="field-wrap">';
+			$v->render();
+			echo '</div>';
 		}
 		echo '</form>';
 	}
 
-	public function submitted() {
-		return $this->submitted;
-	}
-
+	/** Return properties value (reassignment-proof) */
 	public function __get($name) {
-		switch ($name) {
-			case 'submitted':
-				return $this->submitted;
-				break;
-		}
+		return $this->{$name};
 	}
 }
