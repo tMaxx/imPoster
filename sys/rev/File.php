@@ -1,9 +1,7 @@
 <?php ///rev engine \rev\File
 namespace rev;
 
-/**
- * File - management class
- */
+/** File - management class */
 class File {
 	/**
 	 * Includes file in param

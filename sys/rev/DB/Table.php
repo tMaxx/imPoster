@@ -1,9 +1,7 @@
 <?php ///rev engine \rev\DB\Table
 namespace rev\DB;
 
-/**
- * Table - query builder/repository
- */
+/** Table - query builder/repository */
 class Table extends Base {
 	const MODE_NONE = 0;
 	const MODE_DELETE = 1;
@@ -14,12 +12,11 @@ class Table extends Base {
 
 	protected $table = '';
 
-	protected $data = array();
+	protected $data = [];
 
-	protected $fields = array();
-	protected $where = array();
-	protected $orderby = array();
-	protected $end = array();
+	protected $fields = [];
+	protected $where = [];
+	protected $end = [];
 
 	function __construct($tab) {
 		$this->table = $tab;
@@ -62,36 +59,36 @@ class Table extends Base {
 		return $this;
 	}
 
-	public function fields($fields, $replace = FALSE) {
+	public function fields($fields, $replace = false) {
 		$this->guard_mode(self::MODE_INSERT);
 		$this->guard_mode(self::MODE_SELECT);
 		if ($replace)
-			$this->fields = array();
+			$this->fields = [];
 
 		$this->fields[] = $fields;
 		return $this;
 	}
 
-	public function where($arg, $replace = FALSE) {
+	public function where($arg, $replace = false) {
 		$this->guard_notmode(self::MODE_INSERT);
 		if ($replace)
-			$this->where = array();
+			$this->where = [];
 
 		$this->where[] = $arg;
 		return $this;
 	}
 
-	public function orderby($arg, $replace = FALSE) {
+	public function endparams($arg, $replace = false) {
 		$this->guard_mode(self::MODE_SELECT);
 		if ($replace)
-			$this->orderby = array();
+			$this->end = [];
 
-		$this->orderby[] = $arg;
+		$this->end[] = $arg;
 		return $this;
 	}
 
 	protected function createquery() {
-		$parts = array();
+		$parts = [];
 
 		// insert: table(fields), values
 		// update: table, set, where
@@ -115,10 +112,8 @@ class Table extends Base {
 					$parts[] = 'WHERE';
 					$parts[] = $this->implode(' AND ', $this->where, true);
 				}
-				if ($this->orderby) {
-					$parts[] = 'ORDER BY';
-					$parts[] = implode(', ', $this->orderby);
-				}
+				if ($this->end)
+					$parts[] = implode(' ', $this->end);
 				break;
 			}
 			case self::MODE_DELETE: {

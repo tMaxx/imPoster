@@ -12,17 +12,16 @@ if ($_view_child) {
 tmx\Menu::append([
 	'/blog' => 'Blog',
 	'/about' => 'About',
-	// '/findme' => 'Find me'
 ]);
 if (rev\Auth\User::id()) {
-	tmx\Menu::addright(['/user:logout' => '&#x1f51a;']);//
+	tmx\Menu::addright(['/user:logout' => 'out']);
 	if (rev\Auth\User::role('admin'))
-		tmx\Menu::addright(['/admin' => '<small>cmd:'.rev\Auth\User::name().'</small>']);
+		tmx\Menu::addright(['/admin' => '<small>cmd</small>:'.rev\Auth\User::name()]);
 	else
-		tmx\Menu::addright(['/user' => '<small>usr:'.rev\Auth\User::name().'</small>']);
+		tmx\Menu::addright(['/user' => '<small>usr</small>:'.rev\Auth\User::name()]);
 } else
-	tmx\Menu::addright(['/user:login' => '&#x21af;']);
-tmx\Menu::addright(['/locker' => '&#x1f512;']);
+	tmx\Menu::addright(['/user:login' => 'in']);
+tmx\Menu::addright(['/locker' => 'L']);
 
 return [
 	'view_content' => $_view_child,

@@ -218,7 +218,6 @@ class View {
 
 if (!CLI)
 	View::addHTTPheaders([
-		'Server: got hella wasted',
 		'X-Powered-By: lots of self-esteem',
 		'X-Backend: '.rev_ID,
 	]);

@@ -3,6 +3,9 @@
 	"table": "Blog",
 	"items_on_page": 5,
 
+	"select_short": "id, name, ts_publ",
+	"select_order_by": "ts_publ DESC",
+
 	"fields": {
 		"id": {
 			"type": "id"

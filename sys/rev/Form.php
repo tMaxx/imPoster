@@ -1,6 +1,5 @@
-<?php ///rev engine \rev\Form\Form
-namespace rev\Form;
-use \rev\Error;
+<?php ///rev engine \rev\Form
+namespace rev;
 
 /**
  * HTML <form> handling class
@@ -9,11 +8,11 @@ use \rev\Error;
 class Form {
 	/** All fields objects */
 	protected $fields;
-	/** Form name */
+	/** Form name (<form name=...>) */
 	protected $name;
 	/** Form error string */
 	protected $error = null;
-	/** Was form submitted? */
+	/** Was this form submitted? */
 	protected $submitted = false;
 	/** Form definition, without fields */
 	protected $def;
@@ -28,11 +27,12 @@ class Form {
 	 *     'pole2' => array('typx', 'zmienna' => 'wartosc')
 	 *     )
 	 * )
+	 * @param $fname name field override in def
 	 */
-	function __construct($def) {
+	function __construct($def, $fname = null) {
 		if (is_string($def)) {
 			$name = $def;
-			$def = \rev\File::jsonFromFile(\rev\View::getCurrentBasepath().'/form/'.$def.'.json');
+			$def = File::jsonFromFile(View::getCurrentBasepath().'/form/'.$def.'.json');
 			$def['name'] = $name; unset($name);
 
 			if (!is_array($def))
@@ -40,18 +40,38 @@ class Form {
 		} elseif (!is_array($def))
 			throw new Error("Form: definition must be an array or path");
 
-		$this->name = isset($def['name']) ? $def['name'] : hash('crc32b', json_encode($def['name']));
+		$this->name = isset($def['name']) ? $def['name'] : (
+				$fname !== null ? $fname : hash('crc32b', json_encode($def['name']))
+			);
 		if (!isset($def['attributes']))
-			$def['attributes'] = NULL;
+			$def['attributes'] = null;
 
 		foreach ($def['fields'] as $k => $v) {
-			if ($v[0] == 'raw') {
-				$this->fields[$k] = $v[1];
-				continue;
+			if (!isset($v[0]) && isset($v['type']))
+				$v[0] = $v['type'];
+			else
+				throw new Error('Form: no field type set');
+
+			switch (strtolower($v[0])) {
+				case 'raw':
+					$this->fields[$k] = isset($v[1]) ? $v[1] : $v['content'];
+					continue 2; //foreach
+					break;
+
+				case 'email':
+				case 'password':
+				case 'text':
+				case 'submit':
+				case 'search':
+				case 'file':
+					$type = '\\rev\\Field\\Base';
+					break;
+
+				default:
+					$type = '\\rev\\Field\\'.$v[0];
+					break;
 			}
 
-			$type = '\\rev\\Form\\Field\\'.$v[0];
-			unset($v[0]);
 			$name = $this->name.'::'.$k;
 
 			$this->fields[$k] = new $type($name, $v);
@@ -89,46 +109,40 @@ class Form {
 		} else {
 			$r = [];
 			foreach ($this->fields as $k => $o)
-				$r[$k] = $o->raw_value;
+				if (is_object($o))
+					$r[$k] = $o->raw_value;
 			return $r;
 		}
 	}
 
 	/**
-	 * Return array imploded in HTML attrib syntax
+	 * Return array imploded in HTML5 attrib syntax
 	 * @param $in
-	 * 	key => [val, lav]
-	 * 	becomes
-	 * 	key="val lav"
+	 * 	key => [val, lav] becomes key="val lav"
+	 * 	key => false        ==>   key
+	 * 	(int) => type       ==>   type
 	 * @return string
 	 */
 	public static function attr(array $in) {
+		if (!$in)
+			return '';
+
 		$attr = '';
-		if (isset($in))
-			foreach ($in as $k => $v) {
-				$attr .= ' ';
-				if (is_numeric($k)) {
-					$attr .= (isset($v) && $v ? $v : '');
-				} else {
-					$attr .= $k;
-					if (isset($v) && $v) {
-						if (is_array($v))
-							$v = implode(' ', $v);
-					} else
-						continue;
-					$attr .= '="'.$v.'"';
-				}
+		foreach ($in as $k => $v) {
+			$attr .= ' ';
+			if (is_numeric($k))
+				$attr .= (isset($v) && $v ? $v : '');
+			else {
+				$attr .= $k;
+				if (!$v)
+					continue;
+				if (is_array($v))
+					$v = implode(' ', $v);
+				$attr .= '="'.$v.'"';
 			}
+		}
 		return $attr;
 	}
-
-	/** Assign error message to field or whole form */
-	// public function error($msg, $field = null) {
-	// 	if ($field === null)
-	// 		$this->error = $msg;
-	// 	else
-	// 		$this->fields[$field]->error = $msg;
-	// }
 
 	/** Render form */
 	public function r() {
@@ -150,6 +164,32 @@ class Form {
 
 	/** Return properties value (reassignment-proof) */
 	public function __get($name) {
+		if ($name == 'values') {
+			$ret = [];
+			foreach ($this->fields as $k => $f)
+				if (is_object($f))
+					$ret[$k] = $f->raw_value;
+			return $ret;
+		}
 		return $this->{$name};
+	}
+
+	/** Set internal property value */
+	public function __set($name, $val) {
+		if ($name == 'error') {
+			return $this->error = $val;
+		} elseif (is_array($val)) {
+			if ($name == 'def') {
+				foreach ($val as $k => $v)
+					$this->def[$k] = $v;
+				return $this->def;
+			} elseif ($name == 'values') {
+				foreach ($val as $k => $f)
+					if (is_object($f))
+						$this->fields[$k]->raw_value = $f;
+				// return $this->__get('values');
+			}
+		} else
+			throw new Error("Form: property '$name' setting not allowed");
 	}
 }

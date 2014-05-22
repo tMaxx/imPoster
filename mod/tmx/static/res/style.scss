@@ -20,7 +20,7 @@ $c_lgrey: #888a85 + #222;
 $c_dgrey: lighten($c_bg, 15%);
 $c_ddgrey: darken($c_bg, 2%);
 
-$border_logo: 2px groove lighten($c_bg, 5%);
+$border_logo: 2px solid lighten($c_bg, 5%);
 
 body {
 	background: $c_bg;
@@ -45,7 +45,6 @@ body {
 
 	a {
 		font-family: 'Ubuntu Light', $font_main;
-		font-weight: lighter;
 
 		.blue {
 			color: $c_blue;
@@ -95,10 +94,10 @@ body {
 			background: lighten($c_logo_bg, 10%);
 		}
 		&.button {
+			font-family: $font_mono;
 			float: right;
 			color: darken($c_font, 20%);
 			border-left: $border_logo;
-			border-left-style: ridge;
 			border-right: $border_logo;
 			padding-left: $dv;
 			padding-right: $dv;
@@ -120,7 +119,6 @@ body {
 
 			&:first-child {
 				border-left: $border_logo;
-				border-left-style: ridge;
 			}
 			&:last-child {
 				border-right: $border_logo;

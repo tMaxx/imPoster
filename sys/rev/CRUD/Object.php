@@ -2,9 +2,7 @@
 namespace rev\CRUD;
 use rev\Error;
 
-/**
- * CRUD single object
- */
+/** CRUD single object */
 class Object {
 	protected $def;
 
@@ -16,6 +14,8 @@ class Object {
 	function __construct($def) {
 		$this->def = $def;
 		$this->dbo = new \rev\DB\Table($def['table']);
+
+		$this->form = new \rev\Form($def);
 	}
 
 	public function load($id) {
@@ -64,7 +64,7 @@ class Object {
 	}
 
 	public function render() {
-		// code...
+		$this->form->render();
 	}
 
 	public function __get($name) {

@@ -71,12 +71,12 @@ abstract class Base implements IBase {
 
 	/** Render field */
 	public function render() {
-		if (!empty($this->def['label']))
-			echo '<label for="',$this->name,'" class="field-label">',$this->def['label'],'</label>';
-
 		if (method_exists($this, 'renderInput'))
 			$this->renderInput();
 		else {
+			if (!empty($this->def['label']))
+				echo '<label for="',$this->name,'" class="field-label">',$this->def['label'],'</label>';
+
 			$val = $this->value;
 			if (!isset($val) && isset($this->def['value']))
 				$val = $this->def['value'];
