@@ -1,12 +1,12 @@
-<?php ///rev engine \rev\Form\Field\IBase
-namespace rev\Form\Field;
+<?php ///rev engine \rev\Field\IBase
+namespace rev\Field;
 
 /**
  * Base interface for all fields
  * 	NOTE: Form generator expects
  * 	class property $value to be
  * 	accessible at all times.
- * 	For reference see \rev\Form\Field\Base.
+ * 	For reference see \rev\Field\Base.
  */
 interface IBase {
 

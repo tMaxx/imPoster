@@ -1,5 +1,5 @@
-<?php ///rev engine \rev\Form\Field\
-namespace rev\Form\Field;
+<?php ///rev engine \rev\Field\
+namespace rev\Field;
 
 /** field */
 class ClassName extends Base {

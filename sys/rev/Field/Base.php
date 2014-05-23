@@ -1,8 +1,8 @@
-<?php ///rev engine \rev\Form\Field\Base
-namespace rev\Form\Field;
+<?php ///rev engine \rev\Field\Base
+namespace rev\Field;
 
-/** Base abstract class */
-abstract class Base implements IBase {
+/** Base class for standard inputs */
+class Base implements IBase {
 	/** Current value */
 	protected $value = null;
 	/** Error string, if any */
@@ -62,7 +62,7 @@ abstract class Base implements IBase {
 	/** Glue all attributes together */
 	protected function attr() {
 		if (isset($this->def['attributes']))
-			return \rev\Form\Form::attr($this->def['attributes']);
+			return \rev\Form::attr($this->def['attributes']);
 		return '';
 	}
 

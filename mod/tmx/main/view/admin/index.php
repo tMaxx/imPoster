@@ -1,0 +1,1 @@
+subpages: blog, locker, about

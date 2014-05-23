@@ -1,5 +1,5 @@
-<?php ///rev engine \rev\Form\Field\Select
-namespace rev\Form\Field;
+<?php ///rev engine \rev\Field\Select
+namespace rev\Field;
 
 /** Select field */
 class Select extends Base {

@@ -1,9 +1,10 @@
 rev engine
 ==========
 
-A work in progress project.
+PHP framework. CLI, MVC, PDO, CRUD and much more.
 
 ### Changelog
+ - 0.6beta2: CRUD stub, Form refactor
  - 0.6beta1: Release. Finally.
  - 0.6alpha9-10: Static files' time of life, shorten changelog, app-side work, DB to PDO, git submodules
  - 0.6alpha5-8: Cleanups, add MVC to View, User/Google auth, reorganize modules, optimalizations & fixes
@@ -18,15 +19,14 @@ A work in progress project.
  - Explicit view generation: try to fix cross-referencing modules, then fail miserably
  - Some more types for static file server (like images, plaintext)
  - Cache module (_much, much later_)
- - Fix 'safe exit' functionality in Mod
  - highlight.js
  - URI Vars: allow only int or letters (a-zA-Z0-9)
  - SCSS: consider writing own server, current one is hellish slow
  - DB: try to speed up a bit, simplify, interface names (IEnableable)
  - DB: make it honor PDO's :variable binding in query
  - statics: allow also plain old css file serving (no scss parsing)
- - extend Form's field renderer
+ - find some other Google Authenticator class
 
 ### Licensing
 Code in this repository is subject to Creative Commons licence (CC BY-NC-SA).
-Any contributions (ideas, new code/fixes) are welcome :D
+Any contributions (ideas, new code, fixes) are welcome :D

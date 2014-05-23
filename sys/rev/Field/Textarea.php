@@ -1,5 +1,5 @@
-<?php ///rev engine \rev\Form\Field\Textarea
-namespace rev\Form\Field;
+<?php ///rev engine \rev\Field\Textarea
+namespace rev\Field;
 
 /** Textarea field */
 class Textarea extends Base {

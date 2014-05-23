@@ -91,7 +91,7 @@ body {
 
 		&:hover {
 			border-bottom-color: white !important;
-			background: lighten($c_logo_bg, 10%);
+			//background: lighten($c_logo_bg, 10%);
 		}
 		&.button {
 			font-family: $font_mono;
@@ -101,8 +101,7 @@ body {
 			border-right: $border_logo;
 			padding-left: $dv;
 			padding-right: $dv;
-			margin: 0 0 0 $dv/2;
-
+			margin: 0 0 0 $dv/1.2;
 		}
 		small {
 			font-size: .75em;

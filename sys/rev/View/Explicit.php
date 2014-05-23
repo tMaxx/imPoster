@@ -49,7 +49,7 @@ class Explicit {
 				$this->inc($ret, $view);
 
 			} elseif (isset($ret[0]) && is_int($ret[0])) {
-				$view = '\\rev\\Error'.$view;
+				$view = '\\rev\\Error'.$ret[0];
 				if (isset($ret[1]))
 					throw (new $view($ret[1]));
 				throw (new $view());

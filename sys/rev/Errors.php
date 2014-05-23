@@ -30,7 +30,7 @@ class Error extends \ErrorException {
 			case E_RECOVERABLE_ERROR:	return 'E_RECOVERABLE_ERROR';
 			case E_DEPRECATED:			return 'E_DEPRECATED';
 			case E_USER_DEPRECATED:		return 'E_USER_DEPRECATED';
-			default:							return '';
+			default:							return 'E_WTF';
 		}
 	}
 
@@ -98,7 +98,7 @@ class Error extends \ErrorException {
 				$estr = nl2br(self::pathdiff($e_last['message']));
 			}
 
-			$result[] = '<big><b>Error</b></big>  ['.$eName.']  '.$estr;
+			$result[] = '<big><b>'.$eName.'</b></big> '.$estr;
 			$result[] = NEWLINE.self::formatErrorLine($efile, $eline);
 		} elseif (isset($eno)) { //exception handler
 			$result[] = '<big><b>'.get_class($eno).'</b></big>  ';

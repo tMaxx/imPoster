@@ -1,5 +1,5 @@
-<?php ///rev engine \rev\Form\Field\Checkbox
-namespace rev\Form\Field;
+<?php ///rev engine \rev\Field\Checkbox
+namespace rev\Field;
 
 /** Checkbox field */
 class Checkbox extends Base {

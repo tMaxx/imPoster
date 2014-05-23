@@ -7,6 +7,8 @@ if (isset($header))
 	];
 
 
+$crud = new \rev\CRUD\CRUD('blog');
+
 if (is_numeric($id = rev\Vars::uri('blog'))) {
 	$single = \rev\DB\Q('SELECT * FROM Blog WHERE id=? AND is_draft=0')->param('i', $id)->row();
 	if (!$single)

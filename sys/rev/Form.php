@@ -41,16 +41,18 @@ class Form {
 			throw new Error("Form: definition must be an array or path");
 
 		$this->name = isset($def['name']) ? $def['name'] : (
-				$fname !== null ? $fname : hash('crc32b', json_encode($def['name']))
+				$fname !== null ? $fname : hash('crc32b', json_encode($def))
 			);
 		if (!isset($def['attributes']))
 			$def['attributes'] = null;
 
 		foreach ($def['fields'] as $k => $v) {
-			if (!isset($v[0]) && isset($v['type']))
-				$v[0] = $v['type'];
-			else
-				throw new Error('Form: no field type set');
+			if (!isset($v[0])) {
+				if (isset($v['type']))
+					$v[0] = $v['type'];
+				else
+					throw new Error('Form: no field type set');
+			}
 
 			switch (strtolower($v[0])) {
 				case 'raw':
@@ -146,7 +148,7 @@ class Form {
 
 	/** Render form */
 	public function r() {
-		echo '<form method="post" name="',$this->name,'"', self::attr($this->def['attributes']), '>';
+		echo '<form method="post" name="',$this->name,'"', isset($this->def['attributes']) ? self::attr($this->def['attributes']) : '', '>';
 		if ($this->error)
 			echo '<span class="form-error">', $this->error, '</span>';
 		foreach ($this->fields as $k => $v) {

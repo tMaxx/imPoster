@@ -125,4 +125,9 @@ class User {
 			return true;
 		return Role::auth($role);
 	}
+
+	public static function roleThrow($role) {
+		if (!self::role($role))
+			throw new Error403("You must be $role to access this location");
+	}
 }

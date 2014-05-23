@@ -11,9 +11,9 @@ class CRUD {
 
 	public function __construct($path) {
 		$name = $path;
-		$path = rev\View::getCurrentBasepath() . 'crud/' . $path . '.json';
+		$path = \rev\View::getCurrentBasepath() . 'crud/' . $path . '.json';
 
-		$def = rev\File::jsonFromFile($path);
+		$def = \rev\File::jsonFromFile($path);
 		if ($def === false)
 			throw new Error("CRUD: invalid path for definition {$path}");
 
@@ -50,10 +50,8 @@ class CRUD {
 
 		$per = $this->def['items_on_page'];
 
-		//over limit || FIXME
-		// $pnum = ($pnum + 1) * $per;
-		// if (($pnum - 1) > $count)
-		// 	throw new Error404();
+		if (($pnum * $per) > $count)
+			throw new Error404();
 
 		// short overview:
 		// - page 0 is last

@@ -5,7 +5,7 @@ mb_internal_encoding('UTF-8');
 mb_regex_encoding('UTF-8');
 
 //rev version
-define('rev_VERSION', '0.6beta1');
+define('rev_VERSION', '0.6beta2');
 //rev identificator
 define('rev_ID', 'rev engine [dragons] v'.rev_VERSION);
 
