@@ -121,8 +121,6 @@ class CRUD {
 		if ($start < 0 && ((-$start) <= (4*$per/5))) //less than i_o_p
 			$per -= $start;
 
-		//$per += $start < 0 ? $start : 0;
-
 		$ret->endparams('LIMIT ?,?')->params('ii', [$pnum, $per]);
 		return $ret->rows();
 	}

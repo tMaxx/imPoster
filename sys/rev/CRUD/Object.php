@@ -23,9 +23,11 @@ class Object {
 
 		$this->form = new \rev\Form($def);
 		if ($this->form->submitted) {
-			$ff = $this->form->fields;
-			foreach ($this->values as $k => $_)
-				$this->values[$k] = $ff[$k]->raw_value;
+			$this->values = $this->form->values;
+			unset($this->values['submit']);
+			// $ff = $this->form->fields;
+			// foreach ($this->values as $k => $_)
+			// 	$this->values[$k] = $ff[$k]->raw_value;
 		}
 	}
 
@@ -36,24 +38,28 @@ class Object {
 	protected function _processHooks($name) {
 		foreach ($this->def['fields'] as $k => $v)
 			if (!empty($v[$name])) {
-				$cmd = explode(' ', $v[$name], 2);
+				$cmd = is_array($cmd) ? $cmd : explode(' ', $v[$name], 2);
 
 				if ($cmd[0] == 'set') {
 					if (strtolower($cmd[1]) == 'now')
 						$this->values[$k] = NOW;
 				} elseif ($cmd[0] == 'call') {
-					call_user_func($cmd[1], $this->values[$k]);
+					call_user_func_array($cmd[1], [&$this->values[$k], &$this->values]);
 				}
 			}
 	}
 
 	public function load($id) {
-		$this->values = $this->dbo->select()->where(['id' => $id])->row();
+		if (!(is_int($id) || (is_string($id) && ctype_digit($id))))
+			return false;
+
+		$this->values = $this->dbo->select()->where(['id' => $id, $this->def['select_where']])->row();
 		$this->dbo->clear();
 
 		if ($this->values) {
 			unset($this->values['id']);
 			$this->id = $id;
+			$this->form->values = $this->values;
 		}
 		return !empty($this->values);
 	}
@@ -78,15 +84,14 @@ class Object {
 		//fill with empty data
 		$this->values = array_fill_keys(array_keys($def['fields']), null);
 
+		$this->form->values = $this->values;
 		$this->id = null;
-		//TODO: all
-		$this->_processHooks('on_create');
 
-		return $this;
+		$this->_processHooks('on_create');
 	}
 
-	public function render() {
-		$this->form->render();
+	public function form() {
+		return $this->form;
 	}
 
 	public function __get($name) {

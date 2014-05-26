@@ -81,7 +81,7 @@ class Base implements IBase {
 			if (!isset($val) && isset($this->def['value']))
 				$val = $this->def['value'];
 
-			echo '<input type="', $this->def[0], '" name="', $this->name, '" value="', $val, '"', $this->attr(),'>';
+			echo '<input type="', $this->def[0], '" name="', $this->name, ($val !== null ? '" value="'.htmlspecialchars($val) : ''), '"', $this->attr(),'>';
 		}
 
 		if ($this->error)

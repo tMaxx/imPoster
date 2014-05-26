@@ -62,10 +62,11 @@ class Form {
 
 				case 'string':
 					$v[0] = 'text';
+				case 'submit':
+					if ($v[0] == 'submit') $has_submit = true;
 				case 'email':
 				case 'password':
 				case 'text':
-				case 'submit':
 				case 'search':
 				case 'file':
 					$type = '\\rev\\Field\\Base';
@@ -86,6 +87,9 @@ class Form {
 				$this->submitted = true;
 			}
 		}
+
+		if (empty($has_submit) && empty($def['no_submit']))
+			$this->fields['__submit'] = new \rev\Field\Base($this->name.'::__submit', ['submit', 'value'=>'Submit']);
 
 		unset($def['name'], $def['fields']);
 		$this->def = $def;
@@ -136,7 +140,7 @@ class Form {
 		foreach ($in as $k => $v) {
 			$attr .= ' ';
 			if (is_numeric($k))
-				$attr .= (isset($v) && $v ? $v : '');
+				$attr .= empty($v) ? '' : $v;
 			else {
 				$attr .= $k;
 				if (!$v)
@@ -172,7 +176,7 @@ class Form {
 		if ($name == 'values') {
 			$ret = [];
 			foreach ($this->fields as $k => $f)
-				if (is_object($f))
+				if (is_object($f) && $k != 'submit')
 					$ret[$k] = $f->raw_value;
 			return $ret;
 		}
@@ -189,12 +193,12 @@ class Form {
 					$this->def[$k] = $v;
 				return $this->def;
 			} elseif ($name == 'values') {
-				foreach ($val as $k => $f)
-					if (is_object($f))
-						$this->fields[$k]->raw_value = $f;
-				// return $this->__get('values');
+				foreach ($this->fields as $k => $f)
+					if (is_object($f) && array_key_exists($k, $val))
+						$this->fields[$k]->raw_value = $val[$k];
+				return;
 			}
-		} else
-			throw new Error("Form: property '$name' setting not allowed");
+		}
+		throw new Error("Form: property '$name' setting not allowed");
 	}
 }

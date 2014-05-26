@@ -9,6 +9,6 @@ class Textarea extends Base {
 		if (!isset($val) && isset($this->def['value']))
 			$val = $this->def['value'];
 
-		echo '<textarea name="', $this->name, '" ', $this->attr(), '>', $val, '</textarea>';
+		echo '<textarea name="', $this->name, '" ', $this->attr(), '>', $val ? htmlspecialchars($val) : '', '</textarea>';
 	}
 }

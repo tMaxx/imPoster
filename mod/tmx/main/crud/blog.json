@@ -10,16 +10,18 @@
 		"select_where": "is_draft = 0"
 	},
 
+	"mode_admin": {
+		"select_short": "id, name, ts_publ, is_draft",
+		"select_where": "1=1"
+	},
+
 	"fields": {
-		"id": {
-			"type": "id"
-		},
 		"name": {
 			"type": "text",
-			"label": "Tytuł"
-		},
-		"content": {
-			"type": "text"
+			"attributes": {
+				"placeholder": "Tytuł",
+				"class": "wide"
+			}
 		},
 		"ts_publ": {
 			"type": "ts"
@@ -30,7 +32,14 @@
 		},
 		"is_draft": {
 			"type": "checkbox",
-			"label": "Zatwierdzone"
+			"label": "Ukryte"
+		},
+		"content": {
+			"type": "textarea",
+			"attributes": {
+				"placeholder": "Treść",
+				"class": "wide big"
+			}
 		}
 	}
 }

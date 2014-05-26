@@ -1,5 +1,5 @@
 <?
-//may get be cross-loaded from /blog/index.php
+//may get cross-loaded from /blog/index.php
 if (empty($crud))
 	$crud = new \rev\CRUD\CRUD('blog', 'user');
 
