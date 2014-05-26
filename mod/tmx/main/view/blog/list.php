@@ -21,10 +21,12 @@
 	<h3 class="blueish">Brak wpisów</h3>
 <? endif; ?>
 
-<div class="nav">
+<div class="navi">
 <? foreach ($pg as $_ => $p):
-	if (is_array($p)): ?><a href="/blog/?page=<?= $p[1] ?>"><?= $p[0] ?></a><?
-	else: ?><span><?= $p ?></span><?
+	if (is_array($p)):
+		?><a href="/blog/?page=<?= $p[1] ?>"><?= $p[0] ?></a><?
+	else:
+		?><span><?= $p ?></span><?
 	endif;
 endforeach;?>
 </div>

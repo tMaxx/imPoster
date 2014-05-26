@@ -13,3 +13,6 @@
 [submodule "mod/lib/boris"]
 	path = mod/lib/boris
 	url = git@github.com:tMaxx/boris.git
+[submodule "mod/lib/parsedown"]
+	path = mod/lib/parsedown
+	url = git@github.com:erusev/parsedown.git
