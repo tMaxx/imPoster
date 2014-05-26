@@ -141,4 +141,14 @@ class Table extends Base {
 
 		$this->query = implode(' ', $parts);
 	}
+
+	public function clear() {
+		$this->mode = self::MODE_NONE;
+		$this->data = [];
+		$this->fields = [];
+		$this->where = [];
+		$this->end = [];
+		parent::clear();
+		return $this;
+	}
 }

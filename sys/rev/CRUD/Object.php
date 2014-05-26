@@ -2,27 +2,30 @@
 namespace rev\CRUD;
 use rev\Error;
 
-/** CRUD single object */
+/**
+ * CRUD for single object
+ * Manages rev\Form instance, handles field hooks
+ */
 class Object {
 	protected $def;
 
-	protected $fields = [];
+	protected $values = [];
 	protected $id = null;
 	protected $dbo = null;
 	protected $form = null;
 
 	function __construct($def) {
+		unset($def['fields']['id']);
 		$this->def = $def;
 		unset($this->def['fields']['submit']);
 
 		$this->dbo = new \rev\DB\Table($def['table']);
 
-		unset($def['fields']['id']);
 		$this->form = new \rev\Form($def);
 		if ($this->form->submitted) {
 			$ff = $this->form->fields;
-			foreach ($this->fields as $k => $_)
-				$this->fields[$k] = $ff[$k]->raw_value;
+			foreach ($this->values as $k => $_)
+				$this->values[$k] = $ff[$k]->raw_value;
 		}
 	}
 
@@ -37,42 +40,44 @@ class Object {
 
 				if ($cmd[0] == 'set') {
 					if (strtolower($cmd[1]) == 'now')
-						$this->fields[$k] = NOW;
+						$this->values[$k] = NOW;
 				} elseif ($cmd[0] == 'call') {
-					call_user_func($cmd[1], $this->fields[$k]);
+					call_user_func($cmd[1], $this->values[$k]);
 				}
 			}
 	}
 
 	public function load($id) {
-		$this->fields = $this->dbo->select()->where(['id' => $id])->row();
-		unset($this->fields['id']);
-		if (!$this->fields)
-			throw new Error("CRUD Obj: load: no results for $id at $def[name]");
-		$this->id = $id;
+		$this->values = $this->dbo->select()->where(['id' => $id])->row();
+		$this->dbo->clear();
 
-		return $this;
+		if ($this->values) {
+			unset($this->values['id']);
+			$this->id = $id;
+		}
+		return !empty($this->values);
 	}
 
 	public function save() {
 		$this->_processHooks('pre_save');
 		if ($this->id)
-			$this->dbo->where(['id' => $this->id])->update($this->fields)->exec();
+			$this->dbo->where(['id' => $this->id])->update($this->values)->exec();
 		else
-			$this->id = $this->dbo->insert($this->fields)->iid();
-
-		return $this;
+			$this->id = $this->dbo->insert($this->values)->iid();
+		$this->dbo->clear();
 	}
 
 	public function delete() {
-		if ($this->id)
+		if ($this->id) {
 			$this->dbo->delete()->where(['id' => $this->id])->exec();
-		return $this;
+			$this->dbo->clear();
+		}
 	}
 
 	public function create() {
 		//fill with empty data
-		$this->fields = array_fill_keys(array_keys($def['fields']), null);
+		$this->values = array_fill_keys(array_keys($def['fields']), null);
+
 		$this->id = null;
 		//TODO: all
 		$this->_processHooks('on_create');
@@ -85,20 +90,25 @@ class Object {
 	}
 
 	public function __get($name) {
-		if ($name == 'id')
-			return $this->id;
+		if ($name == 'id' || $name == 'values')
+			return $this->{$name};
 		if ($name == 'submitted')
 			return $this->form->submitted;
-		if (!isset($this->fields[$name]))
+		if (!isset($this->values[$name]))
 			throw new Error("CRUD Obj: no such field name: $name");
-		return $this->fields[$name];
+		return $this->values[$name];
 	}
 
 	public function __set($name, $val) {
 		if ($name == 'id')
 			$this->id = $val;
-		elseif (!isset($this->fields[$name]))
+		if ($name == 'values' && is_array($val)) {
+			foreach ($val as $k => $v)
+				if (array_key_exists($k, $this->values))
+					$this->values[$k] = $v;
+		}
+		elseif (!isset($this->values[$name]))
 			throw new Error("CRUD Obj: no such field name: $name");
-		return ($this->fields[$name] = $val);
+		return ($this->values[$name] = $val);
 	}
 }

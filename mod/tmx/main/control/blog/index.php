@@ -1,30 +1,20 @@
 <?
+$crud = new \rev\CRUD\CRUD('blog', 'user');
 
-if (isset($header))
-	return [
-		'/blog/header',
-		'header' => $header
-	];
+$id = ($id = rev\Vars::uri(['blog'])) ? $id['blog'] : false;
+if ($id) {
+	if (ctype_digit($id)) {
+		if (!$crud->object()->load($id))
+			return [404];
 
+		$single = $crud->object()->values;
+		$single['tags'] = \tmx\Blog::getTags($id);
 
-$crud = new \rev\CRUD\CRUD('blog');
-
-if (is_numeric($id = rev\Vars::uri('blog'))) {
-	$single = \rev\DB\Q('SELECT * FROM Blog WHERE id=? AND is_draft=0')->param('i', $id)->row();
-	if (!$single)
-		throw new rev\Error404();
-
-	$single['tags'] = \rev\DB\Q('SELECT name FROM Tags WHERE blog_id=?')->param('i', $id)->vals();
-
-	return [
-		'/blog/single',
-		'single' => $single
-	];
+		return [
+			'/blog/single',
+			'single' => $single
+		];
+	}
+	return [404];
 }
-
-
-$entr = \rev\DB\Q('SELECT id, name, ts_publ FROM Blog')->rows();
-
-return [
-	'entr' => $entr
-];
+$this->sub('/blog/page', ['crud' => $crud]);

@@ -62,9 +62,7 @@ class Base {
 
 	/** Destruct, closing statement cursor */
 	function __destruct() {
-		if ($this->stmt)
-			$this->stmt->closeCursor();
-		$this->stmt = null;
+		$this->close();
 	}
 
 	/** Allow access for db and stmt */
@@ -286,6 +284,15 @@ class Base {
 		return $this;
 	}
 
+	/** Clear state */
+	public function clear() {
+		$this->close()->stmt = null;
+		$this->stmt_types = '';
+		$this->stmt_values = [];
+		$this->query = '';
+		return $this;
+	}
+
 	// ==================================================================
 	//
 	// Result handling functions
@@ -376,7 +383,6 @@ class Base {
 
 	/** Return single, 1st col value from result */
 	public function val() {
-		$v = $this->num();
 		if (($v = $this->num()) === null)
 			return null;
 		return $v[0];

@@ -10,8 +10,8 @@ if ($_view_child) {
 	$_view_child = '';
 
 tmx\Menu::append([
-	'/blog' => 'Blog',
-	'/about' => 'About',
+	'/blog' => 'blog',
+	'/about' => 'about',
 ]);
 if (rev\Auth\User::id()) {
 	tmx\Menu::addright(['/user:logout' => 'out']);

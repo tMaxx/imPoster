@@ -3,15 +3,19 @@
 	"table": "Blog",
 	"items_on_page": 5,
 
-	"select_short": "id, name, ts_publ",
-	"select_order_by": "ts_publ DESC",
+	"select_order_by": "ts_publ DESC, id DESC",
+
+	"mode_user": {
+		"select_short": "id, name, ts_publ",
+		"select_where": "is_draft = 0"
+	},
 
 	"fields": {
 		"id": {
 			"type": "id"
 		},
 		"name": {
-			"type": "string",
+			"type": "text",
 			"label": "Tytuł"
 		},
 		"content": {
@@ -25,7 +29,7 @@
 			"pre_save": "set now"
 		},
 		"is_draft": {
-			"type": "bool",
+			"type": "checkbox",
 			"label": "Zatwierdzone"
 		}
 	}

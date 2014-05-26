@@ -1,25 +1,25 @@
 <div class="post-meta">
 	<div class="post-title"><?
 
-		if (empty($header['link_it'])):
-			echo $header['name'];
+		if (empty($link_it)):
+			echo $name;
 		else:
-			?><a href="/blog:<?= $header['id'] ?>"><?= $header['name'] ?></a><?
+			?><a href="/blog:<?= $id ?>"><?= $name ?></a><?
 		endif;
 
-	?></div><span class="post-info"><?= datef($header['ts_publ']) ?></span><?
+	?></div><span class="post-info"><?= datef($ts_publ) ?></span><?
 
-	if (isset($header['ts_mod'])):
-		?><span class="post-info">&#8635; <?= datef($header['ts_mod'], true) ?></span><?
+	if (isset($ts_mod)):
+		?><span class="post-info">&#8635; <?= datef($ts_mod, true) ?></span><?
 	endif;
 
-	if (!empty($header['tags'])):
+	if (!empty($tags)):
 		?><span class="post-info tags"><?
-			foreach ($header['tags'] as &$t)
+			foreach ($tags as &$t)
 				$t = '<a href="/blog/cat:'.urlencode($t).'">'.$t.'</a>';
-			unset($t);reset($header['tags']);
+			unset($t);reset($tags);
 
-			echo implode(', ', $header['tags']);
+			echo implode(', ', $tags);
 		?></span><?
 	endif;
 

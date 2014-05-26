@@ -17,6 +17,15 @@ class Explicit {
 		return (include ROOT.func_get_arg(1));
 	}
 
+	protected function view($args) {
+		$view = $this->basepath.'view/'.$args[0].'.php';
+		unset($args[0]);
+		if (!File::fileExists($view))
+			throw new \rev\Error404("View \"{$view}\" was not found");
+
+		$this->inc($args, $view);
+	}
+
 	public function __construct($basepath, $node, $vars = []) {
 		$this->basepath = $basepath;
 		$this->node = $node;
@@ -40,8 +49,7 @@ class Explicit {
 		if (is_array($ret)) {
 			if (!isset($ret[0]) || is_string($ret[0])) {
 				$view = $this->basepath.'view/'.(isset($ret[0]) ? $ret[0].'.php' : $this->node.$extension);
-				if (!$view)
-					return;
+				unset($ret[0]);
 
 				if (!File::fileExists($view))
 					throw new \rev\Error404("View \"{$view}\" was not found");

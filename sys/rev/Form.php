@@ -60,6 +60,8 @@ class Form {
 					continue 2; //foreach
 					break;
 
+				case 'string':
+					$v[0] = 'text';
 				case 'email':
 				case 'password':
 				case 'text':
@@ -70,6 +72,7 @@ class Form {
 					break;
 
 				default:
+					$v[0][0] = strtoupper($v[0][0]);
 					$type = '\\rev\\Field\\'.$v[0];
 					break;
 			}
