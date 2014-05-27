@@ -16,16 +16,23 @@ if ($v[0] == 'page') {
 		'pg' => $crud->navigation($v[1]),
 	];
 } elseif ($v[0] == 'entry') {
-	$crud->object(); //launch
+	$cobj = $crud->obj;
 	if ($v[1] == 'new')
-		$crud->object()->create();
-	elseif (!$crud->object()->load($v[1]))
+		$cobj->create();
+	elseif (!$cobj->exists($v[1]))
 		return [404];
+
+	if ($cobj->submitted) {
+		$cobj->id = $v[1];
+		$cobj->formToLocal()->save();
+		$this->redirect('/admin/blog:entry:'.$cobj->id);
+	} else
+		$cobj->load($v[1]);
 
 	return [
 		'/admin/blog_entry',
-		'form' => $crud->object()->form(),
-		'id' => $crud->object()->id
+		'form' => $cobj->form,
+		'id' => $cobj->id
 	];
 }
 

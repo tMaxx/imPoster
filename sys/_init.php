@@ -11,10 +11,12 @@ function vdump() {
 		$insp = rev\Console::inst('inspector');
 	foreach (func_get_args() as $v) {
 		if (CLI)
-			echo $insp->inspect($v);
-		else
+			echo $insp->inspect($v)."\n";
+		else {
 			var_dump($v);
-		echo NEWLINE;
+			if ($wpre)
+				echo '<br />';
+		}
 	}
 	if ($wpre)
 		echo '</pre>';

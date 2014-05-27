@@ -9,10 +9,12 @@ use rev\Error;
 class Object {
 	protected $def;
 
+	public $id = null;
+
 	protected $values = [];
-	protected $id = null;
 	protected $dbo = null;
 	protected $form = null;
+	protected $cache = [];
 
 	function __construct($def) {
 		unset($def['fields']['id']);
@@ -22,13 +24,6 @@ class Object {
 		$this->dbo = new \rev\DB\Table($def['table']);
 
 		$this->form = new \rev\Form($def);
-		if ($this->form->submitted) {
-			$this->values = $this->form->values;
-			unset($this->values['submit']);
-			// $ff = $this->form->fields;
-			// foreach ($this->values as $k => $_)
-			// 	$this->values[$k] = $ff[$k]->raw_value;
-		}
 	}
 
 	/**
@@ -38,34 +33,60 @@ class Object {
 	protected function _processHooks($name) {
 		foreach ($this->def['fields'] as $k => $v)
 			if (!empty($v[$name])) {
-				$cmd = is_array($cmd) ? $cmd : explode(' ', $v[$name], 2);
+				$cmd = is_array($v[$name]) ? $v[$name] : explode(' ', $v[$name], 2);
 
-				if ($cmd[0] == 'set') {
-					if (strtolower($cmd[1]) == 'now')
-						$this->values[$k] = NOW;
-				} elseif ($cmd[0] == 'call') {
+				if ($cmd[0] == 'set')
+					switch (strtolower($cmd[1])) {
+						case 'now':
+							$this->values[$k] = NOW;
+							break;
+						case 'null':
+							$this->values[$k] = null;
+							break;
+					}
+				elseif ($cmd[0] == 'call')
 					call_user_func_array($cmd[1], [&$this->values[$k], &$this->values]);
-				}
 			}
 	}
 
-	public function load($id) {
+	public function exists($id, $force = false) {
 		if (!(is_int($id) || (is_string($id) && ctype_digit($id))))
 			return false;
 
-		$this->values = $this->dbo->select()->where(['id' => $id, $this->def['select_where']])->row();
-		$this->dbo->clear();
+		if (array_key_exists('values', $this->cache) && !$force)
+			return !!$this->cache['values'];
 
-		if ($this->values) {
+		$vals = $this->dbo->select()->where(['id' => $id, $this->def['select_where']])->row();
+		$this->dbo->clear();
+		if (!$vals)
+			return false;
+
+		$this->cache['values'] = $vals;
+		return true;
+	}
+
+	public function load($id) {
+		if (!$this->exists($id))
+			return false;
+
+		if ($this->values = $this->cache['values']) {
 			unset($this->values['id']);
 			$this->id = $id;
 			$this->form->values = $this->values;
 		}
+		unset($this->cache['values']);
 		return !empty($this->values);
+	}
+
+	public function formToLocal() {
+		$this->values = $this->form->values;
+		unset($this->values['submit'], $this->cache['values']);
+		return $this;
 	}
 
 	public function save() {
 		$this->_processHooks('pre_save');
+
 		if ($this->id)
 			$this->dbo->where(['id' => $this->id])->update($this->values)->exec();
 		else
@@ -82,38 +103,28 @@ class Object {
 
 	public function create() {
 		//fill with empty data
-		$this->values = array_fill_keys(array_keys($def['fields']), null);
+		$this->values = array_fill_keys(array_keys($this->def['fields']), null);
+
+		$this->_processHooks('on_create');
 
 		$this->form->values = $this->values;
 		$this->id = null;
-
-		$this->_processHooks('on_create');
-	}
-
-	public function form() {
-		return $this->form;
 	}
 
 	public function __get($name) {
-		if ($name == 'id' || $name == 'values')
+		if ($name == 'values' || $name == 'form')
 			return $this->{$name};
 		if ($name == 'submitted')
 			return $this->form->submitted;
-		if (!isset($this->values[$name]))
-			throw new Error("CRUD Obj: no such field name: $name");
-		return $this->values[$name];
+		throw new Error("CRUD Obj: Property $name is inaccessible");
 	}
 
 	public function __set($name, $val) {
-		if ($name == 'id')
-			$this->id = $val;
 		if ($name == 'values' && is_array($val)) {
 			foreach ($val as $k => $v)
 				if (array_key_exists($k, $this->values))
 					$this->values[$k] = $v;
 		}
-		elseif (!isset($this->values[$name]))
-			throw new Error("CRUD Obj: no such field name: $name");
-		return ($this->values[$name] = $val);
+		throw new Error("CRUD Obj: Property $name is inaccessible");
 	}
 }

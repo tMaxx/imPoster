@@ -19,6 +19,8 @@ $c_grey: darken($c_font, 10%);
 $c_lgrey: #888a85 + #222;
 $c_dgrey: lighten($c_bg, 15%);
 $c_ddgrey: darken($c_bg, 2%);
+$c_green: #8ae234;
+$c_red: #ef2929;
 
 $border_logo: 2px solid lighten($c_bg, 5%);
 
@@ -32,8 +34,8 @@ body {
 .white	{color: $c_font_imp;}
 .blueish	{color: $c_blueish !important;}
 .blue		{color: $c_blue !important;}
-.green	{color: #8ae234 !important;}
-.red		{color: #ef2929 !important;}
+.green	{color: $c_green !important;}
+.red		{color: $c_red !important;}
 
 // Logo/header
 #logo {
@@ -84,7 +86,7 @@ body {
 	font-size: 1.15em;
 	margin: -2px .2em $dv*2;
 
-	a {
+	a, .elem {
 		background: $c_logo_bg;
 		display: block;
 		padding: .8*$dv 1.5*$dv $dv;
@@ -126,6 +128,18 @@ body {
 		}
 	}
 
+	// Notification: item saved/error/info
+	#notify-box {
+		float: right;
+		margin-right: 1.5em;
+		font-weight: bolder;
+
+		color: $c_blueish;
+		border: 2px solid $c_bg;
+		border-bottom-color: lighten($c_dgrey, 10%);
+		border-top: none;
+	}
+
 	// Selected item
 	#sel {
 		color: $c_font_imp;
@@ -141,7 +155,7 @@ body {
 		font-size: 1.3em;
 	}
 	.trace {
-		color: darken($c_grey, 20%);
+		color: darken(white, 50%);
 		font-size: .9em;
 		text-align: left;
 		margin: 15px auto 0;

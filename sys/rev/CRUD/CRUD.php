@@ -37,13 +37,6 @@ class CRUD {
 		$this->def = $def;
 	}
 
-	/** Lazy loader for single object management */
-	public function object() {
-		if (is_array($this->object))
-			$this->object = new Object($this->object);
-		return $this->object;
-	}
-
 	/** Items on page count */
 	public function getIOPC() {
 		return $this->def['items_on_page'];
@@ -123,5 +116,15 @@ class CRUD {
 
 		$ret->endparams('LIMIT ?,?')->params('ii', [$pnum, $per]);
 		return $ret->rows();
+	}
+
+	/** Return internal property value */
+	public function __get($name) {
+		if ($name == 'obj' || $name == 'object' || $name == 'single') {
+			//lazy loader
+			if (is_array($this->object))
+				$this->object = new Object($this->object);
+			return $this->object;
+		}
 	}
 }

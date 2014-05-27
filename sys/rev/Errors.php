@@ -1,6 +1,12 @@
 <?php ///rev engine \rev\Error
 namespace rev;
 
+if (CLI)
+	define('NEWLINE', "\n");
+else
+	define('NEWLINE', '<br>');
+
+
 /** Error class */
 class Error extends \ErrorException {
 

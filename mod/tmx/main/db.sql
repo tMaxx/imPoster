@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `Blog` (
 	`content` TEXT NOT NULL,
 	`type` INT,
 	`ts_publ` INT(11) UNSIGNED NOT NULL DEFAULT 0,
-	`ts_mod` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+	`ts_mod` INT(11) UNSIGNED NULL,
 	`is_draft` BIT(1) NOT NULL DEFAULT 0,
 
 	PRIMARY KEY (`id`)
@@ -61,31 +61,12 @@ CREATE TABLE IF NOT EXISTS `Locker` (
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS `Notify` (
+	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`user_id` INT UNSIGNED NOT NULL,
+	`content` VARCHAR(140),
+	`auto_expire` BIT(1) DEFAULT 1,
 
-
-
-
--- CREATE TABLE IF NOT EXISTS `Ping` (
--- 	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
--- 	`user_id` INT UNSIGNED,
--- 	`user_dest` INT UNSIGNED,
--- 	`elem_id` INT UNSIGNED DEFAULT NULL,
--- 	`ts` INT(11) NOT NULL,
--- 	`note` VARCHAR(140),
-
--- 	PRIMARY KEY (`ping_id`),
--- 	FOREIGN KEY (`elem_id`) REFERENCES `Entry`(`elem_id`),
--- 	FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`),
--- 	FOREIGN KEY (`user_dest`) REFERENCES `User`(`user_id`)
--- ) ENGINE=InnoDB;
-
--- CREATE TABLE IF NOT EXISTS `UserFriends` (
--- 	`user_one` INT UNSIGNED NOT NULL,
--- 	`user_two` INT UNSIGNED NOT NULL,
--- 	`status` BIT(1) NULL DEFAULT NULL,
-
--- 	FOREIGN KEY (`user_one`) REFERENCES `User`(`user_id`),
--- 	FOREIGN KEY (`user_two`) REFERENCES `User`(`user_id`)
--- ) ENGINE=InnoDB;
--- CREATE INDEX iudex_UserFriends_user_one ON `UserFriends`(`user_one`);
--- CREATE INDEX iudex_UserFriends_user_two ON `UserFriends`(`user_two`);
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB;

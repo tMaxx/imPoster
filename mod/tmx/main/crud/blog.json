@@ -24,14 +24,16 @@
 			}
 		},
 		"ts_publ": {
-			"type": "ts"
+			"type": "ts",
+			"on_create": "set now"
 		},
 		"ts_mod": {
 			"type": "ts",
-			"pre_save": "set now"
+			"pre_save": "set now",
+			"on_create": "set null"
 		},
 		"is_draft": {
-			"type": "checkbox",
+			"type": "Checkbox",
 			"label": "Ukryte"
 		},
 		"content": {

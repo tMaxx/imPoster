@@ -7,7 +7,7 @@
 			?><a href="/blog:<?= $id ?>"><?= $name ?></a><?
 		endif;
 
-	?></div><span class="post-info"><?= datef($ts_publ) ?></span><?
+	?></div><span class="post-info"><?= datef($ts_publ, true) ?></span><?
 
 	if (isset($ts_mod)):
 		?><span class="post-info">&#8635; <?= datef($ts_mod, true) ?></span><?
@@ -23,13 +23,8 @@
 		?></span><?
 	endif;
 
-	if (isset($ts_mod)):
-		?><span class="post-info">&#8635; <?= datef($ts_mod, true) ?></span><?
+	if (isset($is_draft, $id)):
+		?><span class="post-info"><a href="/admin/blog:entry:<?=$id?>" class="<?= $is_draft ? 'red' : 'green' ?>"><?= $is_draft ? '&#x2718;' : '&#x2714;' ?></a></span><?
 	endif;
-
-	if (isset($is_draft)):
-		?><span class="post-info <?= $is_draft ? 'red' : 'green' ?>"><?= $is_draft ? '&#x2718;' : '&#x2714;' ?></span><?
-	endif;
-
 
 ?></div>

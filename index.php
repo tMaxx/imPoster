@@ -23,11 +23,8 @@ define('HOST', (CLI ? 'interactive' : ((empty($_SERVER['HTTPS']) ? 'http' : 'htt
 define('REQUEST_URI', (CLI ? '/' : (explode('?', $_SERVER['REQUEST_URI'], 2)[0])));
 define('PROCESS_ID', @posix_getpid());
 
-if (CLI) {
-	cli_set_process_title('rev engine');
-	define('NEWLINE', "\n"); //kinda sucks, but kinda works :D
-} else
-	define('NEWLINE', '<br>');
+if (CLI)
+	cli_set_process_title(rev_ID);
 
 //redirect to init file
 require_once ROOT.'/sys/_init.php';

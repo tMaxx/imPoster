@@ -54,6 +54,8 @@ class Form {
 					throw new Error('Form: no field type set');
 			}
 
+			rewind: //submit-adder rewind point
+
 			switch (strtolower($v[0])) {
 				case 'raw':
 					$this->fields[$k] = isset($v[1]) ? $v[1] : $v['content'];
@@ -81,15 +83,20 @@ class Form {
 			$name = $this->name.'::'.$k;
 
 			$this->fields[$k] = new $type($name, $v);
-			if (isset($_POST[$name])) {
+			if (array_key_exists($name, $_POST)) {
 				$this->fields[$k]->value = $_POST[$name];
 				unset($_POST[$name]);
 				$this->submitted = true;
 			}
-		}
 
-		if (empty($has_submit) && empty($def['no_submit']))
-			$this->fields['__submit'] = new \rev\Field\Base($this->name.'::__submit', ['submit', 'value'=>'Submit']);
+			//add submit button
+			end($def['fields']);
+			if ($k == key($def['fields']) && !isset($has_submit) && empty($def['no_submit'])) {
+				$k = '__submit';
+				$v = ['submit', 'value' => 'Submit'];
+				goto rewind;
+			}
+		}
 
 		unset($def['name'], $def['fields']);
 		$this->def = $def;
@@ -155,7 +162,9 @@ class Form {
 
 	/** Render form */
 	public function r() {
-		echo '<form method="post" name="',$this->name,'"', isset($this->def['attributes']) ? self::attr($this->def['attributes']) : '', '>';
+		echo '<form method="post" name="',$this->name,'"',
+			isset($this->def['attributes']) ? self::attr($this->def['attributes']) : '',
+			'>';
 		if ($this->error)
 			echo '<span class="form-error">', $this->error, '</span>';
 		foreach ($this->fields as $k => $v) {
@@ -176,7 +185,7 @@ class Form {
 		if ($name == 'values') {
 			$ret = [];
 			foreach ($this->fields as $k => $f)
-				if (is_object($f) && $k != 'submit')
+				if (is_object($f) && $k != '__submit')
 					$ret[$k] = $f->raw_value;
 			return $ret;
 		}
