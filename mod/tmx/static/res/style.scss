@@ -262,6 +262,7 @@ div.rpanel {
 		max-width: 95%;
 
 		//TODO: custom focus color
+
 		&[readonly] {
 			color: $c_lgrey;
 			border-left: 1px solid $c_dgrey;
@@ -273,6 +274,9 @@ div.rpanel {
 		border-left: $bstyle;
 		border-right: $bstyle;
 		padding: $dv/3 $dv*1.5;
+	}
+	textarea {
+		tab-size: 4;
 	}
 
 

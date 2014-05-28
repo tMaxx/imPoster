@@ -24,6 +24,7 @@ PHP framework. CLI, MVC, PDO, CRUD and much more.
  - DB: make it honor PDO's :variable binding in query, optimize
  - find some other Google Authenticator class
  - add breadcrumbs generator
+ - static/JS: add cross-reference of scripts
 
 ### Licensing
 Code in this repository is subject to Creative Commons licence (CC BY-NC-SA).

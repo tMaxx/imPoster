@@ -33,7 +33,11 @@ switch (true) {
 	}
 
 	case isset($vars['js']): {
-		$servepath .= rev\File::sanitizePath($vars['js']) . '.js';
+		if ($vars['js'] === 'tabby')
+			$servepath = '/mod/lib/tabby/jquery.textarea.min.js';
+		else
+			$servepath .= rev\File::sanitizePath($vars['js']) . '.js';
+
 		if (!rev\File::fileExists($servepath))
 			break;
 		if (rev\View::setCacheControl($servepath))

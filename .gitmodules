@@ -16,3 +16,6 @@
 [submodule "mod/lib/parsedown"]
 	path = mod/lib/parsedown
 	url = git@github.com:erusev/parsedown.git
+[submodule "mod/lib/tabby"]
+	path = mod/lib/tabby
+	url = git@github.com:alanhogan/Tabby.git

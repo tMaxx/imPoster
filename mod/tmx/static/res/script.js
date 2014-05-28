@@ -3,8 +3,10 @@ $.fn.exists = function () {
 	return this.length !== 0;
 }
 
-$('#menu').append('<div class="elem" id="notify-box" data-expire="true">Info</div>');
 
+$('textarea:not([readonly])').tabby();
+
+$('#menu').append('<div class="elem" id="notify-box" data-expire="true">Info</div>');
 
 $('#notify-box').on('click', function() {
 	$(this).remove();
