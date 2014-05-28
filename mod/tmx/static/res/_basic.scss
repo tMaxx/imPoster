@@ -92,13 +92,13 @@ a {
 		margin-bottom: $dv;
 	}
 
-	textarea.big {
-		height: 30*$dv;
+	textarea.long {
+		height: 40*$dv;
 	}
-	input.big, .button.big {
+	input.long, .button.long {
 		font-size: 1.3em;
 	}
-	input.wide, textarea.wide, .buttton.big {
+	input.wide, textarea.wide, .buttton.long {
 		width: 75%;
 	}
 

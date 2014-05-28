@@ -40,8 +40,18 @@
 			"type": "textarea",
 			"attributes": {
 				"placeholder": "Treść",
-				"class": "wide big"
+				"class": "wide",
+				"readonly": "readonly"
 			}
+		},
+		"content_raw": {
+			"type": "textarea",
+			"attributes": {
+				"placeholder": "Treść",
+				"class": "wide long"
+			},
+			"pre_save": ["call", ["\\tmx\\Blog", "crudParseMarkdown"]]
 		}
+
 	}
 }

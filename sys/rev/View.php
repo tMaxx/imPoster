@@ -160,15 +160,16 @@ class View {
 	/**
 	 * Set cache control through ETags
 	 * @param $path to file
+	 * @param $force resend
 	 * @return bool
 	 * 	true: all headers sent, terminate application now
 	 * 	false: sending content is required
 	 */
-	public static function setCacheControl($path) {
+	public static function setCacheControl($path, $force = false) {
 		if (!File::fileExists($path))
 			return false;
 		$path = ROOT.$path;
-		$mtime = filemtime($path);
+		$mtime = $force ? NOW : filemtime($path);
 		$time = gmdate('r', $mtime);
 		$etag = md5($mtime.$path);
 

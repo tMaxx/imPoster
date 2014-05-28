@@ -44,8 +44,11 @@ class Object {
 							$this->values[$k] = null;
 							break;
 					}
-				elseif ($cmd[0] == 'call')
+				elseif ($cmd[0] == 'call') {
+					if (!is_callable($cmd[1]))
+						throw new Error("CRUD: Hook $name for field $k is not callable");
 					call_user_func_array($cmd[1], [&$this->values[$k], &$this->values]);
+				}
 			}
 	}
 

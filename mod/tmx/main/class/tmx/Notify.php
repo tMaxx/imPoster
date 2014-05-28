@@ -15,4 +15,18 @@ class Notify {
 			'auto_expire' => true
 		])->exec();
 	}
+
+	public static function getOne() {
+		if (!($id = \rev\Auth\User::id()))
+			return '';
+
+		$db = new \rev\DB\Table('Notify');
+		$db->select()->where(['user_id' => $id]);
+		if (!($ret = $db->row()))
+			return '';
+		$db->clear();
+		$db->delete()->where(['id' => $ret['id']])->exec();
+
+		return $ret['content'];
+	}
 }

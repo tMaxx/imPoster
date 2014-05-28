@@ -44,7 +44,7 @@ function ms_from_start() {
 
 /** Return formatted date from unix timestamp */
 function datef($unix_ts, $hrs = false) {
-	return date(($hrs ? 'H:i ' : '').'d.m.Y', $unix_ts);
+	return date('d.m.Y'.($hrs ? ' H:i' : ''), $unix_ts);
 }
 
 require_once ROOT.'/sys/rev/Errors.php';

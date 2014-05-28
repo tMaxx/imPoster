@@ -29,6 +29,7 @@ body {
 	color: $c_font;
 	font-family: $font_main;
 	font-size: .80em;
+	text-rendering: optimizeLegibility;
 }
 
 .white	{color: $c_font_imp;}
@@ -261,6 +262,10 @@ div.rpanel {
 		max-width: 95%;
 
 		//TODO: custom focus color
+		&[readonly] {
+			color: $c_lgrey;
+			border-left: 1px solid $c_dgrey;
+		}
 	}
 	input[type=submit], .button {
 		width: auto;

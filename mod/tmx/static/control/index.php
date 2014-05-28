@@ -1,6 +1,7 @@
 <?php ///tmx static files server
 $vars = rev\Vars::uri(array('scss', 'js'));
 $servepath = rev\View::getCurrentBasepath().'res/';
+$force = !!rev\Vars::get(['force']);
 
 switch (true) {
 	case isset($vars['scss']): {
@@ -8,10 +9,13 @@ switch (true) {
 
 		if (!rev\File::fileExists($servepath.$_GET['p']))
 			break;
-		if ($vars['scss'][0] == '_')
+
+		if ($force)
+			clearstatcache();
+		elseif ($vars['scss'][0] == '_')
 			break;
 
-		if (rev\View::setCacheControl($servepath.$_GET['p']))
+		if (rev\View::setCacheControl($servepath.$_GET['p'], $force))
 			return;
 
 		$this->setContentType('css');
@@ -45,4 +49,4 @@ switch (true) {
 		break;
 }
 
-throw new Error404();
+return [404];

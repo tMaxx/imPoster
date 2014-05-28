@@ -20,7 +20,7 @@ PHP framework. CLI, MVC, PDO, CRUD and much more.
  - Some more types for static file server (like images, plaintext, css w/o parser)
  - Cache module (_much, much later_)
  - highlight.js
- - SCSS: consider writing own server, current one is hellish slow
+ - SCSS: consider writing own server, current one is hellish slow (& add cross-referencing of styles w. updating etags)
  - DB: make it honor PDO's :variable binding in query, optimize
  - find some other Google Authenticator class
  - add breadcrumbs generator

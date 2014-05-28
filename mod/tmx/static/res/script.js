@@ -3,7 +3,7 @@ $.fn.exists = function () {
 	return this.length !== 0;
 }
 
-$('#menu').append('<div class="elem" id="notify-box">Info</div>');
+$('#menu').append('<div class="elem" id="notify-box" data-expire="true">Info</div>');
 
 
 $('#notify-box').on('click', function() {
@@ -12,5 +12,7 @@ $('#notify-box').on('click', function() {
 
 if ($('#notify-box[data-expire]').exists())
 	setTimeout(function() {
-		$('#notify-box[data-expire]').remove();
-	}, 5000)
+		$('#notify-box[data-expire]').fadeOut('1000', function() {
+			$('#notify-box[data-expire]').remove();
+		});
+	}, 4000)
